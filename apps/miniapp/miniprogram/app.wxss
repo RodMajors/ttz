@@ -3,3 +3,12 @@ page { background: #f7f7f7; color: #161616; font-family: -apple-system, BlinkMac
 .muted { color: #777; }
 .card { margin-top: 24rpx; padding: 28rpx; background: #fff; border-radius: 20rpx; }
 .title { font-size: 44rpx; font-weight: 700; }
+.eyebrow { color: #777; font-size: 22rpx; letter-spacing: 2rpx; margin-bottom: 12rpx; }
+.section-title { font-size: 32rpx; font-weight: 600; margin-bottom: 12rpx; }
+.primary-button, .secondary-button { margin-top: 24rpx; border-radius: 14rpx; font-size: 28rpx; }
+.primary-button { background: #161616; color: #fff; }
+.secondary-button { background: #eee; color: #161616; }
+.error { margin-top: 20rpx; color: #b42318; font-size: 26rpx; }
+.form { display: flex; flex-direction: column; gap: 24rpx; }
+.form label { display: flex; flex-direction: column; gap: 12rpx; font-size: 26rpx; }
+.form input { border: 1rpx solid #ddd; border-radius: 12rpx; padding: 18rpx; }

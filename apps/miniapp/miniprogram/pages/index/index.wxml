@@ -1,1 +1,18 @@
-<view class="page"><view class="muted">THE TWILIGHT ZONE · 伊森利恩部落</view><view class="title">欢迎回到 TTZ。</view><view class="card"><view>近期活动</view><view class="muted">活动发布、报名结果和开组提醒将在这里展示。</view></view><view class="card"><view>登录状态</view><view class="muted">首次使用请完成微信登录，并填写微信名与 TTZ 群昵称。</view><button bindtap="login">微信登录</button></view></view>
+<view class="page">
+  <view class="eyebrow">THE TWILIGHT ZONE · 伊森利恩部落</view>
+  <view class="title">欢迎回到 TTZ。</view>
+  <view class="card" wx:if="{{loading}}"><view class="muted">正在检查登录状态…</view></view>
+  <view class="card" wx:elif="{{user}}">
+    <view class="section-title">{{user.name}}</view>
+    <view class="muted" wx:if="{{!user.profileComplete}}">请先在“我的”中补充微信名和 TTZ 群昵称。</view>
+    <view class="muted" wx:elif="{{!user.isApproved}}">成员资料已提交，正在等待管理员审核。</view>
+    <view class="muted" wx:else>已通过成员审核，可以查看活动并参与报名。</view>
+    <button class="primary-button" bindtap="scanLogin">扫描网页二维码</button>
+  </view>
+  <view class="card" wx:else>
+    <view class="section-title">建立微信身份</view>
+    <view class="muted">首次使用会建立 TTZ 自有登录态，不会保存或返回微信 session_key。</view>
+    <button class="primary-button" bindtap="login">微信登录</button>
+  </view>
+  <view class="error" wx:if="{{error}}">{{error}}</view>
+</view>
