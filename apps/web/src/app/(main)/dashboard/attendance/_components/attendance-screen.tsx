@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { type AttendanceStatus, attendanceSummarySchema } from "@ttz/contracts";
 import { AlertCircle, ChartNoAxesColumnIncreasing, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
@@ -79,6 +80,27 @@ export function AttendanceScreen() {
           ))}
         </CardContent>
       </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>活动记录</CardTitle>
+          <CardDescription>进入单场活动可查看自己的记录；活动负责人可人工确认并关联 WCL。</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2">
+          {query.data.activities.map((activity) => (
+            <Link
+              key={activity.id}
+              href={`/dashboard/attendance/${activity.id}`}
+              className="flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors hover:bg-muted"
+            >
+              <div>
+                <p className="font-medium">{activity.name}</p>
+                <p className="text-xs text-muted-foreground">{formatDate(activity.beginAt)}</p>
+              </div>
+              <AttendanceStatusBadge status={activity.status} />
+            </Link>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -94,5 +116,11 @@ function Metric({ title, value, description }: { title: string; value: string; d
         {description}
       </CardContent>
     </Card>
+  );
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "short", hour12: false }).format(
+    new Date(value),
   );
 }
