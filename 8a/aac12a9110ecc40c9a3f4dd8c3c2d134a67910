@@ -1,0 +1,29 @@
+apps/web/src/components/auth-boundary.tsx
+  s_590ded93c705ab::t_80edf3b3009b15 5,8-9,28-44
+apps/web/src/lib/api-client.ts
+  s_b15bf7adbc219c::t_7a7d103d0df858 19-25,30-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8aaac12a9110ecc40c9a3f4dd8c3c2d134a67910",
+  "prompts": {},
+  "sessions": {
+    "s_590ded93c705ab": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d058-3eaf-7460-97a4-af939e0f3e3f",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    },
+    "s_b15bf7adbc219c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1cf75-6f5f-7b70-bc39-97cb3d734c92",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
