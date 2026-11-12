@@ -1,0 +1,21 @@
+apps/web/src/app/(main)/dashboard/_components/feature-preview.tsx
+  s_91209f3f10bb14::t_751e7e934a63c9 1-13
+apps/web/src/app/(main)/dashboard/system/page.tsx
+  s_91209f3f10bb14::t_6718941ae516b1 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f73563ef07745cdadeae537358b1b29293c97a3e",
+  "prompts": {},
+  "sessions": {
+    "s_91209f3f10bb14": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ce5e-3ad5-7553-9333-b05a2d9c46fd",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
