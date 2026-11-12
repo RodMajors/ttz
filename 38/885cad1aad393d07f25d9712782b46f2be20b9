@@ -1,0 +1,49 @@
+apps/web/src/app/(main)/dashboard/_components/attendance-status.tsx
+  s_b15bf7adbc219c::t_eebbd54c994057 2,4-14,19,22-24
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  s_b15bf7adbc219c::t_f4af512c615790 1-120
+apps/web/src/app/(main)/dashboard/activities/new/activity-create-form.tsx
+  s_b15bf7adbc219c::t_b97799f7d8d52c 1-139
+apps/web/src/app/(main)/dashboard/activities/new/page.tsx
+  s_b15bf7adbc219c::t_613b2edbe58a89 1-6
+apps/web/src/app/(main)/dashboard/activities/page.tsx
+  s_b15bf7adbc219c::t_fc45d2893b82d8 1,4,8-16
+apps/web/src/app/(main)/dashboard/attendance/_components/attendance-screen.tsx
+  s_b15bf7adbc219c::t_69a01752031414 1-98
+apps/web/src/app/(main)/dashboard/attendance/page.tsx
+  s_b15bf7adbc219c::t_ab4dd2dea37d82 2,4,7-15
+apps/web/src/app/(main)/dashboard/members/_components/members-screen.tsx
+  s_590ded93c705ab::t_6da4b23957fe63 1-97
+apps/web/src/app/(main)/dashboard/members/page.tsx
+  s_b15bf7adbc219c::t_e8e1e4743fa9aa 2,4,7-15
+apps/web/src/app/layout.tsx
+  s_b15bf7adbc219c::t_da69a024788ad7 2-3,51
+apps/web/src/components/query-provider.tsx
+  s_b15bf7adbc219c::t_568d38ffa78c10 1-12
+apps/web/src/lib/api-client.ts
+  s_590ded93c705ab::t_abd2d300394785 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "38885cad1aad393d07f25d9712782b46f2be20b9",
+  "prompts": {},
+  "sessions": {
+    "s_590ded93c705ab": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d058-3eaf-7460-97a4-af939e0f3e3f",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    },
+    "s_b15bf7adbc219c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1cf75-6f5f-7b70-bc39-97cb3d734c92",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
