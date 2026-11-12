@@ -1,0 +1,31 @@
+apps/web/src/app/(main)/dashboard/_components/notification-preferences.tsx
+  s_590ded93c705ab::t_5ac8fbc0f5057f 3-4,6-8,10,20-76
+apps/web/src/app/(main)/dashboard/_components/sidebar/app-sidebar.tsx
+  s_590ded93c705ab::t_4f3e79bf7828f7 3-4,20,28,57
+apps/web/src/app/(main)/dashboard/_components/sidebar/nav-user.tsx
+  s_590ded93c705ab::t_748640eeeb04b7 3-4,6-8,21,24-26,28-35,47,52,66,71,77-87,91
+apps/web/src/app/(main)/dashboard/members/_components/members-screen.tsx
+  s_590ded93c705ab::t_da0982e1424361 2-14,18-28,30-32,34-35,37,40,43-45,47-365,367-380,384-433,435-440
+apps/web/src/app/(main)/dashboard/profile/page.tsx
+  s_590ded93c705ab::t_b9c00e27505e95 2,4,6-7
+apps/web/src/app/(main)/dashboard/profile/profile-screen.tsx
+  s_590ded93c705ab::t_db625385ac03ab 1-283
+packages/contracts/src/index.ts
+  s_590ded93c705ab::t_263384168c9497 244-280
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "095c3d388c6f4b89dd2a3a66d01f0b30de06137c",
+  "prompts": {},
+  "sessions": {
+    "s_590ded93c705ab": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d058-3eaf-7460-97a4-af939e0f3e3f",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
