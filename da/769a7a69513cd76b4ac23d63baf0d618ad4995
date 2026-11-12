@@ -1,0 +1,19 @@
+apps/web/AGENTS.md
+  s_590ded93c705ab::t_054e9416e376ce 11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "da769a7a69513cd76b4ac23d63baf0d618ad4995",
+  "prompts": {},
+  "sessions": {
+    "s_590ded93c705ab": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d058-3eaf-7460-97a4-af939e0f3e3f",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
