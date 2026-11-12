@@ -1,0 +1,9 @@
+{
+  "description": "TTZ 公会站原生微信小程序",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "miniprogram/",
+  "srcMiniprogramRoot": "miniprogram/",
+  "setting": { "es6": true, "minified": true, "postcss": true, "urlCheck": false },
+  "appid": "",
+  "projectname": "ttz-miniapp"
+}

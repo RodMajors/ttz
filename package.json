@@ -1,0 +1,31 @@
+{
+  "name": "ttz-guild-site",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "engines": { "node": ">=26.13.1" },
+  "scripts": {
+    "build": "turbo run build",
+    "check": "turbo run check",
+    "dev": "turbo run dev --parallel",
+    "format": "turbo run format",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "turbo": "^2.5.6"
+  },
+  "lint-staged": {
+    "apps/web/src/app/(external)/**/*.{js,ts,jsx,tsx}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
+    "apps/web/src/app/(main)/dashboard/default/**/*.{js,ts,jsx,tsx}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
+    "apps/web/src/app/(main)/dashboard/_components/**/*.{js,ts,jsx,tsx}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
+    "apps/web/src/config/**/*.{js,ts,jsx,tsx}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
+    "apps/web/src/navigation/**/*.{js,ts,jsx,tsx}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
+    "packages/contracts/**/*.{js,ts}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
+    "apps/api/**/*.{js,ts}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched"
+  }
+}

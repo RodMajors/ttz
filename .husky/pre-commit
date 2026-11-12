@@ -1,0 +1,3 @@
+./node_modules/.bin/lint-staged
+./apps/api/node_modules/.bin/tsc --noEmit -p apps/api/tsconfig.json
+./packages/contracts/node_modules/.bin/tsc --noEmit -p packages/contracts/tsconfig.json

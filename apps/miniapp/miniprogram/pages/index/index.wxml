@@ -1,0 +1,1 @@
+<view class="page"><view class="muted">THE TWILIGHT ZONE · 伊森利恩部落</view><view class="title">欢迎回到 TTZ。</view><view class="card"><view>近期活动</view><view class="muted">活动发布、报名结果和开组提醒将在这里展示。</view></view><view class="card"><view>登录状态</view><view class="muted">首次使用请完成微信登录，并填写微信名与 TTZ 群昵称。</view><button bindtap="login">微信登录</button></view></view>
