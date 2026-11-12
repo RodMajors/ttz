@@ -2,8 +2,10 @@
   "name": "ttz-guild-site",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@11.25.0",
-  "engines": { "node": ">=26.13.1" },
+  "packageManager": "pnpm@12.18.0",
+  "engines": {
+    "node": ">=26.13.1"
+  },
   "scripts": {
     "build": "turbo run build",
     "check": "turbo run check",
