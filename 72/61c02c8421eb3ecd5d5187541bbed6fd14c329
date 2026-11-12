@@ -1,0 +1,759 @@
+README.md
+  s_91209f3f10bb14::t_4dd669b6132b1a 1-27
+apps/api/src/app.module.ts
+  s_91209f3f10bb14::t_6c0c435316c4b2 1-8
+apps/api/src/health.controller.ts
+  s_91209f3f10bb14::t_dcb58dee28764a 1-15
+apps/api/src/main.ts
+  s_91209f3f10bb14::t_7477b4398825e2 1-14
+apps/miniapp/miniprogram/pages/profile/index.json
+  s_91209f3f10bb14::t_1eb8c5775706e3 1
+apps/miniapp/miniprogram/pages/profile/index.ts
+  s_91209f3f10bb14::t_bdb0ef0e644def 1
+apps/miniapp/miniprogram/pages/profile/index.wxml
+  s_91209f3f10bb14::t_4f4f8bd6945885 1
+apps/miniapp/project.config.json
+  s_91209f3f10bb14::t_12a2852939ae40 1-9
+apps/miniapp/src/index.ts
+  s_91209f3f10bb14::t_6c3f17bff303cc 1-3
+apps/web/.gitignore
+  s_91209f3f10bb14::t_56ac4c2247afa7 1-37
+apps/web/.husky/pre-commit
+  s_91209f3f10bb14::t_aa0d28d7ff163e 1-3
+apps/web/AGENTS.md
+  s_91209f3f10bb14::t_8ca893e2e47c62 1-98
+apps/web/CONTRIBUTING.md
+  s_91209f3f10bb14::t_b35bb42be23fa1 1-127
+apps/web/LICENSE
+  s_91209f3f10bb14::t_c46ccb78333b95 1-21
+apps/web/README.md
+  s_91209f3f10bb14::t_9cb0ebf684830d 1-147
+apps/web/components.json
+  s_91209f3f10bb14::t_895fffb32f1faa 1-25
+apps/web/next.config.mjs
+  s_91209f3f10bb14::t_b86a37c7aeb9e4 1-18
+apps/web/package.json
+  s_91209f3f10bb14::t_60d4d7ae433141 1-70
+apps/web/postcss.config.mjs
+  s_91209f3f10bb14::t_08e01abbf2b9d1 1-8
+apps/web/src/app/(external)/_components/footer.tsx
+  s_91209f3f10bb14::t_343f2ad62c4374 1-41
+apps/web/src/app/(external)/_components/github-star-button.tsx
+  s_91209f3f10bb14::t_afa54e2e28bd19 1-31
+apps/web/src/app/(external)/_components/intro.tsx
+  s_91209f3f10bb14::t_642c99f18dc29d 1-61
+apps/web/src/app/(external)/_components/landing-theme-switcher.tsx
+  s_91209f3f10bb14::t_d6a3af57d17a19 1-44
+apps/web/src/app/(external)/_components/overview.tsx
+  s_91209f3f10bb14::t_95e0da245e6a66 1-111
+apps/web/src/app/(external)/_components/showcase.tsx
+  s_91209f3f10bb14::t_e1204ff3f7d744 1-29
+apps/web/src/app/(external)/_hooks/use-github-star-count.ts
+  s_91209f3f10bb14::t_96c826ff594243 1-47
+apps/web/src/app/(external)/landing.module.css
+  s_91209f3f10bb14::t_fd78bd3b3e4c08 1-69
+apps/web/src/app/(external)/page.tsx
+  s_91209f3f10bb14::t_6f0f1fa784434b 1-42
+apps/web/src/app/(main)/auth/_components/login-form.tsx
+  s_91209f3f10bb14::t_52ffb54a4d9a46 1-105
+apps/web/src/app/(main)/auth/_components/register-form.tsx
+  s_91209f3f10bb14::t_4fa4afd318cb1c 1-106
+apps/web/src/app/(main)/auth/_components/social-auth/google-button.tsx
+  s_91209f3f10bb14::t_ec66516d3c2636 1-14
+apps/web/src/app/(main)/auth/v1/login/page.tsx
+  s_91209f3f10bb14::t_4aedd86e44872f 1-55
+apps/web/src/app/(main)/auth/v1/register/page.tsx
+  s_91209f3f10bb14::t_13ce14d67d61ec 1-55
+apps/web/src/app/(main)/auth/v2/layout.tsx
+  s_91209f3f10bb14::t_16ef8d86818282 1-37
+apps/web/src/app/(main)/auth/v2/login/page.tsx
+  s_91209f3f10bb14::t_ea7c68e67b42c8 1-55
+apps/web/src/app/(main)/auth/v2/register/page.tsx
+  s_91209f3f10bb14::t_ab3c0d82c57162 1-55
+apps/web/src/app/(main)/chat/_components/chat-conversation-list.tsx
+  s_91209f3f10bb14::t_7a1baa02f6720d 1-172
+apps/web/src/app/(main)/chat/_components/chat-header.tsx
+  s_91209f3f10bb14::t_7b0d3d20e612d7 1-33
+apps/web/src/app/(main)/chat/_components/chat-profile-details.tsx
+  s_91209f3f10bb14::t_4fc973f5d624d2 1-152
+apps/web/src/app/(main)/chat/_components/chat-sidebar.tsx
+  s_91209f3f10bb14::t_bc1ba88c3c4e31 1-154
+apps/web/src/app/(main)/chat/_components/chat-thread.tsx
+  s_91209f3f10bb14::t_c327bd2a799bf0 1-263
+apps/web/src/app/(main)/chat/_components/chat.tsx
+  s_91209f3f10bb14::t_8ae41ca7b9921a 1-89
+apps/web/src/app/(main)/chat/_components/data.ts
+  s_91209f3f10bb14::t_6272a529d332c2 1-1262
+apps/web/src/app/(main)/chat/_components/use-chat.ts
+  s_91209f3f10bb14::t_d1714334e54272 1-26
+apps/web/src/app/(main)/chat/layout.tsx
+  s_91209f3f10bb14::t_8797037a8b57be 1-20
+apps/web/src/app/(main)/chat/page.tsx
+  s_91209f3f10bb14::t_9409128b3a123c 1-17
+apps/web/src/app/(main)/dashboard/(legacy)/analytics-v1/_components/analytics-actions-manager-queue.tsx
+  s_91209f3f10bb14::t_b2fefcef0f001b 1-139
+apps/web/src/app/(main)/dashboard/(legacy)/analytics-v1/_components/analytics-actions-risk-ledger.tsx
+  s_91209f3f10bb14::t_905e89d3771d50 1-325
+apps/web/src/app/(main)/dashboard/(legacy)/analytics-v1/_components/analytics-drivers-coverage-triage.tsx
+  s_91209f3f10bb14::t_cce88390c5efb9 1-91
+apps/web/src/app/(main)/dashboard/(legacy)/analytics-v1/_components/analytics-drivers-forecast-target.tsx
+  s_91209f3f10bb14::t_baad5a992ccf95 1-142
+apps/web/src/app/(main)/dashboard/(legacy)/analytics-v1/_components/analytics-overview.tsx
+  s_91209f3f10bb14::t_b09dddfdae3c69 1-348
+apps/web/src/app/(main)/dashboard/(legacy)/analytics-v1/page.tsx
+  s_91209f3f10bb14::t_0480a3db32ac4c 1-23
+apps/web/src/app/(main)/dashboard/(legacy)/crm-v1/_components/crm.config.ts
+  s_91209f3f10bb14::t_7f20a59fd1c4ae 1-331
+apps/web/src/app/(main)/dashboard/(legacy)/crm-v1/_components/insight-cards.tsx
+  s_91209f3f10bb14::t_1a4a5803440df7 1-150
+apps/web/src/app/(main)/dashboard/(legacy)/crm-v1/_components/operational-cards.tsx
+  s_91209f3f10bb14::t_e1182e42068ce0 1-116
+apps/web/src/app/(main)/dashboard/(legacy)/crm-v1/_components/overview-cards.tsx
+  s_91209f3f10bb14::t_920957d8dbb2ea 1-151
+apps/web/src/app/(main)/dashboard/(legacy)/crm-v1/_components/recent-leads-table/columns.tsx
+  s_91209f3f10bb14::t_11e2c06d2224e5 1-115
+apps/web/src/app/(main)/dashboard/(legacy)/crm-v1/_components/recent-leads-table/schema.ts
+  s_91209f3f10bb14::t_7f6412736e3c02 1-12
+apps/web/src/app/(main)/dashboard/(legacy)/crm-v1/_components/recent-leads-table/table.tsx
+  s_91209f3f10bb14::t_801edf06efdc1a 1-230
+apps/web/src/app/(main)/dashboard/(legacy)/crm-v1/page.tsx
+  s_91209f3f10bb14::t_a5c2a03a66edc4 1-16
+apps/web/src/app/(main)/dashboard/(legacy)/default-v1/_components/chart-area-interactive.tsx
+  s_91209f3f10bb14::t_a18ecde0d620de 1-239
+apps/web/src/app/(main)/dashboard/(legacy)/default-v1/_components/data.json
+  s_91209f3f10bb14::t_feb2f1a8299660 1-614
+apps/web/src/app/(main)/dashboard/(legacy)/default-v1/_components/proposal-sections-table/columns.tsx
+  s_91209f3f10bb14::t_efa312c309ef9b 1-443
+apps/web/src/app/(main)/dashboard/(legacy)/default-v1/_components/proposal-sections-table/schema.ts
+  s_91209f3f10bb14::t_52cf52428dd1a3 1-13
+apps/web/src/app/(main)/dashboard/(legacy)/default-v1/_components/proposal-sections-table/table.tsx
+  s_91209f3f10bb14::t_7a9fe1c2bcfa2c 1-301
+apps/web/src/app/(main)/dashboard/(legacy)/default-v1/_components/section-cards.tsx
+  s_91209f3f10bb14::t_deb2252f7575a9 1-83
+apps/web/src/app/(main)/dashboard/(legacy)/default-v1/page.tsx
+  s_91209f3f10bb14::t_d312d3cfd8b3d9 1-14
+apps/web/src/app/(main)/dashboard/(legacy)/finance-v1/_components/card-overview.tsx
+  s_91209f3f10bb14::t_634aba85126b43 1-152
+apps/web/src/app/(main)/dashboard/(legacy)/finance-v1/_components/cash-flow-overview.tsx
+  s_91209f3f10bb14::t_278cfe55e0c00c 1-115
+apps/web/src/app/(main)/dashboard/(legacy)/finance-v1/_components/income-reliability.tsx
+  s_91209f3f10bb14::t_7a9b81a775c9ea 1-43
+apps/web/src/app/(main)/dashboard/(legacy)/finance-v1/_components/kpis/monthly-cash-flow.tsx
+  s_91209f3f10bb14::t_4e9e86ea5c9007 1-36
+apps/web/src/app/(main)/dashboard/(legacy)/finance-v1/_components/kpis/net-worth.tsx
+  s_91209f3f10bb14::t_4a7c1e9708ff64 1-37
+apps/web/src/app/(main)/dashboard/(legacy)/finance-v1/_components/kpis/primary-account.tsx
+  s_91209f3f10bb14::t_e36650e7fc0920 1-40
+apps/web/src/app/(main)/dashboard/(legacy)/finance-v1/_components/kpis/savings-rate.tsx
+  s_91209f3f10bb14::t_e82693280ad106 1-36
+apps/web/src/app/(main)/dashboard/(legacy)/finance-v1/_components/spending-breakdown.tsx
+  s_91209f3f10bb14::t_ba492c641a02be 1-100
+apps/web/src/app/(main)/dashboard/(legacy)/finance-v1/page.tsx
+  s_91209f3f10bb14::t_a4eafb06cf34b4 1-55
+apps/web/src/app/(main)/dashboard/(legacy)/layout.tsx
+  s_91209f3f10bb14::t_bb86a27f2a64f5 1-14
+apps/web/src/app/(main)/dashboard/[...not-found]/page.tsx
+  s_91209f3f10bb14::t_262869532751dc 1-5
+apps/web/src/app/(main)/dashboard/_components/header/account-switcher.tsx
+  s_91209f3f10bb14::t_87e5fce358f50b 1-95
+apps/web/src/app/(main)/dashboard/_components/header/github-repositories-menu.tsx
+  s_91209f3f10bb14::t_300d59116b783c 1-59
+apps/web/src/app/(main)/dashboard/_components/header/layout-controls.tsx
+  s_91209f3f10bb14::t_4dd44eb177052d 1-243
+apps/web/src/app/(main)/dashboard/_components/header/search-dialog.tsx
+  s_91209f3f10bb14::t_d484217716ca9b 1-157
+apps/web/src/app/(main)/dashboard/_components/header/theme-switcher.tsx
+  s_91209f3f10bb14::t_2be4ac3bbcb389 1-38
+apps/web/src/app/(main)/dashboard/_components/sidebar/app-sidebar.tsx
+  s_91209f3f10bb14::t_ee034fb3a65a67 1-57
+apps/web/src/app/(main)/dashboard/_components/sidebar/nav-main.tsx
+  s_91209f3f10bb14::t_e4719b6abe8852 1-318
+apps/web/src/app/(main)/dashboard/_components/sidebar/nav-user.tsx
+  s_91209f3f10bb14::t_9845a41c79368c 1-85
+apps/web/src/app/(main)/dashboard/_components/sidebar/support-card.tsx
+  s_91209f3f10bb14::t_e04e2c9b84a237 1-38
+apps/web/src/app/(main)/dashboard/academy/_components/assignment-status.tsx
+  s_91209f3f10bb14::t_9e9c114386ba96 1-114
+apps/web/src/app/(main)/dashboard/academy/_components/class-schedule.tsx
+  s_91209f3f10bb14::t_fd457710db8dc4 1-133
+apps/web/src/app/(main)/dashboard/academy/_components/kpi-cards.tsx
+  s_91209f3f10bb14::t_285296a5a56b1a 1-78
+apps/web/src/app/(main)/dashboard/academy/_components/performance-highlights.tsx
+  s_91209f3f10bb14::t_4a383d8f557392 1-201
+apps/web/src/app/(main)/dashboard/academy/_components/upcoming-events.tsx
+  s_91209f3f10bb14::t_861adc560dd1dc 1-79
+apps/web/src/app/(main)/dashboard/academy/page.tsx
+  s_91209f3f10bb14::t_21a6afdb173081 1-69
+apps/web/src/app/(main)/dashboard/analytics/_components/analytics-kpi-strip.tsx
+  s_91209f3f10bb14::t_67a1040973c7e9 1-142
+apps/web/src/app/(main)/dashboard/analytics/_components/analytics-toolbar.tsx
+  s_91209f3f10bb14::t_3065258b4b7759 1-65
+apps/web/src/app/(main)/dashboard/analytics/_components/realtime-visitors.tsx
+  s_91209f3f10bb14::t_ea47676912aca5 1-148
+apps/web/src/app/(main)/dashboard/analytics/_components/top-pages.tsx
+  s_91209f3f10bb14::t_d54a55a84eba48 1-48
+apps/web/src/app/(main)/dashboard/analytics/_components/top-traffic-sources.tsx
+  s_91209f3f10bb14::t_ec16c7e6729a6f 1-128
+apps/web/src/app/(main)/dashboard/analytics/_components/traffic-quality.tsx
+  s_91209f3f10bb14::t_608fe518c4cfef 1-179
+apps/web/src/app/(main)/dashboard/analytics/page.tsx
+  s_91209f3f10bb14::t_14b7d361751874 1-95
+apps/web/src/app/(main)/dashboard/calendar/_components/calendar.tsx
+  s_91209f3f10bb14::t_99702540a53095 1-138
+apps/web/src/app/(main)/dashboard/calendar/_components/events-data.ts
+  s_91209f3f10bb14::t_e212fdf1724573 1-22
+apps/web/src/app/(main)/dashboard/calendar/page.tsx
+  s_91209f3f10bb14::t_907d7abf1cfe29 1-15
+apps/web/src/app/(main)/dashboard/chat/page.tsx
+  s_91209f3f10bb14::t_cdcc15afd3c112 1-35
+apps/web/src/app/(main)/dashboard/coming-soon/page.tsx
+  s_91209f3f10bb14::t_ee067d26b13426 1-17
+apps/web/src/app/(main)/dashboard/crm/_components/kpi-cards.tsx
+  s_91209f3f10bb14::t_dc58c143d309fb 1-120
+apps/web/src/app/(main)/dashboard/crm/_components/opportunities-section.tsx
+  s_91209f3f10bb14::t_c97028ec97f1ac 1-256
+apps/web/src/app/(main)/dashboard/crm/_components/opportunities-table/columns.tsx
+  s_91209f3f10bb14::t_d5ae74b03cfbc0 1-134
+apps/web/src/app/(main)/dashboard/crm/_components/opportunities-table/data.json
+  s_91209f3f10bb14::t_768d27f31859dd 1-1058
+apps/web/src/app/(main)/dashboard/crm/_components/opportunities-table/schema.ts
+  s_91209f3f10bb14::t_e3d49e06faa265 1-14
+apps/web/src/app/(main)/dashboard/crm/_components/pipeline-activity.tsx
+  s_91209f3f10bb14::t_cc3fa523daeaa6 1-151
+apps/web/src/app/(main)/dashboard/crm/_components/task-reminders.tsx
+  s_91209f3f10bb14::t_8d61f458cad573 1-103
+apps/web/src/app/(main)/dashboard/crm/page.tsx
+  s_91209f3f10bb14::t_07cd92a63b10c1 1-26
+apps/web/src/app/(main)/dashboard/default/_components/data.json
+  s_91209f3f10bb14::t_86f97c7bce328b 1-542
+apps/web/src/app/(main)/dashboard/default/_components/metric-cards.tsx
+  s_91209f3f10bb14::t_c5318858d38300 1-94
+apps/web/src/app/(main)/dashboard/default/_components/performance-overview.tsx
+  s_91209f3f10bb14::t_c0d5224c5967a6 1-339
+apps/web/src/app/(main)/dashboard/default/_components/recent-customers-table/columns.tsx
+  s_91209f3f10bb14::t_9d2a6ae4ebb9b7 1-144
+apps/web/src/app/(main)/dashboard/default/_components/recent-customers-table/schema.ts
+  s_91209f3f10bb14::t_3208216ec7101b 1-13
+apps/web/src/app/(main)/dashboard/default/_components/recent-customers-table/table.tsx
+  s_91209f3f10bb14::t_2407a84a28651c 1-346
+apps/web/src/app/(main)/dashboard/default/_components/subscriber-overview.tsx
+  s_91209f3f10bb14::t_8519c3e5339445 1-33
+apps/web/src/app/(main)/dashboard/default/page.tsx
+  s_91209f3f10bb14::t_f85f64f09143eb 1-36
+apps/web/src/app/(main)/dashboard/ecommerce/_components/customer-reviews.tsx
+  s_91209f3f10bb14::t_c14217942eb67c 1-71
+apps/web/src/app/(main)/dashboard/ecommerce/_components/inventory.tsx
+  s_91209f3f10bb14::t_1231e120b0a740 1-141
+apps/web/src/app/(main)/dashboard/ecommerce/_components/kpi-strip.tsx
+  s_91209f3f10bb14::t_22e23d4e349d78 1-305
+apps/web/src/app/(main)/dashboard/ecommerce/_components/recent-orders-table/columns.tsx
+  s_91209f3f10bb14::t_4d02891ccf0a87 1-210
+apps/web/src/app/(main)/dashboard/ecommerce/_components/recent-orders-table/data.json
+  s_91209f3f10bb14::t_67f519a017408d 1-308
+apps/web/src/app/(main)/dashboard/ecommerce/_components/recent-orders-table/formatters.ts
+  s_91209f3f10bb14::t_1d5d96c5e11b2c 1-31
+apps/web/src/app/(main)/dashboard/ecommerce/_components/recent-orders-table/schema.ts
+  s_91209f3f10bb14::t_6d529fea2b977b 1-13
+apps/web/src/app/(main)/dashboard/ecommerce/_components/recent-orders.tsx
+  s_91209f3f10bb14::t_78f34e39a0041f 1-221
+apps/web/src/app/(main)/dashboard/ecommerce/_components/store-traffic.tsx
+  s_91209f3f10bb14::t_edb62ba437cc4b 1-217
+apps/web/src/app/(main)/dashboard/ecommerce/_components/top-products.tsx
+  s_91209f3f10bb14::t_29fff98b11f20d 1-105
+apps/web/src/app/(main)/dashboard/ecommerce/_components/traffic-sources.tsx
+  s_91209f3f10bb14::t_fc873c382f8b05 1-224
+apps/web/src/app/(main)/dashboard/ecommerce/page.tsx
+  s_91209f3f10bb14::t_787ace4dcc94c9 1-98
+apps/web/src/app/(main)/dashboard/file-manager/_components/data.ts
+  s_91209f3f10bb14::t_73dd3396455c0c 1-209
+apps/web/src/app/(main)/dashboard/file-manager/_components/file-actions.tsx
+  s_91209f3f10bb14::t_b7166192008d44 1-53
+apps/web/src/app/(main)/dashboard/file-manager/_components/file-grid-view.tsx
+  s_91209f3f10bb14::t_6f1ef0da359ddd 1-67
+apps/web/src/app/(main)/dashboard/file-manager/_components/file-list-view.tsx
+  s_91209f3f10bb14::t_d9077e50c4d268 1-88
+apps/web/src/app/(main)/dashboard/file-manager/_components/file-manager-toolbar.tsx
+  s_91209f3f10bb14::t_48e8b7995de574 1-86
+apps/web/src/app/(main)/dashboard/file-manager/_components/folders-section.tsx
+  s_91209f3f10bb14::t_7b4f2476cf2e88 1-81
+apps/web/src/app/(main)/dashboard/file-manager/page.tsx
+  s_91209f3f10bb14::t_c8c071811e1cc1 1-74
+apps/web/src/app/(main)/dashboard/finance/_components/balance-distribution-card.tsx
+  s_91209f3f10bb14::t_5e8bde241b29e6 1-181
+apps/web/src/app/(main)/dashboard/finance/_components/finance-notification.tsx
+  s_91209f3f10bb14::t_7d1a63432b1e8c 1-23
+apps/web/src/app/(main)/dashboard/finance/_components/income-breakdown.tsx
+  s_91209f3f10bb14::t_3be0f93cc8d9cd 1-56
+apps/web/src/app/(main)/dashboard/finance/_components/overview-kpis.tsx
+  s_91209f3f10bb14::t_82a488e1c6f868 1-64
+apps/web/src/app/(main)/dashboard/finance/_components/quick-actions.tsx
+  s_91209f3f10bb14::t_a16098c48c8043 1-94
+apps/web/src/app/(main)/dashboard/finance/_components/transactions-overview-card.tsx
+  s_91209f3f10bb14::t_b0d4a5eef3a0e0 1-149
+apps/web/src/app/(main)/dashboard/finance/_components/upcoming-transactions.tsx
+  s_91209f3f10bb14::t_4d5ff0e8adacb8 1-78
+apps/web/src/app/(main)/dashboard/finance/_components/wallet.tsx
+  s_91209f3f10bb14::t_b246a82bae0599 1-115
+apps/web/src/app/(main)/dashboard/finance/page.tsx
+  s_91209f3f10bb14::t_ebd3b73fe8da2a 1-108
+apps/web/src/app/(main)/dashboard/infrastructure/_components/infrastructure-data.ts
+  s_91209f3f10bb14::t_dc39fd28ee2fb2 1-114
+apps/web/src/app/(main)/dashboard/infrastructure/_components/infrastructure-header.tsx
+  s_91209f3f10bb14::t_337351d76613ed 1-93
+apps/web/src/app/(main)/dashboard/infrastructure/_components/project-environments.tsx
+  s_91209f3f10bb14::t_25a3ef340b2df4 1-296
+apps/web/src/app/(main)/dashboard/infrastructure/page.tsx
+  s_91209f3f10bb14::t_32eb11a9e71d36 1-31
+apps/web/src/app/(main)/dashboard/invoice/_components/client-selector.tsx
+  s_91209f3f10bb14::t_3a21d18a3d38b4 1-76
+apps/web/src/app/(main)/dashboard/invoice/_components/data.ts
+  s_91209f3f10bb14::t_339592fda19d73 1-181
+apps/web/src/app/(main)/dashboard/invoice/_components/invoice-adjustments.tsx
+  s_91209f3f10bb14::t_46f7be34822e1c 1-79
+apps/web/src/app/(main)/dashboard/invoice/_components/invoice-details.tsx
+  s_91209f3f10bb14::t_d0c32e472975ca 1-111
+apps/web/src/app/(main)/dashboard/invoice/_components/invoice-form.tsx
+  s_91209f3f10bb14::t_184f890ddcb6dd 1-35
+apps/web/src/app/(main)/dashboard/invoice/_components/invoice-items.tsx
+  s_91209f3f10bb14::t_7e1c3cc7a713d1 1-158
+apps/web/src/app/(main)/dashboard/invoice/_components/invoice-paper.tsx
+  s_91209f3f10bb14::t_dc39c29e58e0fc 1-140
+apps/web/src/app/(main)/dashboard/invoice/_components/invoice-preview.tsx
+  s_91209f3f10bb14::t_2b8cab435c88cb 1-77
+apps/web/src/app/(main)/dashboard/invoice/_components/invoice.tsx
+  s_91209f3f10bb14::t_c0a4a22106c011 1-23
+apps/web/src/app/(main)/dashboard/invoice/_components/print-invoice.tsx
+  s_91209f3f10bb14::t_47710da853a33a 1-25
+apps/web/src/app/(main)/dashboard/invoice/_components/use-visible-center-position.ts
+  s_91209f3f10bb14::t_dbf2b22317fb93 1-69
+apps/web/src/app/(main)/dashboard/invoice/page.tsx
+  s_91209f3f10bb14::t_57a6eea4e8c7bc 1-43
+apps/web/src/app/(main)/dashboard/kanban/_components/data.ts
+  s_91209f3f10bb14::t_9b5e84ce924d68 1-307
+apps/web/src/app/(main)/dashboard/kanban/_components/kanban-column.tsx
+  s_91209f3f10bb14::t_9a26e1f2c5e917 1-84
+apps/web/src/app/(main)/dashboard/kanban/_components/kanban-list-dnd.tsx
+  s_91209f3f10bb14::t_b98ece12220058 1-89
+apps/web/src/app/(main)/dashboard/kanban/_components/kanban-list.tsx
+  s_91209f3f10bb14::t_527723aab6e291 1-136
+apps/web/src/app/(main)/dashboard/kanban/_components/kanban-table-columns.tsx
+  s_91209f3f10bb14::t_3ee5cc910bf46a 1-154
+apps/web/src/app/(main)/dashboard/kanban/_components/kanban-table-dnd.tsx
+  s_91209f3f10bb14::t_09462f2443ec94 1-92
+apps/web/src/app/(main)/dashboard/kanban/_components/kanban-table.tsx
+  s_91209f3f10bb14::t_76e897ea2ab5ff 1-186
+apps/web/src/app/(main)/dashboard/kanban/_components/kanban.tsx
+  s_91209f3f10bb14::t_72e18da9fca0e9 1-231
+apps/web/src/app/(main)/dashboard/kanban/_components/sortable-task-card.tsx
+  s_91209f3f10bb14::t_737c96ef1f92f5 1-24
+apps/web/src/app/(main)/dashboard/kanban/_components/task-card.tsx
+  s_91209f3f10bb14::t_45ee3fc6a28925 1-145
+apps/web/src/app/(main)/dashboard/kanban/_components/task-priority.ts
+  s_91209f3f10bb14::t_7924d93ffb4399 1-24
+apps/web/src/app/(main)/dashboard/kanban/_components/task-status.ts
+  s_91209f3f10bb14::t_d5abf8d010069c 1-11
+apps/web/src/app/(main)/dashboard/kanban/_components/types.ts
+  s_91209f3f10bb14::t_738929617bff13 1-45
+apps/web/src/app/(main)/dashboard/kanban/_components/utils.ts
+  s_91209f3f10bb14::t_da2e164d7a002f 1-19
+apps/web/src/app/(main)/dashboard/kanban/page.tsx
+  s_91209f3f10bb14::t_88019b8caeae09 1-25
+apps/web/src/app/(main)/dashboard/layout.tsx
+  s_91209f3f10bb14::t_7e45aab5ede87b 1-76
+apps/web/src/app/(main)/dashboard/logistics/_components/logistics.tsx
+  s_91209f3f10bb14::t_45bc885390d09a 1-56
+apps/web/src/app/(main)/dashboard/logistics/_components/shipment-data.ts
+  s_91209f3f10bb14::t_d4a92551e9b237 1-981
+apps/web/src/app/(main)/dashboard/logistics/_components/shipment-details.tsx
+  s_91209f3f10bb14::t_225080860efa2b 1-273
+apps/web/src/app/(main)/dashboard/logistics/_components/shipment-list.tsx
+  s_91209f3f10bb14::t_5a40b54e5232fe 1-185
+apps/web/src/app/(main)/dashboard/logistics/_components/shipment-route-map.tsx
+  s_91209f3f10bb14::t_c73266504e8918 1-222
+apps/web/src/app/(main)/dashboard/logistics/page.tsx
+  s_91209f3f10bb14::t_2279ba3685b452 1-19
+apps/web/src/app/(main)/dashboard/mail/page.tsx
+  s_91209f3f10bb14::t_a12f42b30efa54 1-35
+apps/web/src/app/(main)/dashboard/page.tsx
+  s_91209f3f10bb14::t_350a604ffe2d44 1-5
+apps/web/src/app/(main)/dashboard/patient-monitoring/_components/chart-grid.ts
+  s_91209f3f10bb14::t_ec0ea6404d5ad2 1-15
+apps/web/src/app/(main)/dashboard/patient-monitoring/_components/data.ts
+  s_91209f3f10bb14::t_ee5a96adb6523d 1-310
+apps/web/src/app/(main)/dashboard/patient-monitoring/_components/patient-card.tsx
+  s_91209f3f10bb14::t_e67606b950663a 1-72
+apps/web/src/app/(main)/dashboard/patient-monitoring/_components/patient-detail.tsx
+  s_91209f3f10bb14::t_3d096fba662816 1-123
+apps/web/src/app/(main)/dashboard/patient-monitoring/_components/patient-monitoring.tsx
+  s_91209f3f10bb14::t_5f1febb4c0ea8f 1-145
+apps/web/src/app/(main)/dashboard/patient-monitoring/_components/patient-trends.tsx
+  s_91209f3f10bb14::t_d0e1b442b71fc9 1-143
+apps/web/src/app/(main)/dashboard/patient-monitoring/_components/realtime-utils.ts
+  s_91209f3f10bb14::t_0569f52bd1492f 1-32
+apps/web/src/app/(main)/dashboard/patient-monitoring/_components/use-patient-vital-series.ts
+  s_91209f3f10bb14::t_eff7ce672d70d6 1-201
+apps/web/src/app/(main)/dashboard/patient-monitoring/_components/use-realtime-tick.ts
+  s_91209f3f10bb14::t_b2b362bf3b1511 1-23
+apps/web/src/app/(main)/dashboard/patient-monitoring/_components/vital-waveform.tsx
+  s_91209f3f10bb14::t_4ad01966b7c472 1-72
+apps/web/src/app/(main)/dashboard/patient-monitoring/_components/waveform-data.ts
+  s_91209f3f10bb14::t_3b16bf31f09ff0 1-65
+apps/web/src/app/(main)/dashboard/patient-monitoring/page.tsx
+  s_91209f3f10bb14::t_6f34fb2c30643c 1-81
+apps/web/src/app/(main)/dashboard/productivity/_components/calendar-panel.tsx
+  s_91209f3f10bb14::t_9f78feea5a5eff 1-32
+apps/web/src/app/(main)/dashboard/productivity/_components/focus-card.tsx
+  s_91209f3f10bb14::t_6ec371345e7bfc 1-27
+apps/web/src/app/(main)/dashboard/productivity/_components/projects-section.tsx
+  s_91209f3f10bb14::t_dfcdfc539625c2 1-95
+apps/web/src/app/(main)/dashboard/productivity/_components/quick-actions.tsx
+  s_91209f3f10bb14::t_4fc7cf8e79e71c 1-27
+apps/web/src/app/(main)/dashboard/productivity/_components/quote-card.tsx
+  s_91209f3f10bb14::t_485b7cb09c45d0 1-17
+apps/web/src/app/(main)/dashboard/productivity/_components/recent-notes-card.tsx
+  s_91209f3f10bb14::t_334198b13b3831 1-46
+apps/web/src/app/(main)/dashboard/productivity/_components/summary-cards.tsx
+  s_91209f3f10bb14::t_1df31afd5aa219 1-39
+apps/web/src/app/(main)/dashboard/productivity/_components/tasks-section.tsx
+  s_91209f3f10bb14::t_2d6156e54e0ef4 1-87
+apps/web/src/app/(main)/dashboard/productivity/_components/weekly-summary-card.tsx
+  s_91209f3f10bb14::t_49c13884c43ee7 1-25
+apps/web/src/app/(main)/dashboard/productivity/page.tsx
+  s_91209f3f10bb14::t_ae434b7f6a3199 1-49
+apps/web/src/app/(main)/dashboard/products/_components/add-product-drawer.tsx
+  s_91209f3f10bb14::t_ada170a57ac69b 1-276
+apps/web/src/app/(main)/dashboard/products/_components/data.ts
+  s_91209f3f10bb14::t_01f29bdb306955 1-261
+apps/web/src/app/(main)/dashboard/products/_components/product-form.tsx
+  s_91209f3f10bb14::t_d5cd1e815e5f78 1-170
+apps/web/src/app/(main)/dashboard/products/_components/product-images-field.tsx
+  s_91209f3f10bb14::t_70171ff7651487 1-143
+apps/web/src/app/(main)/dashboard/products/_components/products-columns.tsx
+  s_91209f3f10bb14::t_fb700a25502b5c 1-179
+apps/web/src/app/(main)/dashboard/products/_components/products-table.tsx
+  s_91209f3f10bb14::t_1b79216b453def 1-199
+apps/web/src/app/(main)/dashboard/products/_components/products.tsx
+  s_91209f3f10bb14::t_e7d1932658a885 1-140
+apps/web/src/app/(main)/dashboard/products/page.tsx
+  s_91209f3f10bb14::t_d0160def0eac38 1-29
+apps/web/src/app/(main)/dashboard/profile/_components/profile-data.ts
+  s_91209f3f10bb14::t_2d11d241e5b0f6 1-137
+apps/web/src/app/(main)/dashboard/profile/_components/profile-documents.tsx
+  s_91209f3f10bb14::t_b0217f94b839cb 1-62
+apps/web/src/app/(main)/dashboard/profile/_components/profile-employment-details.tsx
+  s_91209f3f10bb14::t_b6d6aa5699e41f 1-123
+apps/web/src/app/(main)/dashboard/profile/_components/profile-header.tsx
+  s_91209f3f10bb14::t_d9f2c12dfa0fab 1-114
+apps/web/src/app/(main)/dashboard/profile/_components/profile-overview.tsx
+  s_91209f3f10bb14::t_b25d9ebfe2059b 1-94
+apps/web/src/app/(main)/dashboard/profile/_components/profile-personal-details.tsx
+  s_91209f3f10bb14::t_89276223200d2b 1-90
+apps/web/src/app/(main)/dashboard/profile/_components/profile-status-sidebar.tsx
+  s_91209f3f10bb14::t_f0d907da4e23dd 1-48
+apps/web/src/app/(main)/dashboard/profile/_components/profile-time-off-details.tsx
+  s_91209f3f10bb14::t_c196066d9fe687 1-79
+apps/web/src/app/(main)/dashboard/profile/page.tsx
+  s_91209f3f10bb14::t_831d7dbbd46cc5 1-119
+apps/web/src/app/(main)/dashboard/roles/_components/roles-table/columns.tsx
+  s_91209f3f10bb14::t_91da9737f8baa4 1-142
+apps/web/src/app/(main)/dashboard/roles/_components/roles-table/data.ts
+  s_91209f3f10bb14::t_6f9f808a7a1cb1 1-133
+apps/web/src/app/(main)/dashboard/roles/_components/roles-table/table.tsx
+  s_91209f3f10bb14::t_282139e6c2d1cb 1-207
+apps/web/src/app/(main)/dashboard/roles/_components/roles.tsx
+  s_91209f3f10bb14::t_3346c12a9c4fc9 1-213
+apps/web/src/app/(main)/dashboard/roles/page.tsx
+  s_91209f3f10bb14::t_265c5719140928 1-16
+apps/web/src/app/(main)/dashboard/tasks/_components/columns.tsx
+  s_91209f3f10bb14::t_565dab26b375f2 1-221
+apps/web/src/app/(main)/dashboard/tasks/_components/data.ts
+  s_91209f3f10bb14::t_71e88957f21246 1-778
+apps/web/src/app/(main)/dashboard/tasks/_components/task-priority-filter.tsx
+  s_91209f3f10bb14::t_59a44f532b493a 1-94
+apps/web/src/app/(main)/dashboard/tasks/_components/task-status-filter.tsx
+  s_91209f3f10bb14::t_e8e3c649c9ed6e 1-94
+apps/web/src/app/(main)/dashboard/tasks/_components/tasks-toolbar.tsx
+  s_91209f3f10bb14::t_3fb3d502920a31 1-93
+apps/web/src/app/(main)/dashboard/tasks/_components/tasks.tsx
+  s_91209f3f10bb14::t_8b4a8676753ab3 1-241
+apps/web/src/app/(main)/dashboard/tasks/page.tsx
+  s_91209f3f10bb14::t_6e11cd9d2a34cc 1-25
+apps/web/src/app/(main)/dashboard/users/_components/data.tsx
+  s_91209f3f10bb14::t_139f37719209e9 1-318
+apps/web/src/app/(main)/dashboard/users/_components/users-columns.tsx
+  s_91209f3f10bb14::t_1cb9ebf763c725 1-236
+apps/web/src/app/(main)/dashboard/users/_components/users-table.tsx
+  s_91209f3f10bb14::t_e503a98fdeec28 1-167
+apps/web/src/app/(main)/dashboard/users/_components/users.tsx
+  s_91209f3f10bb14::t_45c395c719becf 1-199
+apps/web/src/app/(main)/dashboard/users/page.tsx
+  s_91209f3f10bb14::t_e07fdbf0eae124 1-16
+apps/web/src/app/(main)/mail/_components/data.tsx
+  s_91209f3f10bb14::t_895db25a6cd3a1 1-481
+apps/web/src/app/(main)/mail/_components/mail-inbox.tsx
+  s_91209f3f10bb14::t_df08df63a7bf4e 1-75
+apps/web/src/app/(main)/mail/_components/mail-layout-config.ts
+  s_91209f3f10bb14::t_e17243b08c11dd 1-6
+apps/web/src/app/(main)/mail/_components/mail-list.tsx
+  s_91209f3f10bb14::t_4653b7edaa5cd4 1-113
+apps/web/src/app/(main)/mail/_components/mail-sidebar.tsx
+  s_91209f3f10bb14::t_b7913771552a5d 1-235
+apps/web/src/app/(main)/mail/_components/mail-view.tsx
+  s_91209f3f10bb14::t_98b3e5a95fa729 1-268
+apps/web/src/app/(main)/mail/_components/mail.tsx
+  s_91209f3f10bb14::t_52b7c9179796cc 1-88
+apps/web/src/app/(main)/mail/_components/use-mail.ts
+  s_91209f3f10bb14::t_03cd28810ec0d3 1-26
+apps/web/src/app/(main)/mail/layout.tsx
+  s_91209f3f10bb14::t_0ab6443160c43a 1-16
+apps/web/src/app/(main)/mail/page.tsx
+  s_91209f3f10bb14::t_0c579faa3f7459 1-26
+apps/web/src/app/(main)/unauthorized/page.tsx
+  s_91209f3f10bb14::t_cca6a6195a9235 1-35
+apps/web/src/app/apple-icon.tsx
+  s_91209f3f10bb14::t_e74298b1e84817 1-9
+apps/web/src/app/globals.css
+  s_91209f3f10bb14::t_67de6df4f31194 1-305
+apps/web/src/app/icon.tsx
+  s_91209f3f10bb14::t_dce0a189857df3 1-17
+apps/web/src/app/layout.tsx
+  s_91209f3f10bb14::t_11ac5b473e3a90 1-59
+apps/web/src/app/not-found.tsx
+  s_91209f3f10bb14::t_20c57d88d57224 1-17
+apps/web/src/app/opengraph-image.alt.txt
+  s_91209f3f10bb14::t_42cbef6897bde4 1
+apps/web/src/app/robots.txt
+  s_91209f3f10bb14::t_b1a630c8f66740 1-66
+apps/web/src/app/sitemap.ts
+  s_91209f3f10bb14::t_01599d98563498 1-38
+apps/web/src/app/twitter-image.alt.txt
+  s_91209f3f10bb14::t_12496a1d301275 1
+apps/web/src/components/app-logo.tsx
+  s_91209f3f10bb14::t_bb678791213e8c 1-22
+apps/web/src/components/calendar/event-calendar-views.tsx
+  s_91209f3f10bb14::t_44625a5d5638d7 1-497
+apps/web/src/components/date-range-picker.tsx
+  s_91209f3f10bb14::t_65edc531765c47 1-60
+apps/web/src/components/simple-icon.tsx
+  s_91209f3f10bb14::t_ecc610bf2e1da4 1-29
+apps/web/src/components/ui/accordion.tsx
+  s_91209f3f10bb14::t_61bba125fe6b6d 1-80
+apps/web/src/components/ui/alert-dialog.tsx
+  s_91209f3f10bb14::t_326feb4d3f288c 1-199
+apps/web/src/components/ui/alert.tsx
+  s_91209f3f10bb14::t_5a111eb0dc8428 1-75
+apps/web/src/components/ui/aspect-ratio.tsx
+  s_91209f3f10bb14::t_a870e10acc6858 1-11
+apps/web/src/components/ui/attachment.tsx
+  s_91209f3f10bb14::t_7653094929d21d 1-204
+apps/web/src/components/ui/avatar.tsx
+  s_91209f3f10bb14::t_fc6fd6ae2e98e4 1-111
+apps/web/src/components/ui/badge.tsx
+  s_91209f3f10bb14::t_b83e50576fc8f1 1-48
+apps/web/src/components/ui/breadcrumb.tsx
+  s_91209f3f10bb14::t_1fd839629eb980 1-121
+apps/web/src/components/ui/bubble.tsx
+  s_91209f3f10bb14::t_df276b4bcee387 1-124
+apps/web/src/components/ui/button-group.tsx
+  s_91209f3f10bb14::t_f2bf4f158b18a2 1-83
+apps/web/src/components/ui/button.tsx
+  s_91209f3f10bb14::t_daccc3310d8a57 1-66
+apps/web/src/components/ui/calendar.tsx
+  s_91209f3f10bb14::t_d647eff9628ff8 1-222
+apps/web/src/components/ui/card.tsx
+  s_91209f3f10bb14::t_193ffecd114f26 1-102
+apps/web/src/components/ui/carousel.tsx
+  s_91209f3f10bb14::t_4a8bc6e24b911d 1-242
+apps/web/src/components/ui/chart.tsx
+  s_91209f3f10bb14::t_b3b79e2d33c5e3 1-372
+apps/web/src/components/ui/checkbox.tsx
+  s_91209f3f10bb14::t_3f239ef930a1c1 1-32
+apps/web/src/components/ui/code-block.tsx
+  s_91209f3f10bb14::t_46fe30ce6de672 1-249
+apps/web/src/components/ui/collapsible.tsx
+  s_91209f3f10bb14::t_0b835aac8cbfa8 1-33
+apps/web/src/components/ui/combobox.tsx
+  s_91209f3f10bb14::t_bc71b510c1f31a 1-299
+apps/web/src/components/ui/command.tsx
+  s_91209f3f10bb14::t_f19ca9de1b8516 1-195
+apps/web/src/components/ui/context-menu.tsx
+  s_91209f3f10bb14::t_fd92ea4d2a12d7 1-262
+apps/web/src/components/ui/dialog.tsx
+  s_91209f3f10bb14::t_5010080bff4a4d 1-168
+apps/web/src/components/ui/direction.tsx
+  s_91209f3f10bb14::t_c793469738f451 1-22
+apps/web/src/components/ui/drawer.tsx
+  s_91209f3f10bb14::t_59b5e3db6d6d59 1-133
+apps/web/src/components/ui/dropdown-menu.tsx
+  s_91209f3f10bb14::t_9624328cfd76f7 1-268
+apps/web/src/components/ui/empty.tsx
+  s_91209f3f10bb14::t_895471bf7cb3d5 1-103
+apps/web/src/components/ui/field.tsx
+  s_91209f3f10bb14::t_add92acd487542 1-238
+apps/web/src/components/ui/hover-card.tsx
+  s_91209f3f10bb14::t_03512b15451f1c 1-43
+apps/web/src/components/ui/input-group.tsx
+  s_91209f3f10bb14::t_08288a9ce33ca0 1-156
+apps/web/src/components/ui/input-otp.tsx
+  s_91209f3f10bb14::t_099ee68a4cd994 1-86
+apps/web/src/components/ui/input.tsx
+  s_91209f3f10bb14::t_be5e9ee81d6cae 1-18
+apps/web/src/components/ui/item.tsx
+  s_91209f3f10bb14::t_80e99ca70fcdd9 1-196
+apps/web/src/components/ui/kbd.tsx
+  s_91209f3f10bb14::t_3757ea2227c46b 1-26
+apps/web/src/components/ui/label.tsx
+  s_91209f3f10bb14::t_b6e81557db9f22 1-23
+apps/web/src/components/ui/marker.tsx
+  s_91209f3f10bb14::t_74891ebf2b9682 1-68
+apps/web/src/components/ui/menubar.tsx
+  s_91209f3f10bb14::t_b5e18e2c5bda71 1-279
+apps/web/src/components/ui/message-scroller.tsx
+  s_91209f3f10bb14::t_9651f5726acbb5 1-131
+apps/web/src/components/ui/message.tsx
+  s_91209f3f10bb14::t_c39ddd339e10df 1-91
+apps/web/src/components/ui/native-select.tsx
+  s_91209f3f10bb14::t_1adf3ee4dce14a 1-60
+apps/web/src/components/ui/navigation-menu.tsx
+  s_91209f3f10bb14::t_8ad47bb89f09fd 1-163
+apps/web/src/components/ui/pagination.tsx
+  s_91209f3f10bb14::t_2b991e06c339c3 1-129
+apps/web/src/components/ui/popover.tsx
+  s_91209f3f10bb14::t_d1d5a2508ac887 1-88
+apps/web/src/components/ui/progress.tsx
+  s_91209f3f10bb14::t_4744f35d9ebf07 1-30
+apps/web/src/components/ui/questionnaire.tsx
+  s_91209f3f10bb14::t_8bf01cfc009a0d 1-324
+apps/web/src/components/ui/radio-group.tsx
+  s_91209f3f10bb14::t_e84d8fc2b608be 1-43
+apps/web/src/components/ui/resizable.tsx
+  s_91209f3f10bb14::t_f78246e2d54266 1-49
+apps/web/src/components/ui/scroll-area.tsx
+  s_91209f3f10bb14::t_3eac06639b1740 1-54
+apps/web/src/components/ui/select.tsx
+  s_91209f3f10bb14::t_f705a202dee183 1-191
+apps/web/src/components/ui/separator.tsx
+  s_91209f3f10bb14::t_e0fb32ebf3e8ca 1-27
+apps/web/src/components/ui/sheet.tsx
+  s_91209f3f10bb14::t_d3ba060c06a3fe 1-147
+apps/web/src/components/ui/sidebar.tsx
+  s_91209f3f10bb14::t_dc30977da62419 1-702
+apps/web/src/components/ui/skeleton.tsx
+  s_91209f3f10bb14::t_8d910b8c7ff0e0 1-13
+apps/web/src/components/ui/slider.tsx
+  s_91209f3f10bb14::t_c1e75dfea92d90 1-58
+apps/web/src/components/ui/sonner.tsx
+  s_91209f3f10bb14::t_b45121dce7f9d6 1-49
+apps/web/src/components/ui/spinner.tsx
+  s_91209f3f10bb14::t_237d1b020ae28a 1-10
+apps/web/src/components/ui/switch.tsx
+  s_91209f3f10bb14::t_b15d76f955c4a6 1-32
+apps/web/src/components/ui/table.tsx
+  s_91209f3f10bb14::t_577bdd28755f6d 1-115
+apps/web/src/components/ui/tabs.tsx
+  s_91209f3f10bb14::t_12ec600f991a85 1-89
+apps/web/src/components/ui/textarea.tsx
+  s_91209f3f10bb14::t_cbbbc494b7ae2e 1-17
+apps/web/src/components/ui/toggle-group.tsx
+  s_91209f3f10bb14::t_850d0934732a27 1-89
+apps/web/src/components/ui/toggle.tsx
+  s_91209f3f10bb14::t_dd498559e145d2 1-46
+apps/web/src/components/ui/tooltip.tsx
+  s_91209f3f10bb14::t_954ef1666e06c7 1-56
+apps/web/src/components/ui/trace.tsx
+  s_91209f3f10bb14::t_01038fbb1c390b 1-162
+apps/web/src/config/app-config.ts
+  s_91209f3f10bb14::t_bd8a8422c80fd7 1-15
+apps/web/src/data/users.ts
+  s_91209f3f10bb14::t_841cb60f20d9c9 1-20
+apps/web/src/hooks/use-highlighted-code.ts
+  s_91209f3f10bb14::t_a7151e6bdb7c66 1-74
+apps/web/src/hooks/use-lg.ts
+  s_91209f3f10bb14::t_1e4a8d4b1a09f9 1-19
+apps/web/src/hooks/use-mobile.ts
+  s_91209f3f10bb14::t_69b4194310d70a 1-19
+apps/web/src/lib/app-icon.tsx
+  s_91209f3f10bb14::t_c555a4a36d0467 1-25
+apps/web/src/lib/cookie.client.ts
+  s_91209f3f10bb14::t_4cd5760493ab9e 1-24
+apps/web/src/lib/data-table-features.ts
+  s_91209f3f10bb14::t_0071463b2605c3 1-56
+apps/web/src/lib/fonts/registry.ts
+  s_91209f3f10bb14::t_fbdb5520c9e210 1-201
+apps/web/src/lib/highlighter.tsx
+  s_91209f3f10bb14::t_03deb180889cfe 1-115
+apps/web/src/lib/local-storage.client.ts
+  s_91209f3f10bb14::t_37fe5b715c6075 1-19
+apps/web/src/lib/preferences/layout.ts
+  s_91209f3f10bb14::t_71715e3d434858 1-32
+apps/web/src/lib/preferences/preference-runtime.ts
+  s_91209f3f10bb14::t_914275bf49d8ba 1-17
+apps/web/src/lib/preferences/preferences-config.ts
+  s_91209f3f10bb14::t_4fe98b61449177 1-134
+apps/web/src/lib/preferences/preferences-storage.ts
+  s_91209f3f10bb14::t_efa765e25a342c 1-35
+apps/web/src/lib/preferences/theme-utils.ts
+  s_91209f3f10bb14::t_52b1da0702eedc 1-38
+apps/web/src/lib/preferences/theme.ts
+  s_91209f3f10bb14::t_06c56ebdc023a2 1-52
+apps/web/src/lib/utils.ts
+  s_91209f3f10bb14::t_981266f120c92f 1-35
+apps/web/src/navigation/sidebar/sidebar-items.ts
+  s_91209f3f10bb14::t_721c2c4c61f5f3 1-66
+apps/web/src/proxy.disabled.ts
+  s_91209f3f10bb14::t_eb94dd5006ce87 1-25
+apps/web/src/scripts/generate-theme-presets.ts
+  s_91209f3f10bb14::t_a4bd4a63a8292a 1-131
+apps/web/src/scripts/theme-boot.tsx
+  s_91209f3f10bb14::t_9cf33709bd6aed 1-78
+apps/web/src/server/server-actions.ts
+  s_91209f3f10bb14::t_0c22920d82b132 1-40
+apps/web/src/stores/preferences/preferences-provider.tsx
+  s_91209f3f10bb14::t_6f84479c48a454 1-91
+apps/web/src/stores/preferences/preferences-store.ts
+  s_91209f3f10bb14::t_1b81b7ebcf410d 1-63
+apps/web/src/styles/flag-icons/flags.css
+  s_91209f3f10bb14::t_89fc512c43f371 1-1068
+apps/web/src/styles/presets/brutalist.css
+  s_91209f3f10bb14::t_0b02b5ba567dc2 1-89
+apps/web/src/styles/presets/soft-pop.css
+  s_91209f3f10bb14::t_3cfa1eed08d098 1-89
+apps/web/src/styles/presets/tangerine.css
+  s_91209f3f10bb14::t_e5c7a019357e35 1-89
+apps/web/tsconfig.json
+  s_91209f3f10bb14::t_a8ba620fa42b2e 1-28
+apps/web/tsconfig.scripts.json
+  s_91209f3f10bb14::t_dc53c2116197b5 1-8
+apps/web/vercel.json
+  s_91209f3f10bb14::t_e157c2849425e2 1-17
+docs/TTZ-后续迁移-提醒与出勤.sql
+  s_91209f3f10bb14::t_d46773099a8d9e 1-38
+package.json
+  s_91209f3f10bb14::t_5ea8c185a0e721 1-31
+packages/contracts/src/index.ts
+  s_91209f3f10bb14::t_2dadcf5c530b48 1-54
+packages/database/package.json
+  s_91209f3f10bb14::t_8b30fa86456cac 1-8
+packages/database/prisma/schema.prisma
+  s_91209f3f10bb14::t_8c9c3df0536f38 1-141
+pnpm-lock.yaml
+  s_91209f3f10bb14::t_ce8e63242c767d 1-7557
+pnpm-workspace.yaml
+  s_91209f3f10bb14::t_1579890c8b075c 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7261c02c8421eb3ecd5d5187541bbed6fd14c329",
+  "prompts": {},
+  "sessions": {
+    "s_91209f3f10bb14": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ce5e-3ad5-7553-9333-b05a2d9c46fd",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
