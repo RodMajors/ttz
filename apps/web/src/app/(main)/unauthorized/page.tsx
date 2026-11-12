@@ -1,7 +1,6 @@
-import Link from "next/link";
-
 import { Lock } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   robots: {

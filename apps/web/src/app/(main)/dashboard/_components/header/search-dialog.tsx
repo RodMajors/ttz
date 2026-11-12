@@ -1,10 +1,10 @@
 "use client";
 
-import * as React from "react";
-
-import { useRouter } from "next/navigation";
-
+import { useQuery } from "@tanstack/react-query";
+import { authUserSchema } from "@ttz/contracts";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { apiRequest } from "@/lib/api-client";
 import type { NavMainItem } from "@/navigation/sidebar/sidebar-items";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
 
@@ -28,6 +29,7 @@ type SearchItem = {
   icon?: NavMainItem["icon"];
   disabled?: boolean;
   newTab?: boolean;
+  minPrivilege?: 1 | 2;
 };
 
 const sidebarGroupLabels = new Set(sidebarItems.flatMap((group) => (group.label ? [group.label] : [])));
@@ -47,6 +49,7 @@ const searchItems: SearchItem[] = sidebarItems.flatMap((group) =>
         icon: item.icon,
         disabled: sub.disabled,
         newTab: sub.newTab,
+        minPrivilege: item.minPrivilege,
       }));
     }
     return [
@@ -58,6 +61,7 @@ const searchItems: SearchItem[] = sidebarItems.flatMap((group) =>
         icon: item.icon,
         disabled: item.disabled,
         newTab: item.newTab,
+        minPrivilege: item.minPrivilege,
       },
     ];
   }),
@@ -66,8 +70,6 @@ const searchItems: SearchItem[] = sidebarItems.flatMap((group) =>
 function getAvailableItems(items: SearchItem[]) {
   return items.filter((item) => !item.disabled && !item.url.includes("coming-soon"));
 }
-
-const recommendations = getAvailableItems(searchItems);
 
 function groupBy(items: SearchItem[]) {
   const groups = [...new Set(items.map((item) => item.group))];
@@ -81,6 +83,11 @@ export function SearchDialog() {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
   const router = useRouter();
+  const user = useQuery({ queryKey: ["auth", "me"], queryFn: () => apiRequest("/auth/me", authUserSchema) });
+  const visibleItems = searchItems.filter(
+    (item) => !item.minPrivilege || (user.data?.privilege ?? 0) >= item.minPrivilege,
+  );
+  const visibleRecommendations = getAvailableItems(visibleItems);
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -138,17 +145,17 @@ export function SearchDialog() {
         className="text-muted-foreground px-0! font-normal hover:no-underline"
       >
         <Search data-icon="inline-start" />
-        Search
+        搜索
         <kbd className="bg-muted inline-flex h-5 items-center gap-1 rounded border px-1.5 text-[10px] font-medium select-none">
           <span className="text-xs">⌘</span>J
         </kbd>
       </Button>
       <CommandDialog open={open} onOpenChange={handleOpenChange}>
         <Command>
-          <CommandInput placeholder="Search dashboards, users, and more…" value={query} onValueChange={setQuery} />
+          <CommandInput placeholder="搜索活动、成员、出勤和设置…" value={query} onValueChange={setQuery} />
           <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            {query ? renderGroups(searchItems) : renderGroups(recommendations)}
+            <CommandEmpty>没有匹配结果。</CommandEmpty>
+            {query ? renderGroups(visibleItems) : renderGroups(visibleRecommendations)}
           </CommandList>
         </Command>
       </CommandDialog>

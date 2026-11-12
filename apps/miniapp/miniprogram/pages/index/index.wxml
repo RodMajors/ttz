@@ -5,6 +5,7 @@
   <view class="card" wx:elif="{{user}}">
     <view class="section-title">{{user.name}}</view>
     <view class="muted" wx:if="{{!user.profileComplete}}">请先在“我的”中补充微信名和 TTZ 群昵称。</view>
+    <view class="error" wx:elif="{{user.approvalStatus === 'REJECTED'}}">审核未通过：{{user.rejectReason || '请修改资料后重新提交。'}}</view>
     <view class="muted" wx:elif="{{!user.isApproved}}">成员资料已提交，正在等待管理员审核。</view>
     <view class="muted" wx:else>已通过成员审核，可以查看活动并参与报名。</view>
     <button class="primary-button" bindtap="scanLogin">扫描网页二维码</button>

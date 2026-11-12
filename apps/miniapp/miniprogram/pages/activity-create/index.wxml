@@ -1,0 +1,15 @@
+<view class="page">
+  <view class="eyebrow">TTZ 快捷入口</view><view class="title">创建活动</view>
+  <form class="card form" bindsubmit="submit">
+    <label>活动名称<input name="name" maxlength="64" placeholder="例如：M 团本开荒" /></label>
+    <label>活动类型<picker range="{{typeLabels}}" value="{{selectedType}}" bindchange="selectType"><view class="picker">{{typeLabels[selectedType]}}</view></picker></label>
+    <view class="two-column"><label>开始日期<picker mode="date" value="{{beginDate}}" bindchange="selectBeginDate"><view class="picker">{{beginDate}}</view></picker></label><label>开始时间<picker mode="time" value="{{beginTime}}" bindchange="selectBeginTime"><view class="picker">{{beginTime}}</view></picker></label></view>
+    <view class="two-column"><label>截止日期<picker mode="date" value="{{deadlineDate}}" bindchange="selectDeadlineDate"><view class="picker">{{deadlineDate}}</view></picker></label><label>截止时间<picker mode="time" value="{{deadlineTime}}" bindchange="selectDeadlineTime"><view class="picker">{{deadlineTime}}</view></picker></label></view>
+    <view class="two-column"><label>人数上限<input name="maxPlayers" type="number" value="20" /></label><label>持续分钟<input name="durationMinutes" type="number" value="120" /></label></view>
+    <label>进组暗号 / 语音频道<input name="passphrase" maxlength="255" /></label>
+    <label>活动说明<textarea name="description" maxlength="10000" /></label>
+    <view class="switch-row"><view>计入团本开荒出勤</view><switch checked="{{attendanceEnabled}}" bindchange="toggleAttendance" /></view>
+    <button class="primary-button" form-type="submit" disabled="{{submitting}}">保存草稿</button>
+  </form>
+  <view class="error" wx:if="{{error}}">{{error}}</view>
+</view>

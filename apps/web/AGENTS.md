@@ -2,7 +2,7 @@
 
 ## Project overview
 
-Studio Admin is a responsive admin dashboard built with Next.js 16, React 19, TypeScript, Tailwind CSS v4, and shadcn/ui.
+TTZ Web is the public site and desktop guild workspace built with Next.js 16, React 19, TypeScript, Tailwind CSS v4, shadcn/ui and TanStack Query. The Studio Admin shell remains as the layout/theme foundation, but template business routes have been removed.
 
 This repository uses the shadcn `radix-nova` style. The shadcn CLI reports `base: "radix"`, which refers to Radix UI. Always inspect the local components in `src/components/ui/` because individual wrappers may use different primitives.
 
@@ -32,25 +32,22 @@ Do not modify files inside `src/components/ui/` or `src/components/calendar/`. K
 
 ## Setup
 
-This project uses npm.
+This workspace uses pnpm from the repository root.
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm --filter @ttz/web dev
 ```
 
 Available commands:
 
 ```bash
-npm run build
-npm run lint
-npm run format
-npm run check
-npm run check:fix
-npm run generate:presets
+pnpm --filter @ttz/web build
+pnpm --filter @ttz/web typecheck
+pnpm --filter @ttz/web check
 ```
 
-There is currently no automated test command. Run build, lint, check, or other validation commands only when the user explicitly requests that validation.
+The repository CI and Husky hooks run the relevant type and build checks. API behavior is tested in the separate ttz-server repository.
 
 ## Co-location-based structure
 
@@ -68,7 +65,7 @@ Keep a component inside its route until it is reused by another feature. Do not 
 
 ## Creating or extending a screen
 
-1. Inspect the closest current screen before writing code. Finance, Infrastructure, CRM, and Analytics are useful references. Do not use routes under `(legacy)` as references for new screens unless maintaining a legacy route.
+1. Inspect the closest TTZ screen before writing code. Activity, members, attendance, profile and system routes are the current references.
 2. When reproducing a UI from a screenshot or image, follow its visual direction closely, including layout, hierarchy, spacing, component structure, and important details. Implement it with the project's existing components and semantic theme tokens rather than copying raw color values. If the design needs a color that is not available through the existing theme tokens, or the user explicitly requests a non-theme color, use a named color from Tailwind's default palette. Do not use arbitrary hex, RGB, HSL, or OKLCH values.
 3. Reuse the existing dashboard shell, local components, layout controls, and theme tokens.
 4. Break each new page into focused components inside the route's `_components/` directory. Keep `page.tsx` small and focused on composing those pieces.

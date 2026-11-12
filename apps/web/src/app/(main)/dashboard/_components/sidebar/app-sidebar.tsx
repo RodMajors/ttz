@@ -36,6 +36,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const variant = isSynced ? sidebarVariant : props.variant;
   const collapsible = isSynced ? sidebarCollapsible : props.collapsible;
+  const visibleItems = sidebarItems.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.minPrivilege || (user.data?.privilege ?? 0) >= item.minPrivilege),
+  }));
 
   return (
     <Sidebar {...props} variant={variant} collapsible={collapsible}>
@@ -52,7 +56,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarItems} />
+        <NavMain items={visibleItems} />
       </SidebarContent>
       <SidebarFooter>{user.data ? <NavUser user={user.data} /> : null}</SidebarFooter>
     </Sidebar>

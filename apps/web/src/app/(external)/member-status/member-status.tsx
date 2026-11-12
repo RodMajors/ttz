@@ -69,7 +69,13 @@ export function MemberStatus() {
     <main className="grid min-h-screen place-items-center px-6 py-10">
       <Card className="w-full max-w-lg">
         <CardHeader>
-          <CardTitle>{query.data.profileComplete ? "成员申请审核中" : "完善成员资料"}</CardTitle>
+          <CardTitle>
+            {query.data.approvalStatus === "REJECTED"
+              ? "成员申请未通过"
+              : query.data.profileComplete
+                ? "成员申请审核中"
+                : "完善成员资料"}
+          </CardTitle>
           <CardDescription>首次微信登录需要提交微信名和 TTZ 群昵称；管理员审核通过后才能进入工作台。</CardDescription>
         </CardHeader>
         <form onSubmit={submit}>
@@ -92,6 +98,12 @@ export function MemberStatus() {
                 <AlertTitle>{query.data.profileComplete ? "等待管理员审核" : "资料尚未完成"}</AlertTitle>
                 <AlertDescription>资料可在审核前继续修改；身份组只作为当前标签，不授予权限。</AlertDescription>
               </Alert>
+              {query.data.approvalStatus === "REJECTED" ? (
+                <Alert variant="destructive">
+                  <AlertTitle>审核未通过</AlertTitle>
+                  <AlertDescription>{query.data.rejectReason ?? "请修改资料后重新提交审核。"}</AlertDescription>
+                </Alert>
+              ) : null}
               {error ? (
                 <Alert variant="destructive">
                   <AlertTitle>无法保存</AlertTitle>

@@ -17,3 +17,7 @@ page { background: #f7f7f7; color: #161616; font-family: -apple-system, BlinkMac
 .status-pill { padding: 6rpx 14rpx; border-radius: 999rpx; background: #eee; font-size: 22rpx; white-space: nowrap; }
 .detail-list { display: flex; flex-direction: column; gap: 24rpx; }
 .picker { border: 1rpx solid #ddd; border-radius: 12rpx; padding: 18rpx; }
+.compact-button { margin: 0; padding: 0 24rpx; border-radius: 14rpx; background: #161616; color: #fff; font-size: 24rpx; line-height: 64rpx; }
+.two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 16rpx; }
+.switch-row { display: flex; align-items: center; justify-content: space-between; gap: 20rpx; font-size: 26rpx; }
+.form textarea { min-height: 160rpx; border: 1rpx solid #ddd; border-radius: 12rpx; padding: 18rpx; }

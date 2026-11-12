@@ -40,10 +40,16 @@ export function ActivityCreateForm() {
       name: form.get("name"),
       type: form.get("type") as ActivityTypeCode,
       description: form.get("description"),
+      passphrase: form.get("passphrase") || null,
       beginAt: beginAt.toISOString(),
+      teamUpAt: form.get("teamUpAt") ? new Date(String(form.get("teamUpAt"))).toISOString() : undefined,
       signupDeadline: new Date(String(form.get("signupDeadline"))).toISOString(),
       durationMinutes: Number(form.get("durationMinutes")),
       maxPlayers: Number(form.get("maxPlayers")),
+      tankSlots: optionalNumber(form.get("tankSlots")),
+      healerSlots: optionalNumber(form.get("healerSlots")),
+      meleeSlots: optionalNumber(form.get("meleeSlots")),
+      rangedSlots: optionalNumber(form.get("rangedSlots")),
       attendanceEnabled: form.get("attendanceEnabled") === "on",
     });
     if (!parsed.success) {
@@ -100,6 +106,11 @@ export function ActivityCreateForm() {
                 </Field>
               </div>
               <Field>
+                <FieldLabel htmlFor="teamUpAt">集合时间（可选）</FieldLabel>
+                <Input id="teamUpAt" name="teamUpAt" type="datetime-local" />
+                <FieldDescription>不填写时，服务端默认设置为开始前 20 分钟。</FieldDescription>
+              </Field>
+              <Field>
                 <FieldLabel htmlFor="durationMinutes">持续时间</FieldLabel>
                 <NativeSelect id="durationMinutes" name="durationMinutes" defaultValue="120">
                   <NativeSelectOption value="60">1 小时</NativeSelectOption>
@@ -108,6 +119,28 @@ export function ActivityCreateForm() {
                   <NativeSelectOption value="180">3 小时</NativeSelectOption>
                   <NativeSelectOption value="240">4 小时</NativeSelectOption>
                 </NativeSelect>
+              </Field>
+              <div className="grid gap-4 sm:grid-cols-4">
+                <Field>
+                  <FieldLabel htmlFor="tankSlots">坦克</FieldLabel>
+                  <Input id="tankSlots" name="tankSlots" type="number" min={0} max={100} defaultValue={2} />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="healerSlots">治疗</FieldLabel>
+                  <Input id="healerSlots" name="healerSlots" type="number" min={0} max={100} defaultValue={4} />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="meleeSlots">近战</FieldLabel>
+                  <Input id="meleeSlots" name="meleeSlots" type="number" min={0} max={100} defaultValue={7} />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="rangedSlots">远程</FieldLabel>
+                  <Input id="rangedSlots" name="rangedSlots" type="number" min={0} max={100} defaultValue={7} />
+                </Field>
+              </div>
+              <Field>
+                <FieldLabel htmlFor="passphrase">进组暗号 / 语音频道</FieldLabel>
+                <Input id="passphrase" name="passphrase" maxLength={255} />
               </Field>
               <Field>
                 <FieldLabel htmlFor="description">说明</FieldLabel>
@@ -136,4 +169,8 @@ export function ActivityCreateForm() {
       </Card>
     </div>
   );
+}
+
+function optionalNumber(value: FormDataEntryValue | null) {
+  return value === null || value === "" ? null : Number(value);
 }

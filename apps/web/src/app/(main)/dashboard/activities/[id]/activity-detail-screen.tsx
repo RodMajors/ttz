@@ -9,6 +9,7 @@ import {
   type Role,
   signupDecisionSchema,
   signupSchema,
+  updateActivitySchema,
 } from "@ttz/contracts";
 import {
   ArrowLeft,
@@ -17,6 +18,7 @@ import {
   CircleAlert,
   Lock,
   LockOpen,
+  Pencil,
   Send,
   ShieldCheck,
   UserRoundPlus,
@@ -41,6 +43,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -51,7 +54,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -140,6 +143,9 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
         </CardDescription>
         {activity.canManage ? (
           <CardAction className="flex flex-wrap justify-end gap-2">
+            {activity.status === "DRAFT" || activity.status === "PUBLISHED" ? (
+              <ActivityEditDialog activity={activity} onChanged={onChanged} />
+            ) : null}
             {activity.status === "DRAFT" ? (
               <ActionButton
                 label="发布活动"
@@ -188,6 +194,172 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
         ) : null}
       </CardContent>
     </Card>
+  );
+}
+
+function ActivityEditDialog({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string>();
+  const durationMinutes = Math.round(
+    (new Date(activity.endAt).getTime() - new Date(activity.beginAt).getTime()) / 60_000,
+  );
+  const mutation = useMutation({
+    mutationFn: (body: z.infer<typeof updateActivitySchema>) =>
+      apiRequest(`/activities/${activity.id}`, activityDetailSchema, { method: "PATCH", body: JSON.stringify(body) }),
+    onSuccess: async () => {
+      setOpen(false);
+      await onChanged();
+    },
+    onError: (reason) => setError(reason.message),
+  });
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const parsed = updateActivitySchema.safeParse({
+      version: activity.version,
+      name: data.get("name"),
+      description: data.get("description") || undefined,
+      passphrase: data.get("passphrase") || null,
+      beginAt: new Date(String(data.get("beginAt"))).toISOString(),
+      teamUpAt: data.get("teamUpAt") ? new Date(String(data.get("teamUpAt"))).toISOString() : undefined,
+      signupDeadline: new Date(String(data.get("signupDeadline"))).toISOString(),
+      durationMinutes: Number(data.get("durationMinutes")),
+      maxPlayers: Number(data.get("maxPlayers")),
+      tankSlots: optionalNumber(data.get("tankSlots")),
+      healerSlots: optionalNumber(data.get("healerSlots")),
+      meleeSlots: optionalNumber(data.get("meleeSlots")),
+      rangedSlots: optionalNumber(data.get("rangedSlots")),
+      attendanceEnabled: data.get("attendanceEnabled") === "on",
+    });
+    if (!parsed.success) return setError(parsed.error.issues[0]?.message ?? "请检查活动信息");
+    setError(undefined);
+    mutation.mutate(parsed.data);
+  }
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline">
+          <Pencil data-icon="inline-start" />
+          编辑
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>编辑活动</DialogTitle>
+          <DialogDescription>保存时会校验当前版本；若其他负责人已修改，请刷新后重试。</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={submit}>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="edit-name">活动名称</FieldLabel>
+              <Input id="edit-name" name="name" defaultValue={activity.name} required />
+            </Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field>
+                <FieldLabel htmlFor="edit-begin">开始时间</FieldLabel>
+                <Input
+                  id="edit-begin"
+                  name="beginAt"
+                  type="datetime-local"
+                  defaultValue={toLocal(activity.beginAt)}
+                  required
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="edit-team-up">集合时间</FieldLabel>
+                <Input
+                  id="edit-team-up"
+                  name="teamUpAt"
+                  type="datetime-local"
+                  defaultValue={toLocal(activity.teamUpAt)}
+                />
+              </Field>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Field>
+                <FieldLabel htmlFor="edit-deadline">报名截止</FieldLabel>
+                <Input
+                  id="edit-deadline"
+                  name="signupDeadline"
+                  type="datetime-local"
+                  defaultValue={activity.signupDeadline ? toLocal(activity.signupDeadline) : ""}
+                  required
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="edit-duration">持续分钟</FieldLabel>
+                <Input
+                  id="edit-duration"
+                  name="durationMinutes"
+                  type="number"
+                  min={30}
+                  max={1440}
+                  step={30}
+                  defaultValue={durationMinutes}
+                  required
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="edit-max">人数上限</FieldLabel>
+                <Input
+                  id="edit-max"
+                  name="maxPlayers"
+                  type="number"
+                  min={1}
+                  max={100}
+                  defaultValue={activity.maxPlayers}
+                  required
+                />
+              </Field>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-4">
+              <SlotField id="tankSlots" label="坦克" value={activity.tankSlots} />
+              <SlotField id="healerSlots" label="治疗" value={activity.healerSlots} />
+              <SlotField id="meleeSlots" label="近战" value={activity.meleeSlots} />
+              <SlotField id="rangedSlots" label="远程" value={activity.rangedSlots} />
+            </div>
+            <Field>
+              <FieldLabel htmlFor="edit-passphrase">进组暗号 / 语音频道</FieldLabel>
+              <Input id="edit-passphrase" name="passphrase" defaultValue={activity.passphrase ?? ""} maxLength={255} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="edit-description">说明</FieldLabel>
+              <Textarea
+                id="edit-description"
+                name="description"
+                defaultValue={activity.description ?? ""}
+                maxLength={10_000}
+              />
+              <FieldDescription>站位和团本准备事项由后续模板功能承载。</FieldDescription>
+            </Field>
+            <Field orientation="horizontal">
+              <Checkbox id="edit-attendance" name="attendanceEnabled" defaultChecked={activity.attendanceEnabled} />
+              <FieldLabel htmlFor="edit-attendance">计入团本开荒出勤</FieldLabel>
+            </Field>
+            {error ? (
+              <Alert variant="destructive">
+                <AlertTitle>无法保存活动</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
+          </FieldGroup>
+          <DialogFooter className="mt-4">
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? <Spinner data-icon="inline-start" /> : <Pencil data-icon="inline-start" />}保存修改
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function SlotField({ id, label, value }: { id: string; label: string; value: number | null }) {
+  return (
+    <Field>
+      <FieldLabel htmlFor={`edit-${id}`}>{label}</FieldLabel>
+      <Input id={`edit-${id}`} name={id} type="number" min={0} max={100} defaultValue={value ?? ""} />
+    </Field>
   );
 }
 
@@ -243,6 +415,9 @@ function SignupDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState<Role | undefined>(activity.mySignup?.preferredRole ?? undefined);
+  const [choiceCharacterIds, setChoiceCharacterIds] = useState<string[]>(
+    activity.mySignup?.choices.map((choice) => choice.character.id) ?? [],
+  );
   const [error, setError] = useState<string>();
   const characters = useQuery({
     queryKey: ["characters"],
@@ -261,11 +436,17 @@ function SignupDialog({
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const characterId = String(data.get("characterId") ?? "");
     const parsed = signupSchema.safeParse({
-      characterId: data.get("characterId"),
+      characterId,
       preferredRole: role ?? null,
       note: data.get("note") || null,
-      choices: [],
+      choices: choiceCharacterIds
+        .filter((id) => id !== characterId)
+        .flatMap((id) => {
+          const character = characters.data?.find((item) => item.id === id);
+          return character?.specId ? [{ characterId: id, specId: character.specId }] : [];
+        }),
     });
     if (!parsed.success) return setError(parsed.error.issues[0]?.message ?? "请检查报名信息");
     setError(undefined);
@@ -324,6 +505,32 @@ function SignupDialog({
                 ))}
               </ToggleGroup>
             </Field>
+            <FieldSet>
+              <FieldLegend variant="label">备选角色 / 专精</FieldLegend>
+              <FieldDescription>只显示已填写专精 ID 的角色；主出战角色不会重复写入备选项。</FieldDescription>
+              <FieldGroup data-slot="checkbox-group">
+                {characters.data
+                  ?.filter((character) => !character.isRetired && character.specId)
+                  .map((character) => (
+                    <Field key={character.id} orientation="horizontal">
+                      <Checkbox
+                        id={`choice-${activity.id}-${character.id}`}
+                        checked={choiceCharacterIds.includes(character.id)}
+                        onCheckedChange={(checked) =>
+                          setChoiceCharacterIds((current) =>
+                            checked === true
+                              ? [...new Set([...current, character.id])]
+                              : current.filter((id) => id !== character.id),
+                          )
+                        }
+                      />
+                      <FieldLabel htmlFor={`choice-${activity.id}-${character.id}`}>
+                        {character.name} · {character.realm} · 专精 {character.specId}
+                      </FieldLabel>
+                    </Field>
+                  ))}
+              </FieldGroup>
+            </FieldSet>
             <Field>
               <FieldLabel htmlFor="note">报名备注</FieldLabel>
               <Textarea id="note" name="note" maxLength={255} defaultValue={activity.mySignup?.note ?? ""} />
@@ -624,4 +831,11 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "short", hour12: false }).format(
     new Date(value),
   );
+}
+function optionalNumber(value: FormDataEntryValue | null) {
+  return value === null || value === "" ? null : Number(value);
+}
+function toLocal(value: string) {
+  const date = new Date(value);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
 }

@@ -7,8 +7,9 @@ import {
   characterSummarySchema,
   createCharacterSchema,
   memberProfileSchema,
+  updateCharacterSchema,
 } from "@ttz/contracts";
-import { Check, CircleAlert, Plus, Star, UserRound } from "lucide-react";
+import { Check, CircleAlert, Pencil, Plus, Star, UserRound } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -144,6 +145,11 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
       apiRequest(`/characters/${id}/${path}`, path === "retire" ? retiredSchema : mainResultSchema, { method: "POST" }),
     onSuccess: refresh,
   });
+  const update = useMutation({
+    mutationFn: ({ id, body }: { id: string; body: z.infer<typeof updateCharacterSchema> }) =>
+      apiRequest(`/characters/${id}`, characterSummarySchema, { method: "PATCH", body: JSON.stringify(body) }),
+    onSuccess: refresh,
+  });
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -245,6 +251,7 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                 </p>
               </div>
               <div className="flex gap-2">
+                <CharacterEditDialog character={character} update={update} />
                 {!character.isMain ? (
                   <Button
                     size="sm"
@@ -271,13 +278,106 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
             </EmptyHeader>
           </Empty>
         )}
-        {action.isError ? (
+        {action.isError || update.isError ? (
           <Alert variant="destructive">
             <AlertTitle>角色操作失败</AlertTitle>
-            <AlertDescription>{action.error.message}</AlertDescription>
+            <AlertDescription>{action.error?.message ?? update.error?.message}</AlertDescription>
           </Alert>
         ) : null}
       </CardContent>
     </Card>
+  );
+}
+
+function CharacterEditDialog({
+  character,
+  update,
+}: {
+  character: z.infer<typeof characterSummarySchema>;
+  update: ReturnType<typeof useMutation<unknown, Error, { id: string; body: z.infer<typeof updateCharacterSchema> }>>;
+}) {
+  const [open, setOpen] = useState(false);
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const parsed = updateCharacterSchema.safeParse({
+      name: data.get("name"),
+      realm: data.get("realm"),
+      faction: Number(data.get("faction")),
+      specId: data.get("specId") ? Number(data.get("specId")) : null,
+      itemLevel: data.get("itemLevel") ? Number(data.get("itemLevel")) : null,
+    });
+    if (parsed.success) {
+      update.mutate({ id: character.id, body: parsed.data });
+      setOpen(false);
+    }
+  }
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline">
+          <Pencil data-icon="inline-start" />
+          编辑
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>编辑角色</DialogTitle>
+          <DialogDescription>更新角色名、服务器、专精和装等。</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={submit}>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor={`edit-character-name-${character.id}`}>角色名</FieldLabel>
+              <Input id={`edit-character-name-${character.id}`} name="name" defaultValue={character.name} required />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`edit-realm-${character.id}`}>服务器</FieldLabel>
+              <Input id={`edit-realm-${character.id}`} name="realm" defaultValue={character.realm} required />
+            </Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field>
+                <FieldLabel htmlFor={`edit-faction-${character.id}`}>阵营</FieldLabel>
+                <NativeSelect
+                  id={`edit-faction-${character.id}`}
+                  name="faction"
+                  defaultValue={String(character.faction ?? 1)}
+                >
+                  <NativeSelectOption value="1">部落</NativeSelectOption>
+                  <NativeSelectOption value="0">联盟</NativeSelectOption>
+                </NativeSelect>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor={`edit-item-level-${character.id}`}>装等</FieldLabel>
+                <Input
+                  id={`edit-item-level-${character.id}`}
+                  name="itemLevel"
+                  type="number"
+                  min={1}
+                  max={999}
+                  defaultValue={character.itemLevel ?? ""}
+                />
+              </Field>
+            </div>
+            <Field>
+              <FieldLabel htmlFor={`edit-spec-${character.id}`}>专精 ID</FieldLabel>
+              <Input
+                id={`edit-spec-${character.id}`}
+                name="specId"
+                type="number"
+                min={1}
+                defaultValue={character.specId ?? ""}
+              />
+            </Field>
+          </FieldGroup>
+          <DialogFooter className="mt-4">
+            <Button type="submit" disabled={update.isPending}>
+              <Pencil data-icon="inline-start" />
+              保存
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

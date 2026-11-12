@@ -11,7 +11,7 @@ import {
   wclReportDetailSchema,
   wclReportListSchema,
 } from "@ttz/contracts";
-import { ArrowLeft, Check, CircleAlert, FileSearch, RefreshCw, Save, Upload } from "lucide-react";
+import { ArrowLeft, Check, CircleAlert, Download, FileSearch, RefreshCw, Save, Upload } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
@@ -118,13 +118,21 @@ export function AttendanceDetailScreen({ activityId }: { activityId: string }) {
         <CardHeader>
           <CardTitle>{data.activityName}</CardTitle>
           <CardDescription>{formatDate(data.beginAt)} · 正常出勤和迟到计入有效出勤，不设置早退状态。</CardDescription>
-          {data.canManage ? (
-            <CardAction>
+          <CardAction className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => exportCsv(data)}>
+              <Download data-icon="inline-start" />
+              CSV
+            </Button>
+            <Button variant="outline" onClick={() => void exportXlsx(data)}>
+              <Download data-icon="inline-start" />
+              XLSX
+            </Button>
+            {data.canManage ? (
               <Button onClick={() => save.mutate()} disabled={save.isPending || !data.records.length}>
                 {save.isPending ? <Spinner data-icon="inline-start" /> : <Save data-icon="inline-start" />}保存人工确认
               </Button>
-            </CardAction>
-          ) : null}
+            ) : null}
+          </CardAction>
         </CardHeader>
         <CardContent>
           <Table>
@@ -452,4 +460,50 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "short", hour12: false }).format(
     new Date(value),
   );
+}
+
+function exportRows(data: z.infer<typeof attendanceRecordListSchema>) {
+  return data.records.map((record) => ({
+    活动: data.activityName,
+    活动时间: new Date(data.beginAt),
+    成员: record.memberName,
+    角色: record.characterName ?? "",
+    服务器: record.realm ?? "",
+    状态: statusLabels[record.status],
+    备注: record.note ?? "",
+  }));
+}
+
+function exportCsv(data: z.infer<typeof attendanceRecordListSchema>) {
+  const columns = ["活动", "活动时间", "成员", "角色", "服务器", "状态", "备注"] as const;
+  const rows = exportRows(data).map((row) => ({ ...row, 活动时间: formatDate(row.活动时间.toISOString()) }));
+  const csv = [
+    columns.join(","),
+    ...rows.map((row) => columns.map((column) => csvCell(String(row[column]))).join(",")),
+  ].join("\r\n");
+  download(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }), `${safeName(data.activityName)}-出勤.csv`);
+}
+
+async function exportXlsx(data: z.infer<typeof attendanceRecordListSchema>) {
+  const xlsx = await import("xlsx");
+  const worksheet = xlsx.utils.json_to_sheet(exportRows(data), { dateNF: "yyyy-mm-dd hh:mm" });
+  worksheet["!cols"] = [{ wch: 24 }, { wch: 19 }, { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 32 }];
+  const workbook = xlsx.utils.book_new();
+  xlsx.utils.book_append_sheet(workbook, worksheet, "出勤记录");
+  xlsx.writeFile(workbook, `${safeName(data.activityName)}-出勤.xlsx`, { compression: true, cellDates: true });
+}
+
+function csvCell(value: string) {
+  return /[",\r\n]/.test(value) ? `"${value.replaceAll('"', '""')}"` : value;
+}
+function safeName(value: string) {
+  return value.replace(/[<>:"/\\|?*]/g, "_").slice(0, 80) || "TTZ";
+}
+function download(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
 }

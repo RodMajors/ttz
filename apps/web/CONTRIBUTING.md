@@ -1,127 +1,37 @@
-# Contributing to Studio Admin
+# Contributing to TTZ Web
 
-Thanks for showing interest in improving **Studio Admin** (repo: `next-shadcn-admin-dashboard`).  
-This guide will help you set up your environment and understand how to contribute.
+TTZ Web 使用 Next.js 16、React 19、Tailwind CSS v4、shadcn/ui、TanStack Query 和 Zod。
 
----
+## 开发
 
-## Overview
+从仓库根运行：
 
-This project is built with **Next.js 16**, **TypeScript**, **Tailwind CSS v4**, and **Shadcn UI**.  
-The goal is to keep the codebase modular, scalable, and easy to extend.
-
----
-
-## Project Layout
-
-We use a **colocation-based file system**. Each feature keeps its own pages, components, and logic.
-
-```
-src
-├── app               # Next.js routes (App Router)
-│   ├── (auth)        # Auth layouts & screens
-│   ├── (main)        # Main dashboard routes
-│   │   └── (dashboard)
-│   │       ├── crm
-│   │       ├── finance
-│   │       ├── default
-│   │       └── ...
-│   └── layout.tsx
-├── components        # Shared UI components
-├── hooks             # Reusable hooks
-├── lib               # Config & utilities
-├── styles            # Tailwind / theme setup
-└── types             # TypeScript definitions
+```bash
+pnpm install
+pnpm --filter @ttz/web dev
 ```
 
-If you’d like a more detailed example of this setup, check out the [Next Colocation Template](https://github.com/arhamkhnz/next-colocation-template), where the full structure is explained with examples.
+提交前运行：
 
----
+```bash
+pnpm typecheck
+pnpm build
+```
 
-## Getting Started
+## 代码组织
 
-### Fork and Clone the Repository
+- 公开页：`src/app/(external)`。
+- 工作台：`src/app/(main)/dashboard`。
+- 路由交互代码就近放置；只有真实复用时再上移。
+- 通用 UI 使用 `src/components/ui` 中的 shadcn 组件。
+- API 使用 `src/lib/api-client.ts` 和 `@ttz/contracts` 的 Zod schema。
+- 服务端契约变更必须同步更新 `ttz-server/packages/contracts`。
 
-1. Fork the Repository
-   
-   Click [here](https://github.com/arhamkhnz/next-shadcn-admin-dashboard/fork) to fork the repository.
+## 约束
 
-2. Clone the Repository  
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/next-shadcn-admin-dashboard.git
-   ```
-   
-3. Navigate into the Project  
-   ```bash
-   cd next-shadcn-admin-dashboard
-   ```
-
-4. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-5. **Run the dev server**
-   ```bash
-   npm run dev
-   ```
-   App will be available at [http://localhost:3000](http://localhost:3000).
-
----
-
-## Contribution Flow
-
-- Always create a new branch before working on changes:
-  ```bash
-  git checkout -b feature/my-update
-  ```
-
-- Use clear commit messages:
-  ```bash
-  git commit -m "feat: add finance dashboard screen"
-  ```
-
-- Open a Pull Request once ready.
-- If your change adds a new UI screen or component, include a screenshot in your PR description.
-
----
-
-## Where to Contribute
-
-- **External Pages**: Landing pages or other non-dashboard routes → `src/app/(external)/`  
-- **Auth Screens**: Login, register, and authentication layouts → `src/app/(main)/auth/`  
-- **Dashboard Screens**: Feature dashboards like CRM, Finance, Analytics → `src/app/(main)/dashboard/`
-- **Components**: Reusable UI goes in `src/components/`  
-- **Hooks**: Custom logic goes in `src/hooks/`  
-- **Themes**: New presets under `src/styles/presets/`  
-
----
-
-## Guidelines
-
-- Prefer **TypeScript types** over `any`
-- Husky pre-commit hooks are enabled - linting and formatting run automatically when you commit, and if there are errors the commit will be blocked until they are fixed. 
-- Follow **Shadcn UI** style & Tailwind v4 conventions
-- Keep accessibility in mind (ARIA, keyboard nav)
-- Use clear commit messages with conventional prefixes (`feat:`, `fix:`, `chore:`, etc.)
-- Avoid unnecessary dependencies — prefer existing utilities where possible
-
----
-
-## Submitting PRs
-
-- Open a Pull Request once your changes are ready.  
-- Ensure your branch is up to date with `main` before submitting.  
-- Reference any related issue in your PR for context.
-
----
-
-## Questions & Support
-
-- Report bugs, suggestions, or issues via [GitHub Issues](https://github.com/arhamkhnz/next-shadcn-admin-dashboard/issues)
-
----
-
-Your contributions keep this project growing. 🚀
-
-**Happy Vibe Coding!**
+- 权限必须由后端 Guard/业务服务最终执行；前端隐藏按钮不是权限控制。
+- 普通成员报名修改/取消规则不能只写在 UI。
+- 不在本期加入站位图或团本准备事项。
+- 不提交微信、WCL、数据库、COS 等密钥。
+- UI 使用语义主题变量，并覆盖加载、空数据、错误和禁用状态。
+- 提交使用 Conventional Commits；新增或大改页面应附明暗主题截图。

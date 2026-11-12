@@ -45,6 +45,9 @@ Page({
     const id = String(event.currentTarget.dataset.id ?? "");
     if (id) wx.navigateTo({ url: `/pages/activity-detail/index?id=${encodeURIComponent(id)}` });
   },
+  createActivity() {
+    wx.navigateTo({ url: "/pages/activity-create/index" });
+  },
 });
 
 const statusLabels = { DRAFT: "草稿", PUBLISHED: "报名中", FINISHED: "已结束", CANCELLED: "已取消" } as const;

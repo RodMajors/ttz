@@ -41,6 +41,8 @@ const changedSchema = z.unknown();
 
 export function MembersScreen() {
   const client = useQueryClient();
+  const [search, setSearch] = useState("");
+  const [groupId, setGroupId] = useState("");
   const me = useQuery({ queryKey: ["auth", "me"], queryFn: () => apiRequest("/auth/me", authUserSchema) });
   const members = useQuery({
     queryKey: ["members"],
@@ -56,6 +58,17 @@ export function MembersScreen() {
     enabled: (me.data?.privilege ?? 0) >= 1,
   });
   const [error, setError] = useState<string>();
+  const visibleMembers =
+    members.data?.items.filter((member) => {
+      const keyword = search.trim().toLocaleLowerCase("zh-CN");
+      const matchesSearch =
+        !keyword ||
+        [member.name, member.guildNickname, member.wxNickname, ...member.characters.map((character) => character.name)]
+          .filter(Boolean)
+          .some((value) => value?.toLocaleLowerCase("zh-CN").includes(keyword));
+      const matchesGroup = !groupId || member.groups.some((group) => group.id === groupId);
+      return matchesSearch && matchesGroup;
+    }) ?? [];
   const mutate = useMutation({
     mutationFn: ({ path, method, body }: { path: string; method: "POST" | "PATCH" | "DELETE"; body?: unknown }) =>
       apiRequest(path, changedSchema, { method, body: body ? JSON.stringify(body) : undefined }),
@@ -84,9 +97,30 @@ export function MembersScreen() {
         <CardHeader>
           <CardTitle>成员列表</CardTitle>
           <CardDescription>身份组只用于展示和统计，权限由审核状态与 privilege 决定。</CardDescription>
+          <CardAction className="flex gap-2">
+            <Input
+              className="w-52"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="搜索成员或角色"
+              aria-label="搜索成员或角色"
+            />
+            <NativeSelect
+              value={groupId}
+              onChange={(event) => setGroupId(event.target.value)}
+              aria-label="按身份组筛选"
+            >
+              <NativeSelectOption value="">全部身份组</NativeSelectOption>
+              {groups.data.map((group) => (
+                <NativeSelectOption key={group.id} value={group.id}>
+                  {group.name}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </CardAction>
         </CardHeader>
         <CardContent>
-          {members.data.items.length === 0 ? (
+          {visibleMembers.length === 0 ? (
             <Empty className="min-h-52 border">
               <EmptyHeader>
                 <EmptyMedia variant="icon">
@@ -108,7 +142,7 @@ export function MembersScreen() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {members.data.items.map((member) => {
+                {visibleMembers.map((member) => {
                   const main = member.characters.find((character) => character.isMain);
                   return (
                     <TableRow key={member.id}>

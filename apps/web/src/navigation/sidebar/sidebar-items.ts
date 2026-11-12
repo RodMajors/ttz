@@ -27,6 +27,7 @@ interface NavItemBase {
   badge?: NavBadge;
   disabled?: boolean;
   newTab?: boolean;
+  minPrivilege?: 1 | 2;
 }
 export interface NavMainLinkItem extends NavItemBase {
   url: string;
@@ -59,7 +60,7 @@ export const sidebarItems: NavGroup[] = [
     items: [
       { id: "announcements", title: "公告", url: "/dashboard/announcements", icon: FileText },
       { id: "tools", title: "常用工具", url: "/dashboard/tools", icon: Link2 },
-      { id: "system", title: "系统设置", url: "/dashboard/system", icon: Settings2 },
+      { id: "system", title: "系统设置", url: "/dashboard/system", icon: Settings2, minPrivilege: 1 },
     ],
   },
   { id: 3, label: "快捷入口", items: [{ id: "progress", title: "团本进度", url: "/progress", icon: ClipboardCheck }] },
