@@ -17,7 +17,7 @@ const membersSchema = z.object({
       name: z.string().nullable(),
       guildNickname: z.string().nullable(),
       privilege: z.number(),
-      characters: z.array(z.object({ id: z.string(), name: z.string(), realm: z.string(), isMain: z.number() })),
+      characters: z.array(z.object({ id: z.string(), name: z.string(), realm: z.string(), isMain: z.boolean() })),
       groups: z.array(z.object({ id: z.string(), name: z.string(), code: z.string() })),
     }),
   ),
@@ -66,7 +66,7 @@ export function MembersScreen() {
             </TableHeader>
             <TableBody>
               {query.data.items.map((member) => {
-                const main = member.characters.find((character) => character.isMain === 1);
+                const main = member.characters.find((character) => character.isMain);
                 return (
                   <TableRow key={member.id}>
                     <TableCell className="font-medium">{member.name ?? member.guildNickname ?? "未设置昵称"}</TableCell>

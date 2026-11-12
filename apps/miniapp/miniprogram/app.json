@@ -1,5 +1,11 @@
 {
-  "pages": ["pages/index/index", "pages/activities/index", "pages/profile/index", "pages/login-confirm/index"],
+  "pages": [
+    "pages/index/index",
+    "pages/activities/index",
+    "pages/activity-detail/index",
+    "pages/profile/index",
+    "pages/login-confirm/index"
+  ],
   "window": {
     "navigationBarTitleText": "TTZ 公会站",
     "navigationBarBackgroundColor": "#111111",

@@ -12,3 +12,8 @@ page { background: #f7f7f7; color: #161616; font-family: -apple-system, BlinkMac
 .form { display: flex; flex-direction: column; gap: 24rpx; }
 .form label { display: flex; flex-direction: column; gap: 12rpx; font-size: 26rpx; }
 .form input { border: 1rpx solid #ddd; border-radius: 12rpx; padding: 18rpx; }
+.activity-card { margin-top: 20rpx; padding: 28rpx; background: #fff; border-radius: 20rpx; }
+.activity-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 20rpx; }
+.status-pill { padding: 6rpx 14rpx; border-radius: 999rpx; background: #eee; font-size: 22rpx; white-space: nowrap; }
+.detail-list { display: flex; flex-direction: column; gap: 24rpx; }
+.picker { border: 1rpx solid #ddd; border-radius: 12rpx; padding: 18rpx; }

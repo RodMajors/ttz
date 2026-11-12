@@ -85,7 +85,9 @@ export function ActivitiesScreen() {
               {query.data.items.map((activity) => (
                 <TableRow key={activity.id}>
                   <TableCell>
-                    <span className="font-medium">{activity.name}</span>
+                    <Link className="font-medium hover:underline" href={`/dashboard/activities/${activity.id}`}>
+                      {activity.name}
+                    </Link>
                     <p className="text-xs text-muted-foreground">{activity.type}</p>
                   </TableCell>
                   <TableCell>{formatDate(activity.beginAt)}</TableCell>
