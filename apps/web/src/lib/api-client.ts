@@ -16,12 +16,22 @@ export async function apiRequest<T>(path: string, schema: ZodType<T>, init?: Req
   const headers = new Headers(init?.headers);
   headers.set("accept", "application/json");
   if (init?.body) headers.set("content-type", "application/json");
-  const response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers, credentials: "include" });
-  const payload = (await response.json()) as {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers, credentials: "include" });
+  } catch {
+    throw new ApiError("无法连接 TTZ API，请检查服务是否启动", "NETWORK_ERROR");
+  }
+  let payload: {
     data?: unknown;
     error?: { code?: string; message?: string };
     requestId?: string;
   };
+  try {
+    payload = (await response.json()) as typeof payload;
+  } catch {
+    throw new ApiError("TTZ API 返回了无法解析的响应", "INVALID_RESPONSE");
+  }
   if (!response.ok)
     throw new ApiError(
       payload.error?.message ?? "请求失败",
