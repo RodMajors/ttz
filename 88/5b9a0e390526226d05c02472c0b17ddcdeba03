@@ -1,0 +1,16 @@
+package.json
+  h_1dc22111645538 5-8
+pnpm-lock.yaml
+  h_1dc22111645538 1-158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "885b9a0e390526226d05c02472c0b17ddcdeba03",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
