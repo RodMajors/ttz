@@ -1,0 +1,29 @@
+.husky/pre-commit
+  s_590ded93c705ab::t_7b658aa47bc22f 2
+README.md
+  s_590ded93c705ab::t_ef2d8f262cc790 1,3,5,7-11,15,17,19,21,23,25
+apps/web/package.json
+  s_590ded93c705ab::t_03e28b8a5b04b8 12-13,24
+pnpm-lock.yaml
+  s_590ded93c705ab::t_59b1501974e360 215-217,1864-1875,4887-4895,5247,5315,5774-5775
+pnpm-workspace.yaml
+  s_590ded93c705ab::t_32541e06640490 2-4
+turbo.json
+  s_590ded93c705ab::t_595c12efdead01 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "665219822cd37c1caf4d35b7aa1f023cc3b9ee71",
+  "prompts": {},
+  "sessions": {
+    "s_590ded93c705ab": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d058-3eaf-7460-97a4-af939e0f3e3f",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
