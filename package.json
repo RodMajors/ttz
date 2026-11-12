@@ -1,5 +1,5 @@
 {
-  "name": "ttz-guild-site",
+  "name": "ttz-frontend",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@12.18.0",
@@ -22,12 +22,8 @@
     "turbo": "^2.5.6"
   },
   "lint-staged": {
-    "apps/web/src/app/(external)/**/*.{js,ts,jsx,tsx}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
-    "apps/web/src/app/(main)/dashboard/default/**/*.{js,ts,jsx,tsx}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
-    "apps/web/src/app/(main)/dashboard/_components/**/*.{js,ts,jsx,tsx}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
-    "apps/web/src/config/**/*.{js,ts,jsx,tsx}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
-    "apps/web/src/navigation/**/*.{js,ts,jsx,tsx}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
-    "packages/contracts/**/*.{js,ts}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
-    "apps/api/**/*.{js,ts}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched"
+    "apps/web/src/**/*.{js,ts,jsx,tsx}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
+    "apps/miniapp/**/*.ts": "./node_modules/.bin/biome check --write --no-errors-on-unmatched",
+    "packages/contracts/**/*.{js,ts}": "./node_modules/.bin/biome check --write --no-errors-on-unmatched"
   }
 }

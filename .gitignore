@@ -9,3 +9,5 @@ coverage/
 !.env.example
 *.log
 apps/miniapp/project.private.config.json
+.agents/
+skills-lock.json
