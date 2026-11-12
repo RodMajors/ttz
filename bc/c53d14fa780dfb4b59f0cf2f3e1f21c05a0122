@@ -1,0 +1,125 @@
+.env.example
+  s_590ded93c705ab::t_3ca5391d7ca457 2
+.github/workflows/ci.yml
+  s_590ded93c705ab::t_54bc842660d10b 1-27
+README.md
+  s_590ded93c705ab::t_d7751726941027 1,3-9,13-26,28-39,43-72,74,76-79,81,83,85
+apps/miniapp/README.md
+  s_590ded93c705ab::t_b33535ed85d01c 1,3,5,7-12,14,16,18,20-23
+apps/miniapp/miniprogram/app.json
+  s_590ded93c705ab::t_de6934933f112f 5
+apps/miniapp/miniprogram/app.wxss
+  s_590ded93c705ab::t_970979d77d5f04 20-23
+apps/miniapp/miniprogram/lib/auth.ts
+  s_590ded93c705ab::t_35cc6de5282f06 10-11
+apps/miniapp/miniprogram/pages/activities/index.ts
+  s_590ded93c705ab::t_7ea3769a6e3225 48-50
+apps/miniapp/miniprogram/pages/activities/index.wxml
+  s_590ded93c705ab::t_96774f68537cc0 2
+apps/miniapp/miniprogram/pages/activity-create/index.json
+  s_590ded93c705ab::t_55c8abff2e2f8d 1
+apps/miniapp/miniprogram/pages/activity-create/index.ts
+  s_590ded93c705ab::t_dd9b868fc6a90b 1,3,5-15,17-18,20-21,23-24,26-67,69-75
+apps/miniapp/miniprogram/pages/activity-create/index.wxml
+  s_590ded93c705ab::t_79447eb50e4ebd 1-15
+apps/miniapp/miniprogram/pages/index/index.wxml
+  s_590ded93c705ab::t_a7f64f0974bd93 8
+apps/web/AGENTS.md
+  s_590ded93c705ab::t_fdf5167bd62087 5,35,38-39,45-47,50,68
+apps/web/CONTRIBUTING.md
+  s_590ded93c705ab::t_888afcabf5d345 1,3,5,7,9-11,14,16-19,21,23-28,30,32-37
+apps/web/README.md
+  s_590ded93c705ab::t_3cd34e65e6d83b 1,3,5,7-12,14,16,18,21-24,27
+apps/web/next.config.mjs
+  s_590ded93c705ab::t_42bdf11c5e7dc5 3
+apps/web/package.json
+  s_590ded93c705ab::t_7c601fa8555aa1 9-12,43
+apps/web/src/app/(external)/member-status/member-status.tsx
+  s_590ded93c705ab::t_fcbd88bbe79f72 72-78,101-106
+apps/web/src/app/(external)/page.tsx
+  s_590ded93c705ab::t_b1451576493ace 3,8
+apps/web/src/app/(external)/progress/page.tsx
+  s_590ded93c705ab::t_207026f4da4d26 1-2,4,7
+apps/web/src/app/(external)/progress/public-progress.tsx
+  s_590ded93c705ab::t_05f99f7c749498 1-7,11-13,15-19,21-32,34-67,70-89
+apps/web/src/app/(external)/public-home.tsx
+  s_590ded93c705ab::t_d419fb1996b794 3-8,11-13,15,17-26,28-44,46-49,52-72,74-75,77-133
+apps/web/src/app/(external)/recruitment/page.tsx
+  s_590ded93c705ab::t_e6fcd5dbf961b2 1-2,4,7
+apps/web/src/app/(external)/recruitment/recruitment.tsx
+  s_590ded93c705ab::t_242d1d0df4181c 1-7,9-12,14-15,17-54,56-57,59-72,75,77-78,80-98,101-103,105,107-112,115-116
+apps/web/src/app/(main)/dashboard/_components/header/search-dialog.tsx
+  s_590ded93c705ab::t_65280c6691dff4 3-4,6-7,20,32,52,64,86-90,148,155,157-158
+apps/web/src/app/(main)/dashboard/_components/sidebar/app-sidebar.tsx
+  s_590ded93c705ab::t_0f362e74325a9a 39-42,59
+apps/web/src/app/(main)/dashboard/_components/sidebar/nav-main.tsx
+  s_590ded93c705ab::t_b4477862e01156 3-4,107,109-111,113-116
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  s_590ded93c705ab::t_5c8c45090b9760 12,21,46,57,146-148,200-365,418-420,439,441,444-449,508-533,835-841
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  s_b15bf7adbc219c::t_649f2488cffc1e 7,13,26-28,33-39,55-76,91,107,119
+apps/web/src/app/(main)/dashboard/activities/new/activity-create-form.tsx
+  s_b15bf7adbc219c::t_629ffa633626dc 43,45,49-52,108-112,123-144,173-176
+apps/web/src/app/(main)/dashboard/announcements/announcements-screen.tsx
+  s_590ded93c705ab::t_42ed64ae7c20d8 3-15,17-18,26,28-29,31-36,38-39,41-115,118-158,160-167,169-170,172,175,177-179,181,184-194,196-205,208-216,218-219,221-247,249-252,257,259-262,265-279,281-285,292-310
+apps/web/src/app/(main)/dashboard/announcements/page.tsx
+  s_590ded93c705ab::t_7e554004cf4825 2,7
+apps/web/src/app/(main)/dashboard/attendance/[id]/attendance-detail-screen.tsx
+  s_590ded93c705ab::t_2c72723965c29b 14,121-130,134-135,464-509
+apps/web/src/app/(main)/dashboard/default/dashboard-overview.tsx
+  s_590ded93c705ab::t_885dab6bf7caa2 1,3-7,9-12,14-55,57-61,63-79,82-83,85-115,120-121,123-128,130-136,140-199
+apps/web/src/app/(main)/dashboard/default/page.tsx
+  s_590ded93c705ab::t_552ef02ae85742 2,6-7
+apps/web/src/app/(main)/dashboard/members/_components/members-screen.tsx
+  s_590ded93c705ab::t_8f49f663bfc6f8 44-45,61-71,100-120,123,145
+apps/web/src/app/(main)/dashboard/profile/profile-screen.tsx
+  s_590ded93c705ab::t_e1970c2300339f 10,12,148-152,254,281,284,291-383
+apps/web/src/app/(main)/dashboard/system/operations-settings.tsx
+  s_590ded93c705ab::t_92b45454f7e914 3-13,15-21,23-26,28-51,53-63,69,71-122,125,127-161,163-175,178,180-209,212-251,253-259,261-275,277-303,306-316
+apps/web/src/app/(main)/dashboard/system/page.tsx
+  s_590ded93c705ab::t_80d0083d2d40c8 2,7
+apps/web/src/app/(main)/dashboard/tools/page.tsx
+  s_590ded93c705ab::t_3448140041f258 2,5
+apps/web/src/app/(main)/dashboard/tools/tools-screen.tsx
+  s_590ded93c705ab::t_0de26ce372eaf0 1-5,7,9-15,17-21,23-34,36-37,39-44,49-50,53,55-56,59-60
+apps/web/src/app/(main)/unauthorized/page.tsx
+  s_590ded93c705ab::t_787866d9a416df 3
+apps/web/src/app/robots.ts
+  s_590ded93c705ab::t_3f2f7d748c8525 1,4-8
+apps/web/src/app/sitemap.ts
+  s_590ded93c705ab::t_b0f48020d8977d 5
+apps/web/src/config/app-config.ts
+  s_590ded93c705ab::t_0676373bdd96b0 7,10
+apps/web/src/navigation/sidebar/sidebar-items.ts
+  s_590ded93c705ab::t_f0f7d4367bcf88 30,63
+biome.json
+  s_590ded93c705ab::t_0af540c656e337 3-14,16-23,26-27
+packages/contracts/src/index.ts
+  s_590ded93c705ab::t_24d8b9aa01630b 36-37,105-106,186,196,473-558
+pnpm-lock.yaml
+  s_590ded93c705ab::t_1e0b56a7ec82c7 278-280,1880-1883,1962-1964,2010-2013,2036-2040,2274-2277,3007-3009,3215-3222,3231-3235,4756-4757,4823-4826,4868-4869,4895-4896,5103-5104,5796-5798,5987-5990,6002-6011
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bcc53d14fa780dfb4b59f0cf2f3e1f21c05a0122",
+  "prompts": {},
+  "sessions": {
+    "s_590ded93c705ab": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d058-3eaf-7460-97a4-af939e0f3e3f",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    },
+    "s_b15bf7adbc219c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1cf75-6f5f-7b70-bc39-97cb3d734c92",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
