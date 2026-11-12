@@ -1,0 +1,41 @@
+apps/miniapp/miniprogram/app.json
+  s_590ded93c705ab::t_cc806849df7f50 2-8
+apps/miniapp/miniprogram/app.wxss
+  s_590ded93c705ab::t_708f34c0b23027 15-19
+apps/miniapp/miniprogram/pages/activities/index.ts
+  s_590ded93c705ab::t_ec4ae9b5078268 1-56
+apps/miniapp/miniprogram/pages/activities/index.wxml
+  s_590ded93c705ab::t_8bf07b044d119b 1-11
+apps/miniapp/miniprogram/pages/activity-detail/index.json
+  s_590ded93c705ab::t_adaebb922645ae 1
+apps/miniapp/miniprogram/pages/activity-detail/index.ts
+  s_590ded93c705ab::t_6b79b67686f413 1-141
+apps/miniapp/miniprogram/pages/activity-detail/index.wxml
+  s_590ded93c705ab::t_ec3b46221d1917 1-23
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  s_590ded93c705ab::t_8e41d2b376c514 1-627
+apps/web/src/app/(main)/dashboard/activities/[id]/page.tsx
+  s_590ded93c705ab::t_1cad0ca317cd0d 1-9
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  s_590ded93c705ab::t_37a7ce5dab2bac 88-90
+apps/web/src/app/(main)/dashboard/members/_components/members-screen.tsx
+  s_590ded93c705ab::t_9cef270402b5a5 20,69
+packages/contracts/src/index.ts
+  s_590ded93c705ab::t_2e9a54e23a5659 112-177
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fbeea7fa0b8345e8380f214976e1d317b789eb1b",
+  "prompts": {},
+  "sessions": {
+    "s_590ded93c705ab": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d058-3eaf-7460-97a4-af939e0f3e3f",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
