@@ -1,0 +1,25 @@
+apps/web/src/app/(main)/dashboard/attendance/[id]/attendance-detail-screen.tsx
+  s_590ded93c705ab::t_f76288a3b444d8 1-455
+apps/web/src/app/(main)/dashboard/attendance/[id]/page.tsx
+  s_590ded93c705ab::t_f32bb908f67a84 1-9
+apps/web/src/app/(main)/dashboard/attendance/_components/attendance-screen.tsx
+  s_590ded93c705ab::t_bc185a3c38ef97 5,83-103,121-126
+packages/contracts/src/index.ts
+  s_590ded93c705ab::t_cb5ff937ab83a4 323-330,344,347,359,393-428
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7c7dd366f751f4422ca3aad142b19c98a88131cc",
+  "prompts": {},
+  "sessions": {
+    "s_590ded93c705ab": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1d058-3eaf-7460-97a4-af939e0f3e3f",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
