@@ -1,0 +1,39 @@
+.gitignore
+  s_91209f3f10bb14::t_38dfb00f11ab1c 11-12
+apps/miniapp/README.md
+  s_91209f3f10bb14::t_4ac08c4c68723b 3,5-7,9,11-13,15
+apps/miniapp/miniprogram/pages/index/index.wxml
+  s_91209f3f10bb14::t_35590cd6f97fbd 17-18
+apps/miniapp/project.config.json
+  s_91209f3f10bb14::t_328b7d21a3253e 5-37
+apps/miniapp/scripts/build.mjs
+  s_91209f3f10bb14::t_a8df11342ba66f 1-16
+apps/miniapp/scripts/copy-assets.mjs
+  s_91209f3f10bb14::t_60bff90e617a08 1-33
+apps/miniapp/src/miniprogram/pages/index/index.wxml
+  s_91209f3f10bb14::t_218b526fb3851c 1-21
+apps/miniapp/src/miniprogram/pages/profile/index.json
+  s_91209f3f10bb14::t_6fe2cf9c63a91a 1
+apps/miniapp/src/miniprogram/pages/profile/index.wxml
+  s_91209f3f10bb14::t_385c2ce0da20c9 1-15
+apps/miniapp/tsconfig.build.json
+  s_91209f3f10bb14::t_50f967a64e3efc 1-15
+apps/miniapp/tsconfig.json
+  s_91209f3f10bb14::t_c0e948ba8b0942 4-5,11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ab8fb647c10d1c77b5c2ed7016d9416641483cf9",
+  "prompts": {},
+  "sessions": {
+    "s_91209f3f10bb14": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ce5e-3ad5-7553-9333-b05a2d9c46fd",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
