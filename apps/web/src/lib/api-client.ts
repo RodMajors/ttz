@@ -2,6 +2,16 @@ import type { ZodType } from "zod";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api";
 
+export function isLocalDevelopmentApi() {
+  if (process.env.NODE_ENV === "production") return false;
+  try {
+    const hostname = new URL(API_BASE_URL).hostname.toLowerCase();
+    return hostname === "localhost" || hostname === "::1" || /^127(?:\.\d{1,3}){3}$/.test(hostname);
+  } catch {
+    return false;
+  }
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,

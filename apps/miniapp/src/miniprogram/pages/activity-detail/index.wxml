@@ -1,0 +1,23 @@
+<view class="page">
+  <view class="card" wx:if="{{loading}}"><view class="muted">正在加载活动…</view></view>
+  <view wx:elif="{{activity}}">
+    <view class="eyebrow">{{activity.status}} · {{activity.maxPlayers}} 人上限</view>
+    <view class="title">{{activity.name}}</view>
+    <view class="card detail-list">
+      <view><view class="muted">集合时间</view><view>{{activity.teamUpAtLabel}}</view></view>
+      <view><view class="muted">开始时间</view><view>{{activity.beginAtLabel}}</view></view>
+      <view><view class="muted">报名截止</view><view>{{activity.deadlineLabel}}</view></view>
+      <view class="muted" wx:if="{{activity.description}}">{{activity.description}}</view>
+    </view>
+    <form class="card form" wx:if="{{activity.canSignup || activity.canChangeMySignup}}" bindsubmit="signup">
+      <view class="section-title">{{activity.mySignup ? '修改报名' : '参与报名'}}</view>
+      <label>出战角色<picker range="{{characterLabels}}" value="{{selectedCharacterIndex}}" bindchange="selectCharacter"><view class="picker">{{characterLabels[selectedCharacterIndex] || '请先添加角色'}}</view></picker></label>
+      <label>首选职责<picker range="{{roleLabels}}" value="{{selectedRoleIndex}}" bindchange="selectRole"><view class="picker">{{roleLabels[selectedRoleIndex]}}</view></picker></label>
+      <label>备注<input name="note" value="{{activity.mySignup.note}}" maxlength="255" /></label>
+      <button class="primary-button" form-type="submit" disabled="{{submitting || characters.length === 0}}">提交报名</button>
+      <button class="secondary-button" wx:if="{{activity.mySignup && activity.canChangeMySignup}}" type="button" bindtap="cancelSignup">取消报名</button>
+    </form>
+    <view class="card" wx:elif="{{activity.mySignup}}"><view class="section-title">报名已确认</view><view class="muted">团长确认后普通成员不能修改或取消，请联系活动负责人调整。</view></view>
+  </view>
+  <view class="error" wx:if="{{error}}">{{error}}</view>
+</view>

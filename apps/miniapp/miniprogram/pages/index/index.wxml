@@ -14,6 +14,8 @@
     <view class="section-title">建立微信身份</view>
     <view class="muted">首次使用会建立 TTZ 自有登录态，不会保存或返回微信 session_key。</view>
     <button class="primary-button" bindtap="login">微信登录</button>
+    <button wx:if="{{localDevAuthEnabled}}" class="secondary-button" bindtap="localDevLogin">本地开发管理员登录</button>
+    <view wx:if="{{localDevAuthEnabled}}" class="muted">仅适用于微信开发者工具连接本机 API。</view>
   </view>
   <view class="error" wx:if="{{error}}">{{error}}</view>
 </view>

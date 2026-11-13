@@ -8,6 +8,8 @@ coverage/
 .env.*
 !.env.example
 *.log
+dump.rdb
+apps/miniapp/miniprogram/
 apps/miniapp/project.private.config.json
 .agents/
 skills-lock.json

@@ -1,0 +1,15 @@
+<view class="page">
+  <view class="title">我的</view>
+  <view class="card" wx:if="{{loading}}"><view class="muted">正在加载成员资料…</view></view>
+  <view class="card" wx:elif="{{!user}}"><view class="muted">请先从首页完成微信登录。</view></view>
+  <form class="card form" wx:else bindsubmit="save">
+    <view class="section-title">成员资料</view>
+    <label>微信名<input name="wxNickname" value="{{user.wxNickname}}" placeholder="微信中显示的名字" /></label>
+    <label>TTZ 群昵称<input name="guildNickname" value="{{user.guildNickname}}" placeholder="公会群中的昵称" /></label>
+    <label>站内显示名<input name="name" value="{{user.name}}" placeholder="可选" /></label>
+    <view class="muted">状态：{{user.isApproved ? '已审核' : '待审核'}}</view>
+    <button class="primary-button" form-type="submit">保存资料</button>
+    <button class="secondary-button" type="button" bindtap="logout">退出登录</button>
+  </form>
+  <view class="error" wx:if="{{error}}">{{error}}</view>
+</view>

@@ -1,9 +1,11 @@
 import { apiRequest, hasSession } from "../../lib/api";
-import { type CurrentUser, getCurrentUser, loginWithWechat } from "../../lib/auth";
+import { type CurrentUser, getCurrentUser, loginWithLocalDevAccount, loginWithWechat } from "../../lib/auth";
 
 Page({
-  data: { loading: true, user: null as CurrentUser | null, error: "" },
+  data: { loading: true, user: null as CurrentUser | null, error: "", localDevAuthEnabled: false },
   onShow() {
+    const app = getApp<{ globalData: { localDevAuthEnabled: boolean } }>();
+    this.setData({ localDevAuthEnabled: app.globalData.localDevAuthEnabled });
     void this.loadSession();
   },
   async loadSession() {
@@ -25,6 +27,16 @@ Page({
       wx.showToast({ title: "登录成功", icon: "success" });
     } catch (error) {
       this.setData({ loading: false, error: error instanceof Error ? error.message : "微信登录失败" });
+    }
+  },
+  async localDevLogin() {
+    this.setData({ loading: true, error: "" });
+    try {
+      const user = await loginWithLocalDevAccount();
+      this.setData({ user, loading: false });
+      wx.showToast({ title: "本地管理员登录成功", icon: "success" });
+    } catch (error) {
+      this.setData({ loading: false, error: error instanceof Error ? error.message : "本地开发登录失败" });
     }
   },
   scanLogin() {

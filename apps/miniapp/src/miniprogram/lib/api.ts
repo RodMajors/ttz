@@ -63,7 +63,7 @@ async function refreshSession(refreshToken: string) {
 }
 
 function rawRequest<T>(path: string, options: ApiRequestOptions, authenticated = true): Promise<T> {
-  const app = getApp<{ globalData: { apiBaseUrl: string } }>();
+  const app = getApp<{ globalData: { apiBaseUrl: string; localDevAuthEnabled: boolean } }>();
   const accessToken = authenticated ? wx.getStorageSync<string>(ACCESS_TOKEN_KEY) : "";
   return new Promise((resolve, reject) => {
     wx.request<ApiEnvelope<T>>({

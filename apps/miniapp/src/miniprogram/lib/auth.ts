@@ -36,6 +36,14 @@ export async function loginWithWechat() {
   return result.user;
 }
 
+export async function loginWithLocalDevAccount() {
+  const app = getApp<{ globalData: { localDevAuthEnabled: boolean } }>();
+  if (!app.globalData.localDevAuthEnabled) throw new Error("请使用本地开发构建启用测试登录");
+  const result = await apiRequest<LoginResult>("/auth/local-dev-token", { method: "POST" });
+  saveSession(result);
+  return result.user;
+}
+
 export function getCurrentUser() {
   return apiRequest<CurrentUser>("/auth/me");
 }

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { apiRequest } from "@/lib/api-client";
+import { apiRequest, isLocalDevelopmentApi } from "@/lib/api-client";
 
 type LoginStatus = "CREATING" | "PENDING" | "SCANNED" | "CONFIRMED" | "EXPIRED" | "CANCELLED" | "ERROR";
 
@@ -31,6 +31,7 @@ export function QrLogin() {
   const [qrImage, setQrImage] = useState<string>();
   const [error, setError] = useState<string>();
   const [session, setSession] = useState<Awaited<ReturnType<typeof createSession>>>();
+  const [localLoginPending, setLocalLoginPending] = useState(false);
 
   const start = useCallback(async () => {
     setStatus("CREATING");
@@ -80,6 +81,19 @@ export function QrLogin() {
   }, [router, session, status]);
 
   const copy = statusCopy[status];
+  async function loginLocally() {
+    setLocalLoginPending(true);
+    setError(undefined);
+    try {
+      await apiRequest("/auth/local-dev-login", authUserSchema, { method: "POST" });
+      router.replace("/dashboard");
+      router.refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "本地登录失败");
+    } finally {
+      setLocalLoginPending(false);
+    }
+  }
   return (
     <main className="grid min-h-screen place-items-center px-6 py-10">
       <Card className="w-full max-w-md">
@@ -112,6 +126,21 @@ export function QrLogin() {
             <AlertDescription>{error ?? copy.description}</AlertDescription>
           </Alert>
         </CardContent>
+        {isLocalDevelopmentApi() ? (
+          <CardFooter className="flex-col gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => void loginLocally()}
+              disabled={localLoginPending}
+            >
+              {localLoginPending ? <Spinner /> : null}
+              使用本地开发管理员登录
+            </Button>
+            <p className="text-center text-xs text-muted-foreground">只会连接本机开发 API；服务端需显式启用。</p>
+          </CardFooter>
+        ) : null}
         {["EXPIRED", "CANCELLED", "ERROR"].includes(status) ? (
           <CardFooter className="justify-end">
             <Button type="button" onClick={() => void start()}>

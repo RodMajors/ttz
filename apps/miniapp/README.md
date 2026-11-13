@@ -1,23 +1,15 @@
 # TTZ 微信小程序
 
-原生微信小程序 + TypeScript。页面位于 `miniprogram/pages`，共享请求与会话逻辑位于 `miniprogram/lib`。
+在微信开发者工具中打开本目录（`apps/miniapp`）。受版本控制的 TypeScript、JSON、WXML、WXSS 源码位于 `src/miniprogram`；`miniprogram/` 是构建产物。打开或刷新项目前先运行：
 
-## 页面
+```sh
+pnpm --filter @ttz/miniapp build
+```
 
-- `index`：微信登录、审核状态和网页二维码扫描。
-- `login-confirm`：网页登录二次确认/取消。
-- `activities`：近期活动列表。
-- `activity-detail`：报名、修改和取消。
-- `activity-create`：已审核成员快捷创建活动草稿。
-- `profile`：资料维护和退出登录。
+需要在本机 API 上免微信扫码登录时，在 `ttz-server/.env` 中设置 `ALLOW_LOCAL_DEV_LOGIN=true`，然后创建固定的本地开发管理员并构建带开发登录按钮的版本：
 
-## 会话
+```sh
+pnpm --filter @ttz/miniapp build:local
+```
 
-`lib/api.ts` 保存 access/refresh token，401 时只进行一次并发 refresh，轮换失败即清理本地会话。AppSecret 与 session_key 只存在后端。
-
-## 开发
-
-1. 使用微信开发者工具打开本目录。
-2. 填写 AppID；不要提交 `project.private.config.json`。
-3. 修改 `miniprogram/config.ts` 的 API 地址。生产和真机使用已备案 HTTPS 域名。
-4. 在仓库根运行 `pnpm typecheck` 验证小程序 TypeScript。
+本地登录接口只在开发环境显式启用，并且只接受本机回环请求。它为固定测试账号签发普通、可撤销的 TTZ 会话，不使用身份伪造请求头。上传小程序前请使用普通 `build` 命令重新构建。
