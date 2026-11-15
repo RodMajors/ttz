@@ -13,7 +13,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
@@ -82,13 +82,20 @@ export function ActivityCreateForm() {
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field>
                   <FieldLabel htmlFor="type">活动类型</FieldLabel>
-                  <NativeSelect id="type" name="type" className="w-full" defaultValue="raid_progress">
-                    <NativeSelectOption value="raid_progress">团本开荒</NativeSelectOption>
-                    <NativeSelectOption value="raid_farm">团本 Farm</NativeSelectOption>
-                    <NativeSelectOption value="mythic_plus_push">大秘境冲层</NativeSelectOption>
-                    <NativeSelectOption value="mythic_plus_vault">大秘境低保</NativeSelectOption>
-                    <NativeSelectOption value="casual">休闲活动</NativeSelectOption>
-                  </NativeSelect>
+                  <Select name="type" defaultValue="raid_progress">
+                    <SelectTrigger id="type">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="raid_progress">团本开荒</SelectItem>
+                        <SelectItem value="raid_farm">团本 Farm</SelectItem>
+                        <SelectItem value="mythic_plus_push">大秘境冲层</SelectItem>
+                        <SelectItem value="mythic_plus_vault">大秘境低保</SelectItem>
+                        <SelectItem value="casual">休闲活动</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="maxPlayers">人数上限</FieldLabel>
@@ -112,13 +119,20 @@ export function ActivityCreateForm() {
               </Field>
               <Field>
                 <FieldLabel htmlFor="durationMinutes">持续时间</FieldLabel>
-                <NativeSelect id="durationMinutes" name="durationMinutes" defaultValue="120">
-                  <NativeSelectOption value="60">1 小时</NativeSelectOption>
-                  <NativeSelectOption value="90">1.5 小时</NativeSelectOption>
-                  <NativeSelectOption value="120">2 小时</NativeSelectOption>
-                  <NativeSelectOption value="180">3 小时</NativeSelectOption>
-                  <NativeSelectOption value="240">4 小时</NativeSelectOption>
-                </NativeSelect>
+                <Select name="durationMinutes" defaultValue="120">
+                  <SelectTrigger id="durationMinutes">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="60">1 小时</SelectItem>
+                      <SelectItem value="90">1.5 小时</SelectItem>
+                      <SelectItem value="120">2 小时</SelectItem>
+                      <SelectItem value="180">3 小时</SelectItem>
+                      <SelectItem value="240">4 小时</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </Field>
               <div className="grid gap-4 sm:grid-cols-4">
                 <Field>

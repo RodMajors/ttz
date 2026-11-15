@@ -29,7 +29,7 @@ import {
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
@@ -105,18 +105,21 @@ export function MembersScreen() {
               placeholder="搜索成员或角色"
               aria-label="搜索成员或角色"
             />
-            <NativeSelect
-              value={groupId}
-              onChange={(event) => setGroupId(event.target.value)}
-              aria-label="按身份组筛选"
-            >
-              <NativeSelectOption value="">全部身份组</NativeSelectOption>
-              {groups.data.map((group) => (
-                <NativeSelectOption key={group.id} value={group.id}>
-                  {group.name}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+            <Select value={groupId || "all"} onValueChange={(value) => setGroupId(value === "all" ? "" : value)}>
+              <SelectTrigger aria-label="按身份组筛选">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="all">全部身份组</SelectItem>
+                  {groups.data.map((group) => (
+                    <SelectItem key={group.id} value={group.id}>
+                      {group.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </CardAction>
         </CardHeader>
         <CardContent>
@@ -352,21 +355,27 @@ function MemberManagement({
             {currentPrivilege >= 2 ? (
               <Field>
                 <FieldLabel htmlFor={`privilege-${member.id}`}>Privilege</FieldLabel>
-                <NativeSelect
-                  id={`privilege-${member.id}`}
+                <Select
                   value={String(member.privilege)}
-                  onChange={(event) =>
+                  onValueChange={(value) =>
                     mutate.mutate({
                       path: `/members/${member.id}/privilege`,
                       method: "PATCH",
-                      body: { privilege: Number(event.target.value) },
+                      body: { privilege: Number(value) },
                     })
                   }
                 >
-                  <NativeSelectOption value="0">普通成员</NativeSelectOption>
-                  <NativeSelectOption value="1">管理员</NativeSelectOption>
-                  <NativeSelectOption value="2">超级管理员</NativeSelectOption>
-                </NativeSelect>
+                  <SelectTrigger id={`privilege-${member.id}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="0">普通成员</SelectItem>
+                      <SelectItem value="1">管理员</SelectItem>
+                      <SelectItem value="2">超级管理员</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </Field>
             ) : null}
           </FieldGroup>

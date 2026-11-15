@@ -6,7 +6,15 @@ import { Bell, CalendarDays, CheckCircle2, CircleAlert, Clock3, Users } from "lu
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiRequest } from "@/lib/api-client";
 import { AttendanceStatusBadge } from "../_components/attendance-status";
@@ -60,7 +68,7 @@ export function DashboardOverview() {
         <h1 className="mt-1 text-3xl font-semibold tracking-tight">TTZ 公会工作台</h1>
         <p className="mt-2 text-sm text-muted-foreground">活动、报名、名单和出勤的实时概览。</p>
       </div>
-      <div className="grid gap-4 @xl/main:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
         <Metric icon={CalendarDays} label="近期活动" value={String(upcoming.length)} note="未来已发布活动" />
         <Metric
           icon={Clock3}
@@ -174,13 +182,20 @@ function Metric({
   note: string;
 }) {
   return (
-    <Card>
-      <CardContent className="p-5">
-        <Icon className="text-muted-foreground" />
-        <p className="mt-4 text-sm text-muted-foreground">{label}</p>
-        <p className="mt-1 text-3xl font-semibold">{value}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{note}</p>
-      </CardContent>
+    <Card className="@container/card">
+      <CardHeader>
+        <CardDescription>{label}</CardDescription>
+        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">{value}</CardTitle>
+        <CardAction>
+          <Badge variant="outline">
+            <Icon />
+          </Badge>
+        </CardAction>
+      </CardHeader>
+      <CardFooter className="flex-col items-start gap-1.5 text-sm">
+        <div className="font-medium">{note}</div>
+        <div className="text-muted-foreground">数据来自当前工作台</div>
+      </CardFooter>
     </Card>
   );
 }

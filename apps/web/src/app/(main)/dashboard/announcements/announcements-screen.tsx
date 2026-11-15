@@ -28,7 +28,7 @@ import {
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
@@ -194,26 +194,32 @@ function AnnouncementDialog({
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor={`status-${announcement?.id ?? "new"}`}>状态</FieldLabel>
-                <NativeSelect
-                  id={`status-${announcement?.id ?? "new"}`}
-                  name="status"
-                  defaultValue={announcement?.status ?? "DRAFT"}
-                >
-                  <NativeSelectOption value="DRAFT">草稿</NativeSelectOption>
-                  <NativeSelectOption value="ACTIVE">启用</NativeSelectOption>
-                  <NativeSelectOption value="ARCHIVED">归档</NativeSelectOption>
-                </NativeSelect>
+                <Select name="status" defaultValue={announcement?.status ?? "DRAFT"}>
+                  <SelectTrigger id={`status-${announcement?.id ?? "new"}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="DRAFT">草稿</SelectItem>
+                      <SelectItem value="ACTIVE">启用</SelectItem>
+                      <SelectItem value="ARCHIVED">归档</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </Field>
               <Field>
                 <FieldLabel htmlFor={`audience-${announcement?.id ?? "new"}`}>投放范围</FieldLabel>
-                <NativeSelect
-                  id={`audience-${announcement?.id ?? "new"}`}
-                  value={audience}
-                  onChange={(event) => setAudience(event.target.value as "ALL" | "GROUPS")}
-                >
-                  <NativeSelectOption value="ALL">全体成员</NativeSelectOption>
-                  <NativeSelectOption value="GROUPS">指定身份组</NativeSelectOption>
-                </NativeSelect>
+                <Select value={audience} onValueChange={(value) => setAudience(value as "ALL" | "GROUPS")}>
+                  <SelectTrigger id={`audience-${announcement?.id ?? "new"}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="ALL">全体成员</SelectItem>
+                      <SelectItem value="GROUPS">指定身份组</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </Field>
             </div>
             {audience === "GROUPS" ? (

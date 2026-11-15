@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { apiRequest } from "@/lib/api-client";
@@ -53,26 +53,47 @@ export function ActivitiesScreen() {
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex flex-wrap gap-2">
-          <NativeSelect value={status} onChange={(event) => setStatus(event.target.value)} aria-label="按活动状态筛选">
-            <NativeSelectOption value="">全部状态</NativeSelectOption>
-            <NativeSelectOption value="DRAFT">草稿</NativeSelectOption>
-            <NativeSelectOption value="PUBLISHED">已发布</NativeSelectOption>
-            <NativeSelectOption value="FINISHED">已结束</NativeSelectOption>
-            <NativeSelectOption value="CANCELLED">已取消</NativeSelectOption>
-          </NativeSelect>
-          <NativeSelect value={type} onChange={(event) => setType(event.target.value)} aria-label="按活动类型筛选">
-            <NativeSelectOption value="">全部类型</NativeSelectOption>
-            <NativeSelectOption value="raid_progress">团本开荒</NativeSelectOption>
-            <NativeSelectOption value="raid_farm">团本 Farm</NativeSelectOption>
-            <NativeSelectOption value="mythic_plus_push">大秘境冲层</NativeSelectOption>
-            <NativeSelectOption value="mythic_plus_vault">大秘境低保</NativeSelectOption>
-            <NativeSelectOption value="casual">休闲</NativeSelectOption>
-          </NativeSelect>
-          <NativeSelect value={mine} onChange={(event) => setMine(event.target.value)} aria-label="按本人报名筛选">
-            <NativeSelectOption value="">全部活动</NativeSelectOption>
-            <NativeSelectOption value="signed">我的报名</NativeSelectOption>
-            <NativeSelectOption value="unsigned">我未报名</NativeSelectOption>
-          </NativeSelect>
+          <Select value={status || "all"} onValueChange={(value) => setStatus(value === "all" ? "" : value)}>
+            <SelectTrigger aria-label="按活动状态筛选">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="DRAFT">草稿</SelectItem>
+                <SelectItem value="PUBLISHED">已发布</SelectItem>
+                <SelectItem value="FINISHED">已结束</SelectItem>
+                <SelectItem value="CANCELLED">已取消</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Select value={type || "all"} onValueChange={(value) => setType(value === "all" ? "" : value)}>
+            <SelectTrigger aria-label="按活动类型筛选">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">全部类型</SelectItem>
+                <SelectItem value="raid_progress">团本开荒</SelectItem>
+                <SelectItem value="raid_farm">团本 Farm</SelectItem>
+                <SelectItem value="mythic_plus_push">大秘境冲层</SelectItem>
+                <SelectItem value="mythic_plus_vault">大秘境低保</SelectItem>
+                <SelectItem value="casual">休闲</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Select value={mine || "all"} onValueChange={(value) => setMine(value === "all" ? "" : value)}>
+            <SelectTrigger aria-label="按本人报名筛选">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">全部活动</SelectItem>
+                <SelectItem value="signed">我的报名</SelectItem>
+                <SelectItem value="unsigned">我未报名</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
         {query.isPending ? (
           <div className="flex flex-col gap-3" role="status" aria-label="正在加载活动">

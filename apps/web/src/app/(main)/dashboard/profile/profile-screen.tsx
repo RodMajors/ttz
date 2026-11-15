@@ -28,7 +28,7 @@ import {
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { apiRequest } from "@/lib/api-client";
@@ -196,10 +196,17 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field>
                       <FieldLabel htmlFor="faction">阵营</FieldLabel>
-                      <NativeSelect id="faction" name="faction" defaultValue="1">
-                        <NativeSelectOption value="1">部落</NativeSelectOption>
-                        <NativeSelectOption value="0">联盟</NativeSelectOption>
-                      </NativeSelect>
+                      <Select name="faction" defaultValue="1">
+                        <SelectTrigger id="faction">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="1">部落</SelectItem>
+                            <SelectItem value="0">联盟</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     </Field>
                     <Field>
                       <FieldLabel htmlFor="itemLevel">装等</FieldLabel>
@@ -338,14 +345,17 @@ function CharacterEditDialog({
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
                 <FieldLabel htmlFor={`edit-faction-${character.id}`}>阵营</FieldLabel>
-                <NativeSelect
-                  id={`edit-faction-${character.id}`}
-                  name="faction"
-                  defaultValue={String(character.faction ?? 1)}
-                >
-                  <NativeSelectOption value="1">部落</NativeSelectOption>
-                  <NativeSelectOption value="0">联盟</NativeSelectOption>
-                </NativeSelect>
+                <Select name="faction" defaultValue={String(character.faction ?? 1)}>
+                  <SelectTrigger id={`edit-faction-${character.id}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="1">部落</SelectItem>
+                      <SelectItem value="0">联盟</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </Field>
               <Field>
                 <FieldLabel htmlFor={`edit-item-level-${character.id}`}>装等</FieldLabel>

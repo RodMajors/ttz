@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -155,24 +155,31 @@ export function AttendanceDetailScreen({ activityId }: { activityId: string }) {
                   </TableCell>
                   <TableCell>
                     {data.canManage ? (
-                      <NativeSelect
+                      <Select
                         value={drafts[record.userId]?.status ?? record.status}
-                        onChange={(event) =>
+                        onValueChange={(value) =>
                           setDrafts((current) => ({
                             ...current,
                             [record.userId]: {
-                              status: event.target.value as AttendanceStatus,
+                              status: value as AttendanceStatus,
                               note: current[record.userId]?.note ?? "",
                             },
                           }))
                         }
                       >
-                        {statuses.map((status) => (
-                          <NativeSelectOption key={status} value={status}>
-                            {statusLabels[status]}
-                          </NativeSelectOption>
-                        ))}
-                      </NativeSelect>
+                        <SelectTrigger aria-label={`${record.memberName} 出勤状态`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {statuses.map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {statusLabels[status]}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     ) : (
                       <AttendanceStatusBadge status={record.status} />
                     )}
@@ -397,18 +404,21 @@ function WclReport({ reportId, activityId }: { reportId: string; activityId: str
                 <p className="font-medium">{actor.actorName}</p>
                 <p className="text-xs text-muted-foreground">{actor.realmName ?? "未知服务器"}</p>
               </div>
-              <NativeSelect
-                defaultValue=""
-                onChange={(event) => mapActor.mutate({ actorId: actor.actorId, value: event.target.value })}
-              >
-                <NativeSelectOption value="">选择本站角色</NativeSelectOption>
-                <NativeSelectOption value="ignore">忽略外部角色</NativeSelectOption>
-                {characters.map((character) => (
-                  <NativeSelectOption key={character.id} value={character.id}>
-                    {character.label}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
+              <Select onValueChange={(value) => mapActor.mutate({ actorId: actor.actorId, value })}>
+                <SelectTrigger aria-label={`匹配 ${actor.actorName}`}>
+                  <SelectValue placeholder="选择本站角色" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="ignore">忽略外部角色</SelectItem>
+                    {characters.map((character) => (
+                      <SelectItem key={character.id} value={character.id}>
+                        {character.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
           ))}
         </div>

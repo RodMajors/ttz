@@ -56,7 +56,7 @@ import {
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -469,24 +469,23 @@ function SignupDialog({
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="characterId">出战角色</FieldLabel>
-              <NativeSelect
-                id="characterId"
-                name="characterId"
-                required
-                defaultValue={activity.mySignup?.character.id ?? ""}
-              >
-                <NativeSelectOption value="" disabled>
-                  {characters.isPending ? "正在加载角色…" : "请选择角色"}
-                </NativeSelectOption>
-                {characters.data
-                  ?.filter((character) => !character.isRetired)
-                  .map((character) => (
-                    <NativeSelectOption key={character.id} value={character.id}>
-                      {character.name} · {character.realm}
-                      {character.isMain ? "（主角色）" : ""}
-                    </NativeSelectOption>
-                  ))}
-              </NativeSelect>
+              <Select name="characterId" required defaultValue={activity.mySignup?.character.id}>
+                <SelectTrigger id="characterId">
+                  <SelectValue placeholder={characters.isPending ? "正在加载角色…" : "请选择角色"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {characters.data
+                      ?.filter((character) => !character.isRetired)
+                      .map((character) => (
+                        <SelectItem key={character.id} value={character.id}>
+                          {character.name} · {character.realm}
+                          {character.isMain ? "（主角色）" : ""}
+                        </SelectItem>
+                      ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               <FieldDescription>没有可选角色时，请先在个人中心添加角色。</FieldDescription>
             </Field>
             <Field>
@@ -720,16 +719,19 @@ function DecisionDialog({
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor={`status-${signup.id}`}>处理结果</FieldLabel>
-              <NativeSelect
-                id={`status-${signup.id}`}
-                name="status"
-                defaultValue={signup.status === "CANCELLED" ? "PENDING" : signup.status}
-              >
-                <NativeSelectOption value="PENDING">待确认</NativeSelectOption>
-                <NativeSelectOption value="CONFIRMED">确认</NativeSelectOption>
-                <NativeSelectOption value="BENCH">替补</NativeSelectOption>
-                <NativeSelectOption value="REJECTED">拒绝</NativeSelectOption>
-              </NativeSelect>
+              <Select name="status" defaultValue={signup.status === "CANCELLED" ? "PENDING" : signup.status}>
+                <SelectTrigger id={`status-${signup.id}`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="PENDING">待确认</SelectItem>
+                    <SelectItem value="CONFIRMED">确认</SelectItem>
+                    <SelectItem value="BENCH">替补</SelectItem>
+                    <SelectItem value="REJECTED">拒绝</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
