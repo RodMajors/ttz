@@ -1,0 +1,25 @@
+apps/miniapp/src/miniprogram/pages/profile/index.ts
+  s_91209f3f10bb14::t_b373a1153341fe 21,25
+apps/miniapp/src/miniprogram/pages/profile/index.wxml
+  s_91209f3f10bb14::t_dad935da2a591d 9
+apps/web/src/app/(main)/dashboard/layout.tsx
+  s_91209f3f10bb14::t_355ae2e30aa410 15,68
+apps/web/src/app/globals.css
+  s_91209f3f10bb14::t_abe9bdab76ec61 142-151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c155a544353e8f84ab126f62f43edde3a71062fa",
+  "prompts": {},
+  "sessions": {
+    "s_91209f3f10bb14": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ce5e-3ad5-7553-9333-b05a2d9c46fd",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
