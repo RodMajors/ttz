@@ -15,6 +15,7 @@ import {
 } from "@ttz/contracts";
 import { Check, CircleAlert, Link2, Plus, RefreshCw, Search, Star, UserRound } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +39,6 @@ export function ProfileScreen() {
     queryFn: () => apiRequest("/characters", characterListSchema),
   });
   const [error, setError] = useState<string>();
-  const [wclMessage, setWclMessage] = useState<string>();
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const result = params.get("wcl");
@@ -50,18 +50,22 @@ export function ProfileScreen() {
       client.invalidateQueries({ queryKey: ["wcl-link"] });
       client.invalidateQueries({ queryKey: ["characters"] });
       window.history.replaceState({}, "", window.location.pathname);
-      setWclMessage(
-        `WCL 已绑定：自动同步 ${synced} 个认领角色${conflicts !== "0" ? `，另有 ${conflicts} 个角色与其他成员冲突` : ""}。`,
-      );
+      toast.success("WCL 已绑定", {
+        description: `自动同步 ${synced} 个认领角色${conflicts !== "0" ? `，另有 ${conflicts} 个角色与其他成员冲突` : ""}。`,
+      });
       return;
     }
     window.history.replaceState({}, "", window.location.pathname);
-    setWclMessage(result === "cancelled" ? "已取消 WCL 授权。" : "WCL 授权或角色同步失败，请稍后重试。");
+    if (result === "cancelled") toast.info("已取消 WCL 授权");
+    else toast.error("WCL 授权或角色同步失败", { description: "请稍后重试。" });
   }, [client]);
   const profile = useMutation({
     mutationFn: (body: z.infer<typeof memberProfileSchema>) =>
       apiRequest("/auth/profile", authUserSchema, { method: "PATCH", body: JSON.stringify(body) }),
-    onSuccess: (user) => client.setQueryData(["auth", "me"], user),
+    onSuccess: (user) => {
+      client.setQueryData(["auth", "me"], user);
+      toast.success("成员资料已保存");
+    },
     onError: (reason) => setError(reason.message),
   });
   function submitProfile(event: FormEvent<HTMLFormElement>) {
@@ -95,12 +99,6 @@ export function ProfileScreen() {
         <p className="text-sm text-muted-foreground">个人中心</p>
         <h1 className="text-3xl font-semibold tracking-tight">{me.data.name}</h1>
       </div>
-      {wclMessage ? (
-        <Alert>
-          <AlertTitle>WCL 绑定结果</AlertTitle>
-          <AlertDescription>{wclMessage}</AlertDescription>
-        </Alert>
-      ) : null}
       <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
         <Card>
           <CardHeader>
@@ -151,8 +149,6 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
   const [serverSlug, setServerSlug] = useState("");
   const [serverRegion, setServerRegion] = useState("cn");
   const [candidate, setCandidate] = useState<z.infer<typeof wclCharacterCandidateSchema>>();
-  const [error, setError] = useState<string>();
-  const [notice, setNotice] = useState<string>();
   const refresh = () => client.invalidateQueries({ queryKey: ["characters"] });
   const linkStatus = useQuery({
     queryKey: ["wcl-link"],
@@ -166,7 +162,7 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
   const authorize = useMutation({
     mutationFn: () => apiRequest("/auth/wcl/authorize", wclAuthorizeSchema, { method: "POST" }),
     onSuccess: (result) => window.location.assign(result.authorizationUrl),
-    onError: (reason) => setError(reason.message),
+    onError: (reason) => toast.error("无法发起 WCL 授权", { description: reason.message }),
   });
   const search = useMutation({
     mutationFn: () => {
@@ -180,10 +176,8 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
     },
     onSuccess: (result) => {
       setCandidate(result);
-      setError(undefined);
-      setNotice(undefined);
     },
-    onError: (reason) => setError(reason.message),
+    onError: (reason) => toast.error("WCL 角色查询失败", { description: reason.message }),
   });
   const create = useMutation({
     mutationFn: (body: z.infer<typeof createCharacterSchema>) =>
@@ -191,24 +185,29 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
     onSuccess: async () => {
       setCandidate(undefined);
       setName("");
-      setNotice("角色已添加，等待管理员审核。未验证角色仍可报名。");
+      toast.success("角色已提交审核", { description: "未验证角色仍可报名。" });
       await refresh();
     },
-    onError: (reason) => setError(reason.message),
+    onError: (reason) => toast.error("角色提交失败", { description: reason.message }),
   });
   const action = useMutation({
     mutationFn: ({ id, path }: { id: string; path: "set-main" | "retire" }) =>
       apiRequest(`/characters/${id}/${path}`, actionResultSchema, { method: "POST" }),
-    onSuccess: refresh,
+    onSuccess: async (_result, variables) => {
+      toast.success(variables.path === "retire" ? "角色已退役" : "主角色已更新");
+      await refresh();
+    },
+    onError: (reason) => toast.error("角色操作失败", { description: reason.message }),
   });
   const sync = useMutation({
     mutationFn: (id: string) => apiRequest(`/characters/${id}/sync-wcl`, characterSummarySchema, { method: "POST" }),
     onSuccess: async () => {
-      setError(undefined);
-      setNotice("已从 WCL 读取最新角色资料。WCL 是否已向暴雪刷新取决于 WCL 自身。");
+      toast.success("已从 WCL 同步角色资料", {
+        description: "WCL 是否已向暴雪刷新取决于 WCL 自身。",
+      });
       await refresh();
     },
-    onError: (reason) => setError(reason.message),
+    onError: (reason) => toast.error("WCL 同步失败", { description: reason.message }),
   });
   const link = linkStatus.data;
   return (
@@ -305,16 +304,10 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
             {link.lastVerifiedAt ? new Date(link.lastVerifiedAt).toLocaleString() : "—"}
           </p>
         ) : null}
-        {notice ? (
-          <Alert>
-            <AlertTitle>角色状态已更新</AlertTitle>
-            <AlertDescription>{notice}</AlertDescription>
-          </Alert>
-        ) : null}
-        {error ? (
+        {linkStatus.isError ? (
           <Alert variant="destructive">
-            <AlertTitle>角色操作失败</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
+            <AlertTitle>WCL 关联状态暂时不可用</AlertTitle>
+            <AlertDescription>{linkStatus.error.message}</AlertDescription>
           </Alert>
         ) : null}
         {characters.length ? (
@@ -326,6 +319,7 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                   <Badge variant={character.verificationStatus === "VERIFIED" ? "default" : "secondary"}>
                     {verificationLabel[character.verificationStatus]}
                   </Badge>
+                  {character.isRetired ? <Badge variant="outline">已退役</Badge> : null}
                   {character.isMain ? (
                     <Badge>
                       <Star data-icon="inline-start" />
@@ -361,7 +355,7 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                   />
                   从 WCL 同步
                 </Button>
-                {!character.isMain ? (
+                {!character.isMain && !character.isRetired ? (
                   <Button
                     size="sm"
                     variant="outline"
@@ -370,9 +364,11 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                     设为主角色
                   </Button>
                 ) : null}
-                <Button size="sm" variant="ghost" onClick={() => action.mutate({ id: character.id, path: "retire" })}>
-                  退役
-                </Button>
+                {!character.isRetired ? (
+                  <Button size="sm" variant="ghost" onClick={() => action.mutate({ id: character.id, path: "retire" })}>
+                    退役
+                  </Button>
+                ) : null}
               </div>
             </div>
           ))
@@ -387,14 +383,6 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
             </EmptyHeader>
           </Empty>
         )}
-        {action.isError || sync.isError || search.isError || linkStatus.isError ? (
-          <Alert variant="destructive">
-            <AlertTitle>角色操作失败</AlertTitle>
-            <AlertDescription>
-              {action.error?.message ?? sync.error?.message ?? search.error?.message ?? linkStatus.error?.message}
-            </AlertDescription>
-          </Alert>
-        ) : null}
       </CardContent>
     </Card>
   );
