@@ -1,0 +1,24 @@
+apps/miniapp/src/miniprogram/pages/activity-detail/index.ts
+  h_1dc22111645538 7-9,17,42-44,65-69,80-81,84-86,93-100,102-103,108-113,122
+apps/miniapp/src/miniprogram/pages/activity-detail/index.wxml
+  h_1dc22111645538 15
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  h_1dc22111645538 416-421,442,445,447-449,452-454,469,475-483,493-494,501,504-521,525,528,530,532,534-551,574
+apps/web/src/app/(main)/dashboard/members/_components/members-screen.tsx
+  h_1dc22111645538 6,12,62-66,87-88,105,166-175,219-282
+apps/web/src/app/(main)/dashboard/profile/profile-screen.tsx
+  h_1dc22111645538 8,11-14,16-17,40,50-69,108-113,159-162,164,166-191,196-198,205,212,214,219,221-224,227-289,296-298,308,313,340,343-345,353-355,378,383-384,389,391-392,395-396
+packages/contracts/src/index.ts
+  h_1dc22111645538 121-126,131-135,232-233,237,239-270,342
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "621a5afa3f5cdf652417d175ed9a86b0fa60ab47",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
