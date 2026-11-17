@@ -7,29 +7,19 @@ import {
   characterSummarySchema,
   type createCharacterSchema,
   memberProfileSchema,
-  updateCharacterSchema,
   wclAuthorizeSchema,
   wclCharacterCandidateSchema,
   wclCharacterSearchSchema,
   wclLinkStatusSchema,
   wclServerListSchema,
 } from "@ttz/contracts";
-import { Check, CircleAlert, Link2, Plus, Search, Star, UserRound } from "lucide-react";
+import { Check, CircleAlert, Link2, Plus, RefreshCw, Search, Star, UserRound } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import { z } from "zod";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -211,10 +201,13 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
       apiRequest(`/characters/${id}/${path}`, actionResultSchema, { method: "POST" }),
     onSuccess: refresh,
   });
-  const update = useMutation({
-    mutationFn: ({ id, body }: { id: string; body: z.infer<typeof updateCharacterSchema> }) =>
-      apiRequest(`/characters/${id}`, characterSummarySchema, { method: "PATCH", body: JSON.stringify(body) }),
-    onSuccess: refresh,
+  const sync = useMutation({
+    mutationFn: (id: string) => apiRequest(`/characters/${id}/sync-wcl`, characterSummarySchema, { method: "POST" }),
+    onSuccess: async () => {
+      setError(undefined);
+      setNotice("已从 WCL 读取最新角色资料。WCL 是否已向暴雪刷新取决于 WCL 自身。");
+      await refresh();
+    },
     onError: (reason) => setError(reason.message),
   });
   const link = linkStatus.data;
@@ -355,7 +348,19 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                 ) : null}
               </div>
               <div className="flex gap-2">
-                <ItemLevelEditor character={character} update={update} />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => sync.mutate(character.id)}
+                  disabled={sync.isPending}
+                  title="从 WCL 公开 API 重新读取角色资料；不会直接调用 WCL 网站内部的强制刷新页面"
+                >
+                  <RefreshCw
+                    data-icon="inline-start"
+                    className={sync.isPending && sync.variables === character.id ? "animate-spin" : undefined}
+                  />
+                  从 WCL 同步
+                </Button>
                 {!character.isMain ? (
                   <Button
                     size="sm"
@@ -382,11 +387,11 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
             </EmptyHeader>
           </Empty>
         )}
-        {action.isError || update.isError || search.isError || linkStatus.isError ? (
+        {action.isError || sync.isError || search.isError || linkStatus.isError ? (
           <Alert variant="destructive">
             <AlertTitle>角色操作失败</AlertTitle>
             <AlertDescription>
-              {action.error?.message ?? update.error?.message ?? search.error?.message ?? linkStatus.error?.message}
+              {action.error?.message ?? sync.error?.message ?? search.error?.message ?? linkStatus.error?.message}
             </AlertDescription>
           </Alert>
         ) : null}
@@ -396,59 +401,3 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
 }
 
 const verificationLabel = { UNVERIFIED: "未验证", PENDING: "待审核", VERIFIED: "已验证", REJECTED: "未通过" } as const;
-
-function ItemLevelEditor({
-  character,
-  update,
-}: {
-  character: z.infer<typeof characterSummarySchema>;
-  update: ReturnType<typeof useMutation<unknown, Error, { id: string; body: z.infer<typeof updateCharacterSchema> }>>;
-}) {
-  const [open, setOpen] = useState(false);
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const parsed = updateCharacterSchema.safeParse({
-      itemLevel: data.get("itemLevel") ? Number(data.get("itemLevel")) : null,
-    });
-    if (parsed.success) {
-      update.mutate({ id: character.id, body: parsed.data });
-      setOpen(false);
-    }
-  }
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
-          <span className="text-xs">更新装等</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>更新装等</DialogTitle>
-          <DialogDescription>角色身份资料来自 WCL，不支持自由修改。</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={submit}>
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor={`edit-item-level-${character.id}`}>装等</FieldLabel>
-              <Input
-                id={`edit-item-level-${character.id}`}
-                name="itemLevel"
-                type="number"
-                min={1}
-                max={999}
-                defaultValue={character.itemLevel ?? ""}
-              />
-            </Field>
-          </FieldGroup>
-          <DialogFooter className="mt-4">
-            <Button type="submit" disabled={update.isPending}>
-              保存
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
