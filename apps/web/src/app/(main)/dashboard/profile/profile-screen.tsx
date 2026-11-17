@@ -12,6 +12,7 @@ import {
   wclCharacterCandidateSchema,
   wclCharacterSearchSchema,
   wclLinkStatusSchema,
+  wclServerListSchema,
 } from "@ttz/contracts";
 import { Check, CircleAlert, Link2, Plus, Search, Star, UserRound } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
@@ -78,7 +79,6 @@ export function ProfileScreen() {
     const data = new FormData(event.currentTarget);
     const parsed = memberProfileSchema.safeParse({
       name: data.get("name") || null,
-      wxNickname: data.get("wxNickname"),
       guildNickname: data.get("guildNickname"),
     });
     if (!parsed.success) return setError(parsed.error.issues[0]?.message ?? "请检查资料");
@@ -125,12 +125,12 @@ export function ProfileScreen() {
                   <Input id="name" name="name" defaultValue={me.data.name === "TTZ 成员" ? "" : me.data.name} />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="wxNickname">微信名</FieldLabel>
-                  <Input id="wxNickname" name="wxNickname" defaultValue={me.data.wxNickname ?? ""} required />
-                </Field>
-                <Field>
                   <FieldLabel htmlFor="guildNickname">TTZ 群昵称</FieldLabel>
                   <Input id="guildNickname" name="guildNickname" defaultValue={me.data.guildNickname ?? ""} required />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="wxNickname">微信名</FieldLabel>
+                  <Input id="wxNickname" value={me.data.wxNickname ?? "未获取"} disabled readOnly />
                 </Field>
                 {error ? (
                   <Alert variant="destructive">
@@ -157,6 +157,7 @@ export function ProfileScreen() {
 function CharacterCard({ characters }: { characters: z.infer<typeof characterListSchema> }) {
   const client = useQueryClient();
   const [name, setName] = useState("");
+  const [serverSearch, setServerSearch] = useState("");
   const [serverSlug, setServerSlug] = useState("");
   const [serverRegion, setServerRegion] = useState("cn");
   const [candidate, setCandidate] = useState<z.infer<typeof wclCharacterCandidateSchema>>();
@@ -166,6 +167,11 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
   const linkStatus = useQuery({
     queryKey: ["wcl-link"],
     queryFn: () => apiRequest("/auth/wcl/status", wclLinkStatusSchema),
+  });
+  const servers = useQuery({
+    queryKey: ["wcl-servers", serverSearch],
+    queryFn: () => apiRequest(`/wcl/servers?${new URLSearchParams({ search: serverSearch })}`, wclServerListSchema),
+    enabled: serverSearch.trim().length > 0,
   });
   const authorize = useMutation({
     mutationFn: () => apiRequest("/auth/wcl/authorize", wclAuthorizeSchema, { method: "POST" }),
@@ -230,16 +236,41 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
             <FieldLabel htmlFor="wcl-character-name">角色名</FieldLabel>
             <Input id="wcl-character-name" value={name} onChange={(event) => setName(event.target.value)} />
           </Field>
-          <Field className="flex-1">
-            <FieldLabel htmlFor="wcl-server-slug">WCL 服务器 slug</FieldLabel>
+          <Field className="relative flex-1">
+            <FieldLabel htmlFor="wcl-server-name">服务器</FieldLabel>
             <Input
-              id="wcl-server-slug"
-              value={serverSlug}
-              onChange={(event) => setServerSlug(event.target.value)}
-              placeholder="例如 anzu"
+              id="wcl-server-name"
+              value={serverSearch}
+              onChange={(event) => {
+                setServerSearch(event.target.value);
+                setServerSlug("");
+              }}
+              placeholder="输入中文服务器名，如安苏"
             />
+            {servers.data?.length && !serverSlug ? (
+              <div className="absolute top-full z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border bg-popover p-1 shadow-md">
+                {servers.data.map((server) => (
+                  <button
+                    type="button"
+                    key={server.id}
+                    className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent"
+                    onClick={() => {
+                      setServerSearch(server.name);
+                      setServerSlug(server.slug);
+                    }}
+                  >
+                    <span>{server.name}</span>
+                    <span className="text-xs text-muted-foreground">{server.slug}</span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </Field>
-          <Button variant="outline" onClick={() => search.mutate()} disabled={search.isPending || !name.trim()}>
+          <Button
+            variant="outline"
+            onClick={() => search.mutate()}
+            disabled={search.isPending || !name.trim() || !serverSlug}
+          >
             {search.isPending ? <Spinner data-icon="inline-start" /> : <Search data-icon="inline-start" />}查询 WCL
           </Button>
         </div>
@@ -250,7 +281,13 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                 {candidate.name} · {candidate.realm}
               </p>
               <p className="text-xs text-muted-foreground">
-                {candidate.className} · {candidate.guildNames.join(", ") || "未显示公会"}
+                {candidate.className}
+                {candidate.raceName ? ` · ${candidate.raceName}` : ""}
+                {candidate.activeSpecName ? ` · 当前${candidate.activeSpecName}` : ""}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                公会：{candidate.guildName ?? (candidate.guildNames.join(", ") || "未显示")}
+                {candidate.itemLevel ? ` · ${candidate.itemLevel} 装等` : ""}
               </p>
             </div>
             <Button
@@ -306,8 +343,16 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                 <p className="text-xs text-muted-foreground">
                   {character.realm}
                   {` · ${character.className}`}
+                  {character.raceName ? ` · ${character.raceName}` : ""}
+                  {character.activeSpecName ? ` · 当前${character.activeSpecName}` : ""}
                   {character.itemLevel ? ` · ${character.itemLevel} 装等` : ""}
                 </p>
+                {character.guildName ? (
+                  <p className="text-xs text-muted-foreground">
+                    公会：{character.guildName}
+                    {character.guildServerName ? ` · ${character.guildServerName}` : ""}
+                  </p>
+                ) : null}
               </div>
               <div className="flex gap-2">
                 <ItemLevelEditor character={character} update={update} />

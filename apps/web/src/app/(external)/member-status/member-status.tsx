@@ -53,7 +53,6 @@ export function MemberStatus() {
     const data = new FormData(event.currentTarget);
     const parsed = memberProfileSchema.safeParse({
       name: data.get("name") || null,
-      wxNickname: data.get("wxNickname"),
       guildNickname: data.get("guildNickname"),
     });
     if (!parsed.success) return setError(parsed.error.issues[0]?.message ?? "请完善成员资料");
@@ -76,15 +75,11 @@ export function MemberStatus() {
                 ? "成员申请审核中"
                 : "完善成员资料"}
           </CardTitle>
-          <CardDescription>首次微信登录需要提交微信名和 TTZ 群昵称；管理员审核通过后才能进入工作台。</CardDescription>
+          <CardDescription>请确认 TTZ 群昵称和站内显示名；微信名来自登录身份，只读展示。</CardDescription>
         </CardHeader>
         <form onSubmit={submit}>
           <CardContent>
             <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="wxNickname">微信名</FieldLabel>
-                <Input id="wxNickname" name="wxNickname" defaultValue={query.data.wxNickname ?? ""} required />
-              </Field>
               <Field>
                 <FieldLabel htmlFor="guildNickname">TTZ 群昵称</FieldLabel>
                 <Input id="guildNickname" name="guildNickname" defaultValue={query.data.guildNickname ?? ""} required />
@@ -92,6 +87,10 @@ export function MemberStatus() {
               <Field>
                 <FieldLabel htmlFor="name">站内显示名（可选）</FieldLabel>
                 <Input id="name" name="name" defaultValue={query.data.name === "TTZ 成员" ? "" : query.data.name} />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="wxNickname">微信名</FieldLabel>
+                <Input id="wxNickname" value={query.data.wxNickname ?? "未获取"} disabled readOnly />
               </Field>
               <Alert>
                 {query.data.profileComplete ? <Clock3 /> : <UserRoundCheck />}

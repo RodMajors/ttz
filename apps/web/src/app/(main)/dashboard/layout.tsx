@@ -12,6 +12,7 @@ import { getPreference } from "@/server/server-actions";
 import { LayoutControls } from "./_components/header/layout-controls";
 import { SearchDialog } from "./_components/header/search-dialog";
 import { ThemeSwitcher } from "./_components/header/theme-switcher";
+import { MemberSetupBanner } from "./_components/member-setup-banner";
 
 export default async function Layout({ children }: Readonly<{ children: ReactNode }>) {
   const cookieStore = await cookies();
@@ -64,6 +65,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
               </div>
             </div>
           </header>
+          <MemberSetupBanner />
           {/* Pages can set data-content-padding="false" to render full-bleed app layouts. */}
           <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0">
             {children}

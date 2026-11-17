@@ -18,11 +18,11 @@ Page({
     }
   },
   async save(event: WechatMiniprogram.CustomEvent) {
-    const value = event.detail.value as { name?: string; wxNickname?: string; guildNickname?: string };
+    const value = event.detail.value as { name?: string; guildNickname?: string };
     try {
       const user = await apiRequest<CurrentUser>("/auth/profile", {
         method: "PUT",
-        data: { name: value.name || null, wxNickname: value.wxNickname, guildNickname: value.guildNickname },
+        data: { name: value.name || null, guildNickname: value.guildNickname },
       });
       this.setData({ user, error: "" });
       wx.showToast({ title: "资料已保存", icon: "success" });
