@@ -135,9 +135,9 @@ export function ProfileScreen() {
             </div>
           </form>
         </Card>
-        <CharacterCard characters={characters.data} />
+        <NotificationPreferences />
       </div>
-      <NotificationPreferences />
+      <CharacterCard characters={characters.data} />
     </div>
   );
 }
@@ -191,10 +191,15 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
     onError: (reason) => toast.error("角色提交失败", { description: reason.message }),
   });
   const action = useMutation({
-    mutationFn: ({ id, path }: { id: string; path: "set-main" | "retire" }) =>
+    mutationFn: ({ id, path }: { id: string; path: "set-main" | "retire" | "activate" }) =>
       apiRequest(`/characters/${id}/${path}`, actionResultSchema, { method: "POST" }),
     onSuccess: async (_result, variables) => {
-      toast.success(variables.path === "retire" ? "角色已退役" : "主角色已更新");
+      const message = {
+        "set-main": "主角色已更新",
+        retire: "角色已退役",
+        activate: "角色已重新激活",
+      }[variables.path];
+      toast.success(message);
       await refresh();
     },
     onError: (reason) => toast.error("角色操作失败", { description: reason.message }),
@@ -368,7 +373,16 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                   <Button size="sm" variant="ghost" onClick={() => action.mutate({ id: character.id, path: "retire" })}>
                     退役
                   </Button>
-                ) : null}
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={action.isPending}
+                    onClick={() => action.mutate({ id: character.id, path: "activate" })}
+                  >
+                    重新激活
+                  </Button>
+                )}
               </div>
             </div>
           ))
