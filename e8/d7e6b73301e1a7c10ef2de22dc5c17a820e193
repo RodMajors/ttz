@@ -1,0 +1,14 @@
+apps/web/src/app/(main)/dashboard/profile/profile-screen.tsx
+  h_1dc22111645538 138,140,194,197-202,376-385
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e8d7e6b73301e1a7c10ef2de22dc5c17a820e193",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
