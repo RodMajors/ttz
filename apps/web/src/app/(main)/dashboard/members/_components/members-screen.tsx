@@ -3,11 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   authUserSchema,
+  characterVerificationDecisionSchema,
   guildGroupInputSchema,
   guildGroupListSchema,
   guildGroupSchema,
   memberApprovalSchema,
   memberListSchema,
+  pendingCharacterVerificationSchema,
   pendingMemberListSchema,
 } from "@ttz/contracts";
 import { Check, CircleAlert, Plus, ShieldCheck, UserCheck, Users, X } from "lucide-react";
@@ -57,6 +59,11 @@ export function MembersScreen() {
     queryFn: () => apiRequest("/members/pending?page=1&pageSize=50", pendingMemberListSchema),
     enabled: (me.data?.privilege ?? 0) >= 1,
   });
+  const pendingCharacters = useQuery({
+    queryKey: ["characters", "pending-verification"],
+    queryFn: () => apiRequest("/characters/pending-verification", pendingCharacterVerificationSchema),
+    enabled: (me.data?.privilege ?? 0) >= 1,
+  });
   const [error, setError] = useState<string>();
   const visibleMembers =
     members.data?.items.filter((member) => {
@@ -77,6 +84,8 @@ export function MembersScreen() {
       await Promise.all([
         client.invalidateQueries({ queryKey: ["members"] }),
         client.invalidateQueries({ queryKey: ["guild-groups"] }),
+        client.invalidateQueries({ queryKey: ["characters", "pending-verification"] }),
+        client.invalidateQueries({ queryKey: ["characters"] }),
       ]);
     },
     onError: (reason) => setError(reason.message),
@@ -93,6 +102,7 @@ export function MembersScreen() {
   return (
     <div className="flex flex-col gap-5">
       {me.data.privilege >= 1 ? <PendingMembers query={pending} mutate={mutate} /> : null}
+      {me.data.privilege >= 1 ? <PendingCharacters query={pendingCharacters} mutate={mutate} /> : null}
       <Card>
         <CardHeader>
           <CardTitle>成员列表</CardTitle>
@@ -153,7 +163,16 @@ export function MembersScreen() {
                         <p className="font-medium">{member.name ?? member.guildNickname ?? "未设置昵称"}</p>
                         <p className="text-xs text-muted-foreground">{member.wxNickname ?? "未设置微信名"}</p>
                       </TableCell>
-                      <TableCell>{main ? `${main.name} · ${main.realm}` : "未设置"}</TableCell>
+                      <TableCell>
+                        {main ? (
+                          <span>
+                            {main.name} · {main.realm}
+                            {main.verificationStatus === "VERIFIED" ? "" : " · 未验证"}
+                          </span>
+                        ) : (
+                          "未设置"
+                        )}
+                      </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {member.groups.length ? (
@@ -194,6 +213,70 @@ export function MembersScreen() {
       </Card>
       {me.data.privilege >= 1 ? <GroupManagement groups={groups.data} /> : null}
     </div>
+  );
+}
+
+function PendingCharacters({
+  query,
+  mutate,
+}: {
+  query: ReturnType<typeof useQuery<z.infer<typeof pendingCharacterVerificationSchema>>>;
+  mutate: ReturnType<
+    typeof useMutation<unknown, Error, { path: string; method: "POST" | "PATCH" | "DELETE"; body?: unknown }>
+  >;
+}) {
+  const characters = query.data ?? [];
+  if (!characters.length && !query.isPending) return null;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>待审核角色</CardTitle>
+        <CardDescription>WCL 搜索确认的角色需由管理员审核归属；WCL 认领结果会自动验证。</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        {query.isPending ? <Skeleton className="h-20 w-full" /> : null}
+        {characters.map((character) => (
+          <div key={character.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
+            <div>
+              <p className="font-medium">
+                {character.name} · {character.realm} · {character.className}
+              </p>
+              <p className="text-xs text-muted-foreground">申请人：{character.memberName}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() =>
+                  mutate.mutate({
+                    path: `/characters/${character.id}/verification-decision`,
+                    method: "POST",
+                    body: characterVerificationDecisionSchema.parse({ approved: true }),
+                  })
+                }
+              >
+                通过
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() =>
+                  mutate.mutate({
+                    path: `/characters/${character.id}/verification-decision`,
+                    method: "POST",
+                    body: characterVerificationDecisionSchema.parse({
+                      approved: false,
+                      note: "请联系管理员确认角色归属",
+                    }),
+                  })
+                }
+              >
+                拒绝
+              </Button>
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 }
 

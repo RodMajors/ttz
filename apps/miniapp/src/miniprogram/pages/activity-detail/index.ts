@@ -4,6 +4,9 @@ interface Character {
   id: string;
   name: string;
   realm: string;
+  className: string;
+  verificationStatus: "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED";
+  availableSpecs: Array<{ id: number; name: string; role: string | null }>;
   isMain: boolean;
   isRetired: boolean;
 }
@@ -11,7 +14,7 @@ interface Signup {
   id: string;
   status: string;
   character: Character;
-  preferredRole: string | null;
+  preferredSpecId: number | null;
   note: string | null;
 }
 interface ActivityDetail {
@@ -28,8 +31,6 @@ interface ActivityDetail {
   mySignup: Signup | null;
 }
 
-const roleValues = ["", "TANK", "HEALER", "MELEE", "RANGED"];
-
 Page({
   data: {
     id: "",
@@ -38,8 +39,9 @@ Page({
     characters: [] as Character[],
     characterLabels: [] as string[],
     selectedCharacterIndex: 0,
-    roleLabels: ["不指定", "坦克", "治疗", "近战", "远程"],
-    selectedRoleIndex: 0,
+    specLabels: [] as string[],
+    specValues: [] as number[],
+    selectedSpecIndex: 0,
     error: "",
     submitting: false,
   },
@@ -60,7 +62,11 @@ Page({
         0,
         activeCharacters.findIndex((character) => character.id === activity.mySignup?.character.id),
       );
-      const roleIndex = Math.max(0, roleValues.indexOf(activity.mySignup?.preferredRole ?? ""));
+      const selectedSpec = activeCharacters[currentIndex]?.availableSpecs ?? [];
+      const specIndex = Math.max(
+        0,
+        selectedSpec.findIndex((spec) => spec.id === activity.mySignup?.preferredSpecId),
+      );
       this.setData({
         loading: false,
         activity: {
@@ -71,25 +77,40 @@ Page({
         },
         characters: activeCharacters,
         characterLabels: activeCharacters.map(
-          (character) => `${character.name} · ${character.realm}${character.isMain ? "（主角色）" : ""}`,
+          (character) =>
+            `${character.name} · ${character.realm} · ${character.className}${character.isMain ? "（主角色）" : ""}${character.verificationStatus === "VERIFIED" ? "" : " · 未验证"}`,
         ),
         selectedCharacterIndex: currentIndex,
-        selectedRoleIndex: roleIndex,
+        specLabels: selectedSpec.map((spec) => spec.name),
+        specValues: selectedSpec.map((spec) => spec.id),
+        selectedSpecIndex: specIndex,
       });
     } catch (error) {
       this.setData({ loading: false, error: error instanceof Error ? error.message : "活动加载失败" });
     }
   },
   selectCharacter(event: WechatMiniprogram.PickerChange) {
-    this.setData({ selectedCharacterIndex: Number(event.detail.value) });
+    const selectedCharacterIndex = Number(event.detail.value);
+    const specs = this.data.characters[selectedCharacterIndex]?.availableSpecs ?? [];
+    this.setData({
+      selectedCharacterIndex,
+      specLabels: specs.map((spec) => spec.name),
+      specValues: specs.map((spec) => spec.id),
+      selectedSpecIndex: 0,
+    });
   },
-  selectRole(event: WechatMiniprogram.PickerChange) {
-    this.setData({ selectedRoleIndex: Number(event.detail.value) });
+  selectSpec(event: WechatMiniprogram.PickerChange) {
+    this.setData({ selectedSpecIndex: Number(event.detail.value) });
   },
   async signup(event: WechatMiniprogram.CustomEvent) {
     const character = this.data.characters[this.data.selectedCharacterIndex];
     if (!character) {
-      wx.showToast({ title: "请先添加有效角色", icon: "none" });
+      wx.showToast({ title: "请先通过 WCL 添加角色", icon: "none" });
+      return;
+    }
+    const preferredSpecId = this.data.specValues[this.data.selectedSpecIndex];
+    if (!preferredSpecId) {
+      wx.showToast({ title: "请选择本次活动专精", icon: "none" });
       return;
     }
     this.setData({ submitting: true, error: "" });
@@ -98,7 +119,7 @@ Page({
         method: "POST",
         data: {
           characterId: character.id,
-          preferredRole: roleValues[this.data.selectedRoleIndex] || null,
+          preferredSpecId,
           note: event.detail.value.note || null,
           choices: [],
         },

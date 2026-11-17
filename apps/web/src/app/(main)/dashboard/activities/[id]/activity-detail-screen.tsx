@@ -61,7 +61,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { apiRequest } from "@/lib/api-client";
 
 const idResultSchema = z.object({ id: z.string() }).passthrough();
@@ -414,9 +413,12 @@ function SignupDialog({
   triggerLabel: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [role, setRole] = useState<Role | undefined>(activity.mySignup?.preferredRole ?? undefined);
-  const [choiceCharacterIds, setChoiceCharacterIds] = useState<string[]>(
-    activity.mySignup?.choices.map((choice) => choice.character.id) ?? [],
+  const [selectedCharacterId, setSelectedCharacterId] = useState(activity.mySignup?.character.id ?? "");
+  const [preferredSpecId, setPreferredSpecId] = useState<string>(
+    activity.mySignup?.preferredSpecId ? String(activity.mySignup.preferredSpecId) : "",
+  );
+  const [choiceSpecs, setChoiceSpecs] = useState<Record<string, string>>(() =>
+    Object.fromEntries(activity.mySignup?.choices.map((choice) => [choice.character.id, String(choice.specId)]) ?? []),
   );
   const [error, setError] = useState<string>();
   const characters = useQuery({
@@ -437,18 +439,19 @@ function SignupDialog({
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const characterId = String(data.get("characterId") ?? "");
+    const character = characters.data?.find((item) => item.id === characterId);
     const parsed = signupSchema.safeParse({
       characterId,
-      preferredRole: role ?? null,
+      preferredSpecId: preferredSpecId ? Number(preferredSpecId) : null,
       note: data.get("note") || null,
-      choices: choiceCharacterIds
-        .filter((id) => id !== characterId)
-        .flatMap((id) => {
-          const character = characters.data?.find((item) => item.id === id);
-          return character?.specId ? [{ characterId: id, specId: character.specId }] : [];
-        }),
+      choices: Object.entries(choiceSpecs)
+        .filter(([id, specId]) => id !== characterId && Boolean(specId) && specId !== "none")
+        .map(([id, specId]) => ({ characterId: id, specId: Number(specId) })),
     });
     if (!parsed.success) return setError(parsed.error.issues[0]?.message ?? "请检查报名信息");
+    if (!character?.availableSpecs.some((spec) => spec.id === parsed.data.preferredSpecId)) {
+      return setError("所选专精不属于当前出战角色职业");
+    }
     setError(undefined);
     mutation.mutate(parsed.data);
   }
@@ -463,13 +466,21 @@ function SignupDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{triggerLabel}</DialogTitle>
-          <DialogDescription>选择本次出战角色和首选职责。报名确认后普通成员无法再修改。</DialogDescription>
+          <DialogDescription>角色职业固定，专精按本次活动选择。未验证角色仍可报名。</DialogDescription>
         </DialogHeader>
         <form onSubmit={submit}>
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="characterId">出战角色</FieldLabel>
-              <Select name="characterId" required defaultValue={activity.mySignup?.character.id}>
+              <Select
+                name="characterId"
+                required
+                value={selectedCharacterId}
+                onValueChange={(value) => {
+                  setSelectedCharacterId(value);
+                  setPreferredSpecId("");
+                }}
+              >
                 <SelectTrigger id="characterId">
                   <SelectValue placeholder={characters.isPending ? "正在加载角色…" : "请选择角色"} />
                 </SelectTrigger>
@@ -479,53 +490,65 @@ function SignupDialog({
                       ?.filter((character) => !character.isRetired)
                       .map((character) => (
                         <SelectItem key={character.id} value={character.id}>
-                          {character.name} · {character.realm}
+                          {character.name} · {character.realm} · {character.className}
+                          {character.verificationStatus !== "VERIFIED" ? "（未验证）" : ""}
                           {character.isMain ? "（主角色）" : ""}
                         </SelectItem>
                       ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <FieldDescription>没有可选角色时，请先在个人中心添加角色。</FieldDescription>
+              <FieldDescription>角色需先通过 WCL 认领或 WCL 搜索后提交审核。</FieldDescription>
             </Field>
             <Field>
-              <FieldLabel>首选职责</FieldLabel>
-              <ToggleGroup
-                type="single"
-                variant="outline"
-                value={role}
-                onValueChange={(value) => setRole((value as Role) || undefined)}
-                className="flex-wrap"
-              >
-                {(Object.keys(roleLabels) as Role[]).map((item) => (
-                  <ToggleGroupItem key={item} value={item}>
-                    {roleLabels[item]}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
+              <FieldLabel htmlFor="preferredSpecId">本次出战专精</FieldLabel>
+              <Select name="preferredSpecId" value={preferredSpecId} onValueChange={setPreferredSpecId} required>
+                <SelectTrigger id="preferredSpecId">
+                  <SelectValue placeholder="请选择本次专精" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {characters.data
+                      ?.find((character) => character.id === selectedCharacterId)
+                      ?.availableSpecs.map((spec) => (
+                        <SelectItem key={spec.id} value={String(spec.id)}>
+                          {spec.name}
+                        </SelectItem>
+                      ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <FieldDescription>请先选择出战角色，再选择该职业本次使用的专精。</FieldDescription>
             </Field>
             <FieldSet>
               <FieldLegend variant="label">备选角色 / 专精</FieldLegend>
-              <FieldDescription>只显示已填写专精 ID 的角色；主出战角色不会重复写入备选项。</FieldDescription>
+              <FieldDescription>每个备选角色的专精按本次活动选择。</FieldDescription>
               <FieldGroup data-slot="checkbox-group">
                 {characters.data
-                  ?.filter((character) => !character.isRetired && character.specId)
+                  ?.filter((character) => !character.isRetired && character.id !== activity.mySignup?.character.id)
                   .map((character) => (
-                    <Field key={character.id} orientation="horizontal">
-                      <Checkbox
-                        id={`choice-${activity.id}-${character.id}`}
-                        checked={choiceCharacterIds.includes(character.id)}
-                        onCheckedChange={(checked) =>
-                          setChoiceCharacterIds((current) =>
-                            checked === true
-                              ? [...new Set([...current, character.id])]
-                              : current.filter((id) => id !== character.id),
-                          )
-                        }
-                      />
+                    <Field key={character.id}>
                       <FieldLabel htmlFor={`choice-${activity.id}-${character.id}`}>
-                        {character.name} · {character.realm} · 专精 {character.specId}
+                        {character.name} · {character.realm} · {character.className}
                       </FieldLabel>
+                      <Select
+                        value={choiceSpecs[character.id] ?? "none"}
+                        onValueChange={(value) => setChoiceSpecs((current) => ({ ...current, [character.id]: value }))}
+                      >
+                        <SelectTrigger id={`choice-${activity.id}-${character.id}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="none">不作为备选</SelectItem>
+                            {character.availableSpecs.map((spec) => (
+                              <SelectItem key={spec.id} value={String(spec.id)}>
+                                {spec.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     </Field>
                   ))}
               </FieldGroup>
@@ -548,7 +571,7 @@ function SignupDialog({
             ) : null}
           </FieldGroup>
           <DialogFooter className="mt-4">
-            <Button type="submit" disabled={mutation.isPending || !characters.data?.length}>
+            <Button type="submit" disabled={mutation.isPending || !characters.data?.length || !preferredSpecId}>
               {mutation.isPending ? <Spinner data-icon="inline-start" /> : <Check data-icon="inline-start" />}提交报名
             </Button>
           </DialogFooter>
