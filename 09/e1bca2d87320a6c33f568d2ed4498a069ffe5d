@@ -1,0 +1,28 @@
+apps/miniapp/src/miniprogram/app.wxss
+  h_1dc22111645538 20
+apps/miniapp/src/miniprogram/pages/activity-detail/index.ts
+  h_1dc22111645538 8-9,11,83
+apps/miniapp/src/miniprogram/pages/activity-detail/index.wxml
+  h_1dc22111645538 14-15
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  h_1dc22111645538 31,494-498,538-542,557-561,682-686
+apps/web/src/app/(main)/dashboard/members/_components/members-screen.tsx
+  h_1dc22111645538 18,170-174,248-252
+apps/web/src/app/(main)/dashboard/profile/profile-screen.tsx
+  h_1dc22111645538 20,282-286,342-346
+apps/web/src/components/game-icon.tsx
+  h_1dc22111645538 1-8
+packages/contracts/src/index.ts
+  h_1dc22111645538 124,145-152,274
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "09e1bca2d87320a6c33f568d2ed4498a069ffe5d",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
