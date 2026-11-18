@@ -2,10 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { activityListSchema, announcementListSchema, attendanceSummarySchema, memberListSchema } from "@ttz/contracts";
-import { Bell, CalendarDays, CheckCircle2, CircleAlert, Clock3, Users } from "lucide-react";
+import { Bell, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, CircleAlert, Clock3, Users } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardAction,
@@ -17,9 +20,11 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiRequest } from "@/lib/api-client";
+import { getInitials } from "@/lib/utils";
 import { AttendanceStatusBadge } from "../_components/attendance-status";
 
 export function DashboardOverview() {
+  const [memberPage, setMemberPage] = useState(1);
   const activities = useQuery({
     queryKey: ["activities", "dashboard"],
     queryFn: () => apiRequest("/activities?page=1&pageSize=10", activityListSchema),
@@ -30,7 +35,7 @@ export function DashboardOverview() {
   });
   const members = useQuery({
     queryKey: ["members", "dashboard"],
-    queryFn: () => apiRequest("/members?page=1&pageSize=1", memberListSchema),
+    queryFn: () => apiRequest("/members?page=1&pageSize=100", memberListSchema),
   });
   const announcements = useQuery({
     queryKey: ["announcements"],
@@ -61,6 +66,9 @@ export function DashboardOverview() {
     .slice(0, 5);
   const pendingSignups = activities.data.items.filter((activity) => activity.mySignupStatus === "PENDING").length;
   const needsSignup = upcoming.filter((activity) => activity.isSignupOpen && !activity.mySignupStatus).length;
+  const memberPageSize = 8;
+  const memberPageCount = Math.max(1, Math.ceil(members.data.items.length / memberPageSize));
+  const visibleMembers = members.data.items.slice((memberPage - 1) * memberPageSize, memberPage * memberPageSize);
   return (
     <div className="@container/main flex flex-col gap-5 md:gap-6">
       <div>
@@ -165,6 +173,65 @@ export function DashboardOverview() {
               </p>
             </div>
           ))}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>公会成员</CardTitle>
+          <CardDescription>已审核且启用的成员 · 共 {members.data.pagination.total} 人</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {members.data.items.length ? (
+            <>
+              <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
+                {visibleMembers.map((member) => {
+                  const main = member.characters.find((character) => character.isMain);
+                  const name = member.name ?? member.guildNickname ?? "未设置昵称";
+                  return (
+                    <div key={member.id} className="flex min-w-0 items-center gap-3 border-b pb-3">
+                      <Avatar className="size-9">
+                        <AvatarImage src={member.avatar ?? undefined} alt="" />
+                        <AvatarFallback>{getInitials(name)}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">{name}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {main ? `${main.name} · ${main.className}` : "未设置主角色"}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {memberPageCount > 1 ? (
+                <div className="mt-4 flex items-center justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="上一页成员"
+                    disabled={memberPage <= 1}
+                    onClick={() => setMemberPage((page) => page - 1)}
+                  >
+                    <ChevronLeft />
+                  </Button>
+                  <span className="text-sm tabular-nums">
+                    {memberPage} / {memberPageCount}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="下一页成员"
+                    disabled={memberPage >= memberPageCount}
+                    onClick={() => setMemberPage((page) => page + 1)}
+                  >
+                    <ChevronRight />
+                  </Button>
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">暂无成员。</p>
+          )}
         </CardContent>
       </Card>
     </div>

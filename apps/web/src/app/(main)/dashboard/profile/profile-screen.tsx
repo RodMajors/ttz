@@ -24,7 +24,6 @@ import {
   RefreshCw,
   Search,
   SquareArrowUpRightExit,
-  Star,
   UserGroup,
   UserRound,
 } from "lucide-react";
@@ -49,7 +48,6 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { apiRequest } from "@/lib/api-client";
 import { NotificationPreferences } from "../_components/notification-preferences";
 
@@ -184,7 +182,7 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
   const [name, setName] = useState("");
   const [serverSearch, setServerSearch] = useState("");
   const [serverSlug, setServerSlug] = useState("");
-  const [serverRegion, setServerRegion] = useState("cn");
+  const serverRegion = "cn";
   const [candidate, setCandidate] = useState<z.infer<typeof wclCharacterCandidateSchema>>();
   const [searchOpen, setSearchOpen] = useState(false);
   const refresh = () => client.invalidateQueries({ queryKey: ["characters"] });
@@ -447,6 +445,7 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                   <Button
                     size="sm"
                     variant="outline"
+                    disabled={action.isPending}
                     onClick={() =>
                       action.mutate({
                         id: character.id,
@@ -454,6 +453,11 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                       })
                     }
                   >
+                    {action.isPending &&
+                    action.variables?.id === character.id &&
+                    action.variables.path === "set-main" ? (
+                      <Spinner data-icon="inline-start" />
+                    ) : null}
                     设为主角色
                   </Button>
                 ) : null}
@@ -464,10 +468,11 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                   disabled={sync.isPending}
                   title="从 WCL 公开 API 重新读取角色资料"
                 >
-                  <RefreshCw
-                    data-icon="inline-start"
-                    className={sync.isPending && sync.variables === character.id ? "animate-spin" : undefined}
-                  />
+                  {sync.isPending && sync.variables === character.id ? (
+                    <Spinner data-icon="inline-start" />
+                  ) : (
+                    <RefreshCw data-icon="inline-start" />
+                  )}
                   同步
                 </Button>
                 <Button
@@ -490,6 +495,7 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                   <Button
                     size="sm"
                     variant="destructive"
+                    disabled={action.isPending}
                     onClick={() =>
                       action.mutate({
                         id: character.id,
@@ -497,12 +503,15 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                       })
                     }
                   >
+                    {action.isPending && action.variables?.id === character.id && action.variables.path === "retire" ? (
+                      <Spinner data-icon="inline-start" />
+                    ) : null}
                     退役
                   </Button>
                 ) : (
                   <Button
                     size="sm"
-                    variant="destructive"
+                    variant="outline"
                     disabled={action.isPending}
                     onClick={() =>
                       action.mutate({
@@ -511,6 +520,11 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                       })
                     }
                   >
+                    {action.isPending &&
+                    action.variables?.id === character.id &&
+                    action.variables.path === "activate" ? (
+                      <Spinner data-icon="inline-start" />
+                    ) : null}
                     激活
                   </Button>
                 )}

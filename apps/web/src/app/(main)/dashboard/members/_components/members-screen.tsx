@@ -12,12 +12,13 @@ import {
   pendingCharacterVerificationSchema,
   pendingMemberListSchema,
 } from "@ttz/contracts";
-import { Check, CircleAlert, Plus, ShieldCheck, UserCheck, Users, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, CircleAlert, Plus, ShieldCheck, UserCheck, Users, X } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
 import { ClassAccent } from "@/components/class-accent";
 import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,6 +41,7 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
+import { getInitials } from "@/lib/utils";
 
 const changedSchema = z.unknown();
 
@@ -47,6 +49,7 @@ export function MembersScreen() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
   const [groupId, setGroupId] = useState("");
+  const [memberPage, setMemberPage] = useState(1);
   const me = useQuery({
     queryKey: ["auth", "me"],
     queryFn: () => apiRequest("/auth/me", authUserSchema),
@@ -81,6 +84,9 @@ export function MembersScreen() {
       const matchesGroup = !groupId || member.groups.some((group) => group.id === groupId);
       return matchesSearch && matchesGroup;
     }) ?? [];
+  const memberPageSize = 10;
+  const memberPageCount = Math.max(1, Math.ceil(visibleMembers.length / memberPageSize));
+  const pagedMembers = visibleMembers.slice((memberPage - 1) * memberPageSize, memberPage * memberPageSize);
   const mutate = useMutation({
     mutationFn: ({ path, method, body }: { path: string; method: "POST" | "PATCH" | "DELETE"; body?: unknown }) =>
       apiRequest(path, changedSchema, {
@@ -121,11 +127,20 @@ export function MembersScreen() {
             <Input
               className="w-52"
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setMemberPage(1);
+              }}
               placeholder="搜索成员或角色"
               aria-label="搜索成员或角色"
             />
-            <Select value={groupId || "all"} onValueChange={(value) => setGroupId(value === "all" ? "" : value)}>
+            <Select
+              value={groupId || "all"}
+              onValueChange={(value) => {
+                setGroupId(value === "all" ? "" : value);
+                setMemberPage(1);
+              }}
+            >
               <SelectTrigger aria-label="按身份组筛选">
                 <SelectValue />
               </SelectTrigger>
@@ -166,13 +181,25 @@ export function MembersScreen() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {visibleMembers.map((member) => {
+                {pagedMembers.map((member) => {
                   const main = member.characters.find((character) => character.isMain);
                   return (
                     <TableRow key={member.id}>
                       <TableCell>
-                        <p className="font-medium">{member.name ?? member.guildNickname ?? "未设置昵称"}</p>
-                        <p className="text-xs text-muted-foreground">{member.wxNickname ?? "未设置微信名"}</p>
+                        <div className="flex items-center gap-2">
+                          <Avatar className="size-8">
+                            <AvatarImage src={member.avatar ?? undefined} alt="" />
+                            <AvatarFallback>{getInitials(member.name ?? member.guildNickname ?? "TTZ")}</AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0">
+                            <p className="truncate font-medium">
+                              {member.name ?? member.guildNickname ?? "未设置昵称"}
+                            </p>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {member.wxNickname ?? "未设置微信名"}
+                            </p>
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell>
                         {main ? (
@@ -230,6 +257,34 @@ export function MembersScreen() {
               </TableBody>
             </Table>
           )}
+          {visibleMembers.length > memberPageSize ? (
+            <div className="mt-4 flex items-center justify-between border-t pt-3">
+              <p className="text-sm text-muted-foreground">共 {visibleMembers.length} 位成员</p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label="上一页"
+                  disabled={memberPage <= 1}
+                  onClick={() => setMemberPage((page) => page - 1)}
+                >
+                  <ChevronLeft />
+                </Button>
+                <span className="text-sm tabular-nums">
+                  {memberPage} / {memberPageCount}
+                </span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label="下一页"
+                  disabled={memberPage >= memberPageCount}
+                  onClick={() => setMemberPage((page) => page + 1)}
+                >
+                  <ChevronRight />
+                </Button>
+              </div>
+            </div>
+          ) : null}
           {error ? (
             <Alert variant="destructive" className="mt-4">
               <AlertTitle>成员操作失败</AlertTitle>
