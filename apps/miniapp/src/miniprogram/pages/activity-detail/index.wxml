@@ -11,8 +11,8 @@
     </view>
     <form class="card form" wx:if="{{activity.canSignup || activity.canChangeMySignup}}" bindsubmit="signup">
       <view class="section-title">{{activity.mySignup ? '修改报名' : '参与报名'}}</view>
-      <label>出战角色<picker range="{{characterLabels}}" value="{{selectedCharacterIndex}}" bindchange="selectCharacter"><view class="picker">{{characterLabels[selectedCharacterIndex] || '请先添加角色'}}</view></picker></label>
-      <label>本次专精<picker range="{{specLabels}}" value="{{selectedSpecIndex}}" bindchange="selectSpec"><view class="picker">{{specLabels[selectedSpecIndex] || '请选择专精'}}</view></picker></label>
+      <label>出战角色<picker range="{{characterLabels}}" value="{{selectedCharacterIndex}}" bindchange="selectCharacter"><view class="picker"><image wx:if="{{characters[selectedCharacterIndex].classIconUrl}}" class="game-icon" src="{{characters[selectedCharacterIndex].classIconUrl}}" mode="aspectFill" />{{characterLabels[selectedCharacterIndex] || '请先添加角色'}}</view></picker></label>
+      <label>本次专精<picker range="{{specLabels}}" value="{{selectedSpecIndex}}" bindchange="selectSpec"><view class="picker"><image wx:if="{{characters[selectedCharacterIndex].availableSpecs[selectedSpecIndex].iconUrl}}" class="game-icon" src="{{characters[selectedCharacterIndex].availableSpecs[selectedSpecIndex].iconUrl}}" mode="aspectFill" />{{specLabels[selectedSpecIndex] || '请选择专精'}}</view></picker></label>
       <label>备注<input name="note" value="{{activity.mySignup.note}}" maxlength="255" /></label>
       <button class="primary-button" form-type="submit" disabled="{{submitting || characters.length === 0}}">提交报名</button>
       <button class="secondary-button" wx:if="{{activity.mySignup && activity.canChangeMySignup}}" type="button" bindtap="cancelSignup">取消报名</button>

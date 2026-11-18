@@ -17,6 +17,7 @@ import { Check, CircleAlert, Link2, Plus, RefreshCw, Search, Star, UserRound } f
 import { type FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -278,6 +279,11 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                 {candidate.name} · {candidate.realm}
               </p>
               <p className="text-xs text-muted-foreground">
+                <GameIcon
+                  src={candidate.classIconUrl}
+                  alt=""
+                  className="mr-1 inline-block size-4 rounded align-[-3px]"
+                />
                 {candidate.className}
                 {candidate.raceName ? ` · ${candidate.raceName}` : ""}
                 {candidate.activeSpecName ? ` · 当前${candidate.activeSpecName}` : ""}
@@ -333,6 +339,11 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                   ) : null}
                 </div>
                 <p className="text-xs text-muted-foreground">
+                  <GameIcon
+                    src={character.classIconUrl}
+                    alt=""
+                    className="mr-1 inline-block size-4 rounded align-[-3px]"
+                  />
                   {character.realm}
                   {` · ${character.className}`}
                   {character.raceName ? ` · ${character.raceName}` : ""}

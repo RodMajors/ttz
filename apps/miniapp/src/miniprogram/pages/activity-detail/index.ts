@@ -5,8 +5,10 @@ interface Character {
   name: string;
   realm: string;
   className: string;
+  classIconUrl: string | null;
+  activeSpecName: string | null;
   verificationStatus: "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED";
-  availableSpecs: Array<{ id: number; name: string; role: string | null }>;
+  availableSpecs: Array<{ id: number; name: string; iconUrl: string | null; role: string | null }>;
   isMain: boolean;
   isRetired: boolean;
 }
@@ -78,7 +80,7 @@ Page({
         characters: activeCharacters,
         characterLabels: activeCharacters.map(
           (character) =>
-            `${character.name} · ${character.realm} · ${character.className}${character.isMain ? "（主角色）" : ""}${character.verificationStatus === "VERIFIED" ? "" : " · 未验证"}`,
+            `${character.name} · ${character.realm} · ${character.className}${character.activeSpecName ? ` · 当前${character.activeSpecName}` : ""}${character.isMain ? "（主角色）" : ""}${character.verificationStatus === "VERIFIED" ? "" : " · 未验证"}`,
         ),
         selectedCharacterIndex: currentIndex,
         specLabels: selectedSpec.map((spec) => spec.name),

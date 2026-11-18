@@ -15,6 +15,7 @@ import {
 import { Check, CircleAlert, Plus, ShieldCheck, UserCheck, Users, X } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
+import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -166,6 +167,11 @@ export function MembersScreen() {
                       <TableCell>
                         {main ? (
                           <span>
+                            <GameIcon
+                              src={main.classIconUrl}
+                              alt=""
+                              className="mr-1 inline-block size-4 rounded align-[-3px]"
+                            />
                             {main.name} · {main.realm}
                             {main.verificationStatus === "VERIFIED" ? "" : " · 未验证"}
                           </span>
@@ -239,6 +245,11 @@ function PendingCharacters({
           <div key={character.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
             <div>
               <p className="font-medium">
+                <GameIcon
+                  src={character.classIconUrl}
+                  alt=""
+                  className="mr-1 inline-block size-4 rounded align-[-3px]"
+                />
                 {character.name} · {character.realm} · {character.className}
               </p>
               <p className="text-xs text-muted-foreground">申请人：{character.memberName}</p>

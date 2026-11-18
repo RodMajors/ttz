@@ -28,6 +28,7 @@ import {
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
+import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -490,6 +491,11 @@ function SignupDialog({
                       ?.filter((character) => !character.isRetired)
                       .map((character) => (
                         <SelectItem key={character.id} value={character.id}>
+                          <GameIcon
+                            src={character.classIconUrl}
+                            alt=""
+                            className="mr-1 inline-block size-4 rounded align-[-3px]"
+                          />
                           {character.name} · {character.realm} · {character.className}
                           {character.verificationStatus !== "VERIFIED" ? "（未验证）" : ""}
                           {character.isMain ? "（主角色）" : ""}
@@ -529,6 +535,11 @@ function SignupDialog({
                   .map((character) => (
                     <Field key={character.id}>
                       <FieldLabel htmlFor={`choice-${activity.id}-${character.id}`}>
+                        <GameIcon
+                          src={character.classIconUrl}
+                          alt=""
+                          className="mr-1 inline-block size-4 rounded align-[-3px]"
+                        />
                         {character.name} · {character.realm} · {character.className}
                       </FieldLabel>
                       <Select
@@ -543,6 +554,11 @@ function SignupDialog({
                             <SelectItem value="none">不作为备选</SelectItem>
                             {character.availableSpecs.map((spec) => (
                               <SelectItem key={spec.id} value={String(spec.id)}>
+                                <GameIcon
+                                  src={spec.iconUrl}
+                                  alt=""
+                                  className="mr-1 inline-block size-4 rounded align-[-3px]"
+                                />
                                 {spec.name}
                               </SelectItem>
                             ))}
@@ -663,6 +679,11 @@ function SignupRoster({ activity, onChanged }: { activity: ActivityDetail; onCha
                   <TableCell>
                     <p className="font-medium">{signup.memberName}</p>
                     <p className="text-xs text-muted-foreground">
+                      <GameIcon
+                        src={signup.character.classIconUrl}
+                        alt=""
+                        className="mr-1 inline-block size-4 rounded align-[-3px]"
+                      />
                       {signup.character.name} · {signup.character.realm}
                     </p>
                   </TableCell>
