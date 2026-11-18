@@ -149,6 +149,15 @@ These serve as the fallback; there is no separate default.css file. */
   [role="button"][aria-disabled="true"] {
     @apply cursor-not-allowed;
   }
+
+  [data-class-accent] {
+    color: color-mix(in srgb, var(--class-color) 68%, var(--foreground));
+  }
+
+  [data-class-accent][data-class-accent-surface] {
+    background-color: color-mix(in srgb, var(--class-color) 12%, var(--background));
+    border-color: color-mix(in srgb, var(--class-color) 42%, var(--border));
+  }
 }
 
 @layer utilities {

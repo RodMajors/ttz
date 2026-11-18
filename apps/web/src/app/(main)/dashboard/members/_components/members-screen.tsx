@@ -15,6 +15,7 @@ import {
 import { Check, CircleAlert, Plus, ShieldCheck, UserCheck, Users, X } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
+import { ClassAccent } from "@/components/class-accent";
 import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -172,7 +173,8 @@ export function MembersScreen() {
                               alt=""
                               className="mr-1 inline-block size-4 rounded align-[-3px]"
                             />
-                            {main.name} · {main.realm}
+                            {main.name} · {main.realm} ·{" "}
+                            <ClassAccent color={main.classColor}>{main.className}</ClassAccent>
                             {main.verificationStatus === "VERIFIED" ? "" : " · 未验证"}
                           </span>
                         ) : (
@@ -250,7 +252,8 @@ function PendingCharacters({
                   alt=""
                   className="mr-1 inline-block size-4 rounded align-[-3px]"
                 />
-                {character.name} · {character.realm} · {character.className}
+                {character.name} · {character.realm} ·{" "}
+                <ClassAccent color={character.classColor}>{character.className}</ClassAccent>
               </p>
               <p className="text-xs text-muted-foreground">申请人：{character.memberName}</p>
             </div>

@@ -17,6 +17,7 @@ import { Check, CircleAlert, Link2, Plus, RefreshCw, Search, Star, UserRound } f
 import { type FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { ClassAccent } from "@/components/class-accent";
 import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -284,7 +285,7 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                   alt=""
                   className="mr-1 inline-block size-4 rounded align-[-3px]"
                 />
-                {candidate.className}
+                <ClassAccent color={candidate.classColor}>{candidate.className}</ClassAccent>
                 {candidate.raceName ? ` · ${candidate.raceName}` : ""}
                 {candidate.activeSpecName ? ` · 当前${candidate.activeSpecName}` : ""}
               </p>
@@ -345,7 +346,8 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                     className="mr-1 inline-block size-4 rounded align-[-3px]"
                   />
                   {character.realm}
-                  {` · ${character.className}`}
+                  {` · `}
+                  <ClassAccent color={character.classColor}>{character.className}</ClassAccent>
                   {character.raceName ? ` · ${character.raceName}` : ""}
                   {character.activeSpecName ? ` · 当前${character.activeSpecName}` : ""}
                   {character.itemLevel ? ` · ${character.itemLevel} 装等` : ""}
