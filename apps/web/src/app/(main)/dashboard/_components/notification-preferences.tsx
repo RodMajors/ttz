@@ -34,7 +34,7 @@ export function NotificationPreferences() {
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Bell className="text-muted-foreground" />
+          <Bell size={18} />
           <CardTitle>小程序提醒偏好</CardTitle>
         </div>
         <CardDescription>可分别关闭不需要的提醒；偏好会立即保存到成员账号。</CardDescription>
@@ -57,7 +57,12 @@ export function NotificationPreferences() {
                   <Switch
                     checked={query.data[preference.key]}
                     disabled={mutation.isPending}
-                    onCheckedChange={(checked) => mutation.mutate({ ...query.data, [preference.key]: checked })}
+                    onCheckedChange={(checked) =>
+                      mutation.mutate({
+                        ...query.data,
+                        [preference.key]: checked,
+                      })
+                    }
                     aria-label={preference.label}
                   />
                 </div>

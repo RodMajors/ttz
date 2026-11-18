@@ -47,7 +47,10 @@ export function MembersScreen() {
   const client = useQueryClient();
   const [search, setSearch] = useState("");
   const [groupId, setGroupId] = useState("");
-  const me = useQuery({ queryKey: ["auth", "me"], queryFn: () => apiRequest("/auth/me", authUserSchema) });
+  const me = useQuery({
+    queryKey: ["auth", "me"],
+    queryFn: () => apiRequest("/auth/me", authUserSchema),
+  });
   const members = useQuery({
     queryKey: ["members"],
     queryFn: () => apiRequest("/members?page=1&pageSize=100", memberListSchema),
@@ -80,13 +83,18 @@ export function MembersScreen() {
     }) ?? [];
   const mutate = useMutation({
     mutationFn: ({ path, method, body }: { path: string; method: "POST" | "PATCH" | "DELETE"; body?: unknown }) =>
-      apiRequest(path, changedSchema, { method, body: body ? JSON.stringify(body) : undefined }),
+      apiRequest(path, changedSchema, {
+        method,
+        body: body ? JSON.stringify(body) : undefined,
+      }),
     onSuccess: async () => {
       setError(undefined);
       await Promise.all([
         client.invalidateQueries({ queryKey: ["members"] }),
         client.invalidateQueries({ queryKey: ["guild-groups"] }),
-        client.invalidateQueries({ queryKey: ["characters", "pending-verification"] }),
+        client.invalidateQueries({
+          queryKey: ["characters", "pending-verification"],
+        }),
         client.invalidateQueries({ queryKey: ["characters"] }),
       ]);
     },
@@ -108,7 +116,7 @@ export function MembersScreen() {
       <Card>
         <CardHeader>
           <CardTitle>成员列表</CardTitle>
-          <CardDescription>身份组只用于展示和统计，权限由审核状态与 privilege 决定。</CardDescription>
+          <CardDescription>身份组只用于展示和统计，权限由审核状态与管理员决定。</CardDescription>
           <CardAction className="flex gap-2">
             <Input
               className="w-52"
@@ -151,9 +159,10 @@ export function MembersScreen() {
                 <TableRow>
                   <TableHead>成员</TableHead>
                   <TableHead>主角色</TableHead>
+                  <TableHead>职业</TableHead>
                   <TableHead>身份组</TableHead>
                   <TableHead>权限</TableHead>
-                  {me.data.privilege >= 1 ? <TableHead className="text-right">管理</TableHead> : null}
+                  {me.data.privilege >= 1 ? <TableHead className="text-right">操作</TableHead> : null}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -167,16 +176,26 @@ export function MembersScreen() {
                       </TableCell>
                       <TableCell>
                         {main ? (
-                          <span>
+                          <div className="flex items-center">
                             <GameIcon
                               src={main.classIconUrl}
                               alt=""
-                              className="mr-1 inline-block size-4 rounded align-[-3px]"
+                              className="mr-2 inline-block size-6 rounded align-[-3px]"
                             />
-                            {main.name} · {main.realm} ·{" "}
-                            <ClassAccent color={main.classColor}>{main.className}</ClassAccent>
-                            {main.verificationStatus === "VERIFIED" ? "" : " · 未验证"}
-                          </span>
+                            <ClassAccent color={main.classColor}>
+                              {main.name} - {main.realm}
+                            </ClassAccent>
+                            {main.verificationStatus === "VERIFIED" ? "" : <Badge variant="secondary">未验证</Badge>}
+                          </div>
+                        ) : (
+                          "未设置"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {main ? (
+                          <div className="flex items-center">
+                            <ClassAccent color={main.classColor}> {main.className}</ClassAccent>
+                          </div>
                         ) : (
                           "未设置"
                         )}
@@ -230,7 +249,15 @@ function PendingCharacters({
 }: {
   query: ReturnType<typeof useQuery<z.infer<typeof pendingCharacterVerificationSchema>>>;
   mutate: ReturnType<
-    typeof useMutation<unknown, Error, { path: string; method: "POST" | "PATCH" | "DELETE"; body?: unknown }>
+    typeof useMutation<
+      unknown,
+      Error,
+      {
+        path: string;
+        method: "POST" | "PATCH" | "DELETE";
+        body?: unknown;
+      }
+    >
   >;
 }) {
   const characters = query.data ?? [];
@@ -300,7 +327,15 @@ function PendingMembers({
 }: {
   query: ReturnType<typeof useQuery<z.infer<typeof pendingMemberListSchema>>>;
   mutate: ReturnType<
-    typeof useMutation<unknown, Error, { path: string; method: "POST" | "PATCH" | "DELETE"; body?: unknown }>
+    typeof useMutation<
+      unknown,
+      Error,
+      {
+        path: string;
+        method: "POST" | "PATCH" | "DELETE";
+        body?: unknown;
+      }
+    >
   >;
 }) {
   const items = query.data?.items ?? [];
@@ -330,7 +365,9 @@ function PendingMembers({
                     mutate.mutate({
                       path: `/members/${member.id}/approval`,
                       method: "POST",
-                      body: memberApprovalSchema.parse({ approved: true }),
+                      body: memberApprovalSchema.parse({
+                        approved: true,
+                      }),
                     })
                   }
                 >
@@ -353,16 +390,31 @@ function RejectMember({
 }: {
   memberId: string;
   mutate: ReturnType<
-    typeof useMutation<unknown, Error, { path: string; method: "POST" | "PATCH" | "DELETE"; body?: unknown }>
+    typeof useMutation<
+      unknown,
+      Error,
+      {
+        path: string;
+        method: "POST" | "PATCH" | "DELETE";
+        body?: unknown;
+      }
+    >
   >;
 }) {
   const [open, setOpen] = useState(false);
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const parsed = memberApprovalSchema.safeParse({ approved: false, reason: data.get("reason") });
+    const parsed = memberApprovalSchema.safeParse({
+      approved: false,
+      reason: data.get("reason"),
+    });
     if (parsed.success) {
-      mutate.mutate({ path: `/members/${memberId}/approval`, method: "POST", body: parsed.data });
+      mutate.mutate({
+        path: `/members/${memberId}/approval`,
+        method: "POST",
+        body: parsed.data,
+      });
       setOpen(false);
     }
   }
@@ -407,13 +459,21 @@ function MemberManagement({
   groups: z.infer<typeof guildGroupListSchema>;
   currentPrivilege: number;
   mutate: ReturnType<
-    typeof useMutation<unknown, Error, { path: string; method: "POST" | "PATCH" | "DELETE"; body?: unknown }>
+    typeof useMutation<
+      unknown,
+      Error,
+      {
+        path: string;
+        method: "POST" | "PATCH" | "DELETE";
+        body?: unknown;
+      }
+    >
   >;
 }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
+        <Button size="xs" variant="ghost">
           管理
         </Button>
       </DialogTrigger>
@@ -440,7 +500,11 @@ function MemberManagement({
                           mutate.mutate({
                             path: `/guild-groups/${group.id}/members${next ? "" : `/${member.id}`}`,
                             method: next ? "POST" : "DELETE",
-                            body: next ? { userId: member.id } : undefined,
+                            body: next
+                              ? {
+                                  userId: member.id,
+                                }
+                              : undefined,
                           })
                         }
                       />
@@ -479,7 +543,11 @@ function MemberManagement({
           <Button
             variant="destructive"
             onClick={() =>
-              mutate.mutate({ path: `/members/${member.id}/status`, method: "PATCH", body: { status: "DISABLED" } })
+              mutate.mutate({
+                path: `/members/${member.id}/status`,
+                method: "PATCH",
+                body: { status: "DISABLED" },
+              })
             }
           >
             <ShieldCheck data-icon="inline-start" />
@@ -497,7 +565,10 @@ function GroupManagement({ groups }: { groups: z.infer<typeof guildGroupListSche
   const [error, setError] = useState<string>();
   const create = useMutation({
     mutationFn: (body: z.infer<typeof guildGroupInputSchema>) =>
-      apiRequest("/guild-groups", guildGroupSchema, { method: "POST", body: JSON.stringify(body) }),
+      apiRequest("/guild-groups", guildGroupSchema, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
     onSuccess: async () => {
       setOpen(false);
       await client.invalidateQueries({ queryKey: ["guild-groups"] });

@@ -13,7 +13,21 @@ import {
   wclLinkStatusSchema,
   wclServerListSchema,
 } from "@ttz/contracts";
-import { Check, CircleAlert, Link2, Plus, RefreshCw, Search, Star, UserRound } from "lucide-react";
+import {
+  BadgeCheck,
+  Check,
+  CircleAlert,
+  CircleUserRound,
+  Crown,
+  Link2,
+  Plus,
+  RefreshCw,
+  Search,
+  SquareArrowUpRightExit,
+  Star,
+  UserGroup,
+  UserRound,
+} from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -34,8 +48,8 @@ import {
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { apiRequest } from "@/lib/api-client";
 import { NotificationPreferences } from "../_components/notification-preferences";
 
@@ -43,7 +57,10 @@ const actionResultSchema = z.unknown();
 
 export function ProfileScreen() {
   const client = useQueryClient();
-  const me = useQuery({ queryKey: ["auth", "me"], queryFn: () => apiRequest("/auth/me", authUserSchema) });
+  const me = useQuery({
+    queryKey: ["auth", "me"],
+    queryFn: () => apiRequest("/auth/me", authUserSchema),
+  });
   const characters = useQuery({
     queryKey: ["characters"],
     queryFn: () => apiRequest("/characters", characterListSchema),
@@ -67,11 +84,17 @@ export function ProfileScreen() {
     }
     window.history.replaceState({}, "", window.location.pathname);
     if (result === "cancelled") toast.info("已取消 WCL 授权");
-    else toast.error("WCL 授权或角色同步失败", { description: "请稍后重试。" });
+    else
+      toast.error("WCL 授权或角色同步失败", {
+        description: "请稍后重试。",
+      });
   }, [client]);
   const profile = useMutation({
     mutationFn: (body: z.infer<typeof memberProfileSchema>) =>
-      apiRequest("/auth/profile", authUserSchema, { method: "PATCH", body: JSON.stringify(body) }),
+      apiRequest("/auth/profile", authUserSchema, {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      }),
     onSuccess: (user) => {
       client.setQueryData(["auth", "me"], user);
       toast.success("成员资料已保存");
@@ -112,7 +135,10 @@ export function ProfileScreen() {
       <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
         <Card>
           <CardHeader>
-            <CardTitle>成员资料</CardTitle>
+            <div className="flex items-center gap-2">
+              <CircleUserRound size={18} />
+              <CardTitle>成员资料</CardTitle>
+            </div>
             <CardDescription>微信名和群昵称用于审核与活动识别。</CardDescription>
           </CardHeader>
           <form onSubmit={submitProfile}>
@@ -138,9 +164,10 @@ export function ProfileScreen() {
                 ) : null}
               </FieldGroup>
             </CardContent>
-            <div className="flex justify-end px-4 pb-4">
+            <div className="flex justify-end px-4 pt-4">
               <Button type="submit" disabled={profile.isPending}>
-                {profile.isPending ? <Spinner data-icon="inline-start" /> : <Check data-icon="inline-start" />}保存资料
+                {profile.isPending ? <Spinner data-icon="inline-start" /> : <Check data-icon="inline-start" />}
+                保存资料
               </Button>
             </div>
           </form>
@@ -171,13 +198,20 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
     enabled: serverSearch.trim().length > 0,
   });
   const authorize = useMutation({
-    mutationFn: () => apiRequest("/auth/wcl/authorize", wclAuthorizeSchema, { method: "POST" }),
+    mutationFn: () =>
+      apiRequest("/auth/wcl/authorize", wclAuthorizeSchema, {
+        method: "POST",
+      }),
     onSuccess: (result) => window.location.assign(result.authorizationUrl),
     onError: (reason) => toast.error("无法发起 WCL 授权", { description: reason.message }),
   });
   const search = useMutation({
     mutationFn: () => {
-      const parsed = wclCharacterSearchSchema.parse({ name, serverSlug, serverRegion });
+      const parsed = wclCharacterSearchSchema.parse({
+        name,
+        serverSlug,
+        serverRegion,
+      });
       const params = new URLSearchParams({
         name: parsed.name,
         serverSlug: parsed.serverSlug,
@@ -192,21 +226,28 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
   });
   const create = useMutation({
     mutationFn: (body: z.infer<typeof createCharacterSchema>) =>
-      apiRequest("/characters", characterSummarySchema, { method: "POST", body: JSON.stringify(body) }),
+      apiRequest("/characters", characterSummarySchema, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
     onSuccess: async () => {
       setCandidate(undefined);
       setName("");
       setServerSearch("");
       setServerSlug("");
       setSearchOpen(false);
-      toast.success("角色已提交审核", { description: "未验证角色仍可报名。" });
+      toast.success("角色已提交审核", {
+        description: "未验证角色仍可报名。",
+      });
       await refresh();
     },
     onError: (reason) => toast.error("角色提交失败", { description: reason.message }),
   });
   const action = useMutation({
     mutationFn: ({ id, path }: { id: string; path: "set-main" | "retire" | "activate" }) =>
-      apiRequest(`/characters/${id}/${path}`, actionResultSchema, { method: "POST" }),
+      apiRequest(`/characters/${id}/${path}`, actionResultSchema, {
+        method: "POST",
+      }),
     onSuccess: async (_result, variables) => {
       const message = {
         "set-main": "主角色已更新",
@@ -219,7 +260,10 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
     onError: (reason) => toast.error("角色操作失败", { description: reason.message }),
   });
   const sync = useMutation({
-    mutationFn: (id: string) => apiRequest(`/characters/${id}/sync-wcl`, characterSummarySchema, { method: "POST" }),
+    mutationFn: (id: string) =>
+      apiRequest(`/characters/${id}/sync-wcl`, characterSummarySchema, {
+        method: "POST",
+      }),
     onSuccess: async () => {
       toast.success("已从 WCL 同步角色资料", {
         description: "WCL 是否已向暴雪刷新取决于 WCL 自身。",
@@ -232,12 +276,25 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
   return (
     <Card>
       <CardHeader>
-        <CardTitle>我的角色</CardTitle>
-        <CardDescription>通过 WCL 认领同步，或搜索已公开的 WCL 角色并提交管理员审核。</CardDescription>
+        <div className="flex items-center gap-2">
+          <UserGroup size={18} />
+          <CardTitle className="flex items-center gap-4">
+            角色列表
+            {link?.linked ? (
+              <p className="text-xs text-muted-foreground">
+                {link.wclUsername} · {link.lastVerifiedAt ? new Date(link.lastVerifiedAt).toLocaleString() : "—"}
+              </p>
+            ) : null}
+          </CardTitle>
+        </div>
+
+        <CardDescription className="text-xs text-muted-foreground">
+          通过 WCL 验证绑定，或搜索已公开的 WCL 角色并提交管理员审核验证。
+        </CardDescription>
         <CardAction className="flex flex-wrap gap-2">
           <Button onClick={() => authorize.mutate()} disabled={authorize.isPending || linkStatus.isPending}>
             {authorize.isPending ? <Spinner data-icon="inline-start" /> : <Link2 data-icon="inline-start" />}
-            {link?.linked ? `重新验证 WCL（${link.wclUsername}）` : "绑定 WCL 账号"}
+            {link?.linked ? `重新绑定 WCL` : "绑定 WCL"}
           </Button>
           <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
             <DialogTrigger asChild>
@@ -295,8 +352,8 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                   onClick={() => search.mutate()}
                   disabled={search.isPending || !name.trim() || !serverSlug}
                 >
-                  {search.isPending ? <Spinner data-icon="inline-start" /> : <Search data-icon="inline-start" />}查询
-                  WCL
+                  {search.isPending ? <Spinner data-icon="inline-start" /> : <Search data-icon="inline-start" />}
+                  查询 WCL
                 </Button>
                 {candidate ? (
                   <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3">
@@ -315,7 +372,8 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
                         {candidate.activeSpecName ? ` · 当前${candidate.activeSpecName}` : ""}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        公会：{candidate.guildName ?? (candidate.guildNames.join(", ") || "未显示")}
+                        公会：
+                        {candidate.guildName ?? (candidate.guildNames.join(", ") || "未显示")}
                         {candidate.itemLevel ? ` · ${candidate.itemLevel} 装等` : ""}
                       </p>
                     </div>
@@ -342,12 +400,6 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {link?.linked ? (
-          <p className="text-xs text-muted-foreground">
-            WCL：{link.wclUsername} · 最近验证{" "}
-            {link.lastVerifiedAt ? new Date(link.lastVerifiedAt).toLocaleString() : "—"}
-          </p>
-        ) : null}
         {linkStatus.isError ? (
           <Alert variant="destructive">
             <AlertTitle>WCL 关联状态暂时不可用</AlertTitle>
@@ -357,75 +409,109 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
         {characters.length ? (
           characters.map((character) => (
             <div key={character.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="font-medium">{character.name}</p>
-                  <Badge variant={character.verificationStatus === "VERIFIED" ? "default" : "secondary"}>
-                    {verificationLabel[character.verificationStatus]}
-                  </Badge>
-                  {character.isRetired ? <Badge variant="outline">已退役</Badge> : null}
-                  {character.isMain ? (
-                    <Badge>
-                      <Star data-icon="inline-start" />
-                      主角色
+              <div className="flex items-center gap-2">
+                <GameIcon
+                  src={character.classIconUrl}
+                  alt=""
+                  className="mr-1 inline-block size-8 rounded align-[-3px]"
+                />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <ClassAccent color={character.classColor}>
+                      <p className="font-medium">{character.name}</p>
+                    </ClassAccent>
+                    {character.isMain ? (
+                      <Badge variant="secondary">
+                        <Crown data-icon="inline-start" />
+                        主角色
+                      </Badge>
+                    ) : null}
+                    <Badge variant="secondary">
+                      {character.verificationStatus === "VERIFIED" ? <BadgeCheck data-icon="inline-start" /> : "未验证"}
+                      {verificationLabel[character.verificationStatus]}
                     </Badge>
-                  ) : null}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  <GameIcon
-                    src={character.classIconUrl}
-                    alt=""
-                    className="mr-1 inline-block size-4 rounded align-[-3px]"
-                  />
-                  {character.realm}
-                  {` · `}
-                  <ClassAccent color={character.classColor}>{character.className}</ClassAccent>
-                  {character.raceName ? ` · ${character.raceName}` : ""}
-                  {character.activeSpecName ? ` · 当前${character.activeSpecName}` : ""}
-                  {character.itemLevel ? ` · ${character.itemLevel} 装等` : ""}
-                </p>
-                {character.guildName ? (
+                    {character.isRetired ? <Badge variant="destructive">已退役</Badge> : null}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    公会：{character.guildName}
-                    {character.guildServerName ? ` · ${character.guildServerName}` : ""}
+                    {character.realm}
+                    {` · `}
+                    <ClassAccent color={character.classColor}>{character.className}</ClassAccent>
+                    {character.raceName ? ` · ${character.raceName}` : ""}
+                    {character.activeSpecName ? ` · ${character.activeSpecName}` : ""}
+                    {character.itemLevel ? ` · ${character.itemLevel} 装等` : ""}
                   </p>
-                ) : null}
+                </div>
               </div>
               <div className="flex gap-2">
+                {!character.isMain && !character.isRetired ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      action.mutate({
+                        id: character.id,
+                        path: "set-main",
+                      })
+                    }
+                  >
+                    设为主角色
+                  </Button>
+                ) : null}
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => sync.mutate(character.id)}
                   disabled={sync.isPending}
-                  title="从 WCL 公开 API 重新读取角色资料；不会直接调用 WCL 网站内部的强制刷新页面"
+                  title="从 WCL 公开 API 重新读取角色资料"
                 >
                   <RefreshCw
                     data-icon="inline-start"
                     className={sync.isPending && sync.variables === character.id ? "animate-spin" : undefined}
                   />
-                  从 WCL 同步
+                  同步
                 </Button>
-                {!character.isMain && !character.isRetired ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={sync.isPending}
+                  title="打开此角色的 WCL 页面"
+                  onClick={() =>
+                    window.open(
+                      `https://cn.warcraftlogs.com/character/id/${character.wclId}`,
+                      "_blank",
+                      "noopener,noreferrer",
+                    )
+                  }
+                >
+                  <SquareArrowUpRightExit data-icon="inline-start" />
+                  WCL
+                </Button>
+                {!character.isRetired ? (
                   <Button
                     size="sm"
-                    variant="outline"
-                    onClick={() => action.mutate({ id: character.id, path: "set-main" })}
+                    variant="destructive"
+                    onClick={() =>
+                      action.mutate({
+                        id: character.id,
+                        path: "retire",
+                      })
+                    }
                   >
-                    设为主角色
-                  </Button>
-                ) : null}
-                {!character.isRetired ? (
-                  <Button size="sm" variant="ghost" onClick={() => action.mutate({ id: character.id, path: "retire" })}>
                     退役
                   </Button>
                 ) : (
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="destructive"
                     disabled={action.isPending}
-                    onClick={() => action.mutate({ id: character.id, path: "activate" })}
+                    onClick={() =>
+                      action.mutate({
+                        id: character.id,
+                        path: "activate",
+                      })
+                    }
                   >
-                    重新激活
+                    激活
                   </Button>
                 )}
               </div>
@@ -447,4 +533,9 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
   );
 }
 
-const verificationLabel = { UNVERIFIED: "未验证", PENDING: "待审核", VERIFIED: "已验证", REJECTED: "未通过" } as const;
+const verificationLabel = {
+  UNVERIFIED: "未验证",
+  PENDING: "待审核",
+  VERIFIED: "已验证",
+  REJECTED: "未通过",
+} as const;

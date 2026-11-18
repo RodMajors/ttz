@@ -112,14 +112,14 @@ function SelectContent({
       placement={placement}
       offset={offset}
       className={cn(
-        "z-50 w-(--trigger-width) overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md outline-none ring-1 ring-foreground/10 entering:animate-in entering:fade-in-0 entering:zoom-in-95 exiting:animate-out exiting:fade-out-0 exiting:zoom-out-95",
+        "z-50 w-(--trigger-width) overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md outline-none ring-1 ring-foreground/10 entering:animate-in entering:fade-in-0 entering:zoom-in-95 exiting:animate-out exiting:fade-out-0 exiting:zoom-out-95 cursor-pointer",
         className,
       )}
       {...props}
     >
       <AriaListBox
         data-slot="select-list"
-        className="max-h-[min(var(--visual-viewport-height),20rem)] overflow-y-auto p-1 outline-none"
+        className="max-h-[min(var(--visual-viewport-height),20rem)] overflow-y-auto p-1 outline-none cursor-pointer"
       >
         {children}
       </AriaListBox>
@@ -139,7 +139,7 @@ function SelectItem({
       id={value ?? props.id}
       textValue={typeof children === "string" ? children : undefined}
       className={cn(
-        "relative flex w-full cursor-default items-center gap-2 rounded-md py-1.5 pr-8 pl-2 text-sm outline-none select-none data-focused:bg-accent data-focused:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 data-selected:bg-accent data-selected:text-accent-foreground",
+        "relative flex w-full cursor-default items-center gap-2 rounded-md py-1.5 pr-8 pl-2 text-sm outline-none select-none data-focused:bg-accent data-focused:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 data-selected:bg-accent data-selected:text-accent-foreground cursor-pointer",
         className,
       )}
       {...props}
