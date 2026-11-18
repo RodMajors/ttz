@@ -1,0 +1,35 @@
+apps/web/src/app/(main)/dashboard/members/_components/members-screen.tsx
+  h_1dc22111645538 44,87-89
+  h_1dc22111645538 15,21,52,130-133,137-143,184,189-202,260-287
+apps/web/src/app/(main)/dashboard/_components/sidebar/nav-user.tsx
+  s_91209f3f10bb14::t_4e2e8750b8fd90 7,22-23
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  h_1dc22111645538 11
+apps/web/src/app/(main)/dashboard/default/dashboard-overview.tsx
+  h_1dc22111645538 5,7,9,11,23,27,38,69-71,178-236
+apps/web/src/app/(main)/dashboard/profile/profile-screen.tsx
+  h_1dc22111645538 185,448,456-460,471-475,498,506-508,514,523-527
+packages/contracts/src/index.ts
+  h_1dc22111645538 33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1906271884aa4eb1470552fba07d80c62a862aa3",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_91209f3f10bb14": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ce5e-3ad5-7553-9333-b05a2d9c46fd",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
