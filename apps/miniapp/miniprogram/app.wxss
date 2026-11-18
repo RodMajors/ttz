@@ -21,3 +21,9 @@ page { background: #f7f7f7; color: #161616; font-family: -apple-system, BlinkMac
 .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 16rpx; }
 .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 20rpx; font-size: 26rpx; }
 .form textarea { min-height: 160rpx; border: 1rpx solid #ddd; border-radius: 12rpx; padding: 18rpx; }
+.profile-consent { margin-top: 24rpx; }
+.avatar-picker { display: flex; align-items: center; gap: 20rpx; margin: 24rpx 0; padding: 0; background: transparent; text-align: left; font-size: 26rpx; }
+.avatar-picker::after { border: 0; }
+.consent-avatar { width: 104rpx; height: 104rpx; border-radius: 50%; background: #eee; }
+.avatar-placeholder { display: flex; align-items: center; justify-content: center; color: #777; font-size: 48rpx; }
+.nickname-input { margin-top: 16rpx; border: 1rpx solid #ddd; border-radius: 12rpx; padding: 18rpx; background: #fff; }

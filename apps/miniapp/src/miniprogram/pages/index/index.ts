@@ -2,7 +2,15 @@ import { apiRequest, hasSession } from "../../lib/api";
 import { type CurrentUser, getCurrentUser, loginWithLocalDevAccount, loginWithWechat } from "../../lib/auth";
 
 Page({
-  data: { loading: true, user: null as CurrentUser | null, error: "", localDevAuthEnabled: false },
+  data: {
+    loading: true,
+    user: null as CurrentUser | null,
+    error: "",
+    localDevAuthEnabled: false,
+    profileStepOpen: false,
+    wxNickname: "",
+    avatarPath: "",
+  },
   onShow() {
     const app = getApp<{ globalData: { localDevAuthEnabled: boolean } }>();
     this.setData({ localDevAuthEnabled: app.globalData.localDevAuthEnabled });
@@ -19,14 +27,38 @@ Page({
       this.setData({ user: null, loading: false, error: error instanceof Error ? error.message : "登录已失效" });
     }
   },
+  openProfileStep() {
+    this.setData({ profileStepOpen: true, error: "" });
+  },
+  skipProfileAndLogin() {
+    this.setData({ profileStepOpen: false, wxNickname: "", avatarPath: "" }, () => void this.login());
+  },
+  onNicknameInput(event: WechatMiniprogram.Input) {
+    this.setData({ wxNickname: event.detail.value });
+  },
+  onChooseAvatar(event: WechatMiniprogram.CustomEvent<{ avatarUrl: string }>) {
+    this.setData({ avatarPath: event.detail.avatarUrl });
+  },
   async login() {
     this.setData({ loading: true, error: "" });
     try {
-      const user = await loginWithWechat();
-      this.setData({ user, loading: false });
-      wx.showToast({ title: "登录成功", icon: "success" });
+      const profile = this.data.profileStepOpen
+        ? { wxNickname: this.data.wxNickname.trim() || undefined, avatarPath: this.data.avatarPath || undefined }
+        : undefined;
+      const result = await loginWithWechat(profile);
+      this.setData({
+        user: result.user,
+        loading: false,
+        profileStepOpen: false,
+        error: result.authorizationError ?? "",
+      });
+      wx.showToast({ title: result.authorizationError ? "登录成功，资料待补充" : "登录成功", icon: "none" });
     } catch (error) {
-      this.setData({ loading: false, error: error instanceof Error ? error.message : "微信登录失败" });
+      this.setData({
+        loading: false,
+        profileStepOpen: true,
+        error: error instanceof Error ? error.message : "微信登录失败",
+      });
     }
   },
   async localDevLogin() {

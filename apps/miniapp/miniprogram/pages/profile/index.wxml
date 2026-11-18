@@ -4,9 +4,18 @@
   <view class="card" wx:elif="{{!user}}"><view class="muted">请先从首页完成微信登录。</view></view>
   <form class="card form" wx:else bindsubmit="save">
     <view class="section-title">成员资料</view>
-    <label>微信名<input name="wxNickname" value="{{user.wxNickname}}" placeholder="微信中显示的名字" /></label>
+    <button wx:if="{{!user.avatar}}" class="avatar-picker" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" disabled="{{uploadingAvatar}}">
+      <image wx:if="{{user.avatar}}" class="consent-avatar" src="{{user.avatar}}" mode="aspectFill" />
+      <view wx:else class="consent-avatar avatar-placeholder">+</view>
+      <text>{{uploadingAvatar ? '头像上传中…' : '授权并设置微信头像'}}</text>
+    </button>
+    <view wx:else class="avatar-picker">
+      <image class="consent-avatar" src="{{user.avatar}}" mode="aspectFill" />
+      <text>微信头像已授权</text>
+    </view>
     <label>TTZ 群昵称<input name="guildNickname" value="{{user.guildNickname}}" placeholder="公会群中的昵称" /></label>
     <label>站内显示名<input name="name" value="{{user.name}}" placeholder="可选" /></label>
+    <label>微信名<input name="wxNickname" type="nickname" value="{{user.wxNickname || ''}}" placeholder="填写微信名称" disabled="{{!!user.wxNickname}}" /></label>
     <view class="muted">状态：{{user.isApproved ? '已审核' : '待审核'}}</view>
     <button class="primary-button" form-type="submit">保存资料</button>
     <button class="secondary-button" type="button" bindtap="logout">退出登录</button>
