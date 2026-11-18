@@ -1,0 +1,32 @@
+apps/miniapp/miniprogram/app.wxss
+  s_91209f3f10bb14::t_76ef09d7d37633 24-29
+apps/miniapp/miniprogram/pages/index/index.wxml
+  s_91209f3f10bb14::t_09ff1448ecb0fb 16-28
+apps/miniapp/miniprogram/pages/profile/index.wxml
+  s_91209f3f10bb14::t_a52799d21b86b5 7-15,18
+apps/miniapp/src/miniprogram/pages/profile/index.ts
+  s_91209f3f10bb14::t_b5893e2ff400b1 2,5,21,23-28,39-51
+apps/miniapp/src/miniprogram/pages/profile/index.wxml
+  s_91209f3f10bb14::t_8aa70d7800113b 7-15,18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a137107477caaa60a8c7604c1be292c730f509ff",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_91209f3f10bb14": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ce5e-3ad5-7553-9333-b05a2d9c46fd",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
