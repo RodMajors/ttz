@@ -23,6 +23,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -151,6 +159,7 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
   const [serverSlug, setServerSlug] = useState("");
   const [serverRegion, setServerRegion] = useState("cn");
   const [candidate, setCandidate] = useState<z.infer<typeof wclCharacterCandidateSchema>>();
+  const [searchOpen, setSearchOpen] = useState(false);
   const refresh = () => client.invalidateQueries({ queryKey: ["characters"] });
   const linkStatus = useQuery({
     queryKey: ["wcl-link"],
@@ -187,6 +196,9 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
     onSuccess: async () => {
       setCandidate(undefined);
       setName("");
+      setServerSearch("");
+      setServerSlug("");
+      setSearchOpen(false);
       toast.success("角色已提交审核", { description: "未验证角色仍可报名。" });
       await refresh();
     },
@@ -222,94 +234,114 @@ function CharacterCard({ characters }: { characters: z.infer<typeof characterLis
       <CardHeader>
         <CardTitle>我的角色</CardTitle>
         <CardDescription>通过 WCL 认领同步，或搜索已公开的 WCL 角色并提交管理员审核。</CardDescription>
-        <CardAction>
+        <CardAction className="flex flex-wrap gap-2">
           <Button onClick={() => authorize.mutate()} disabled={authorize.isPending || linkStatus.isPending}>
             {authorize.isPending ? <Spinner data-icon="inline-start" /> : <Link2 data-icon="inline-start" />}
             {link?.linked ? `重新验证 WCL（${link.wclUsername}）` : "绑定 WCL 账号"}
           </Button>
+          <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Search data-icon="inline-start" />
+                搜索角色
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl">
+              <DialogHeader>
+                <DialogTitle>搜索 WCL 角色</DialogTitle>
+                <DialogDescription>按中文服务器名选择服务器，再查询公开的 WCL 角色并提交管理员审核。</DialogDescription>
+              </DialogHeader>
+              <div className="flex flex-col gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field>
+                    <FieldLabel htmlFor="wcl-character-name">角色名</FieldLabel>
+                    <Input id="wcl-character-name" value={name} onChange={(event) => setName(event.target.value)} />
+                  </Field>
+                  <Field className="relative">
+                    <FieldLabel htmlFor="wcl-server-name">服务器</FieldLabel>
+                    <Input
+                      id="wcl-server-name"
+                      value={serverSearch}
+                      onChange={(event) => {
+                        setServerSearch(event.target.value);
+                        setServerSlug("");
+                        setCandidate(undefined);
+                      }}
+                      placeholder="输入中文服务器名，如安苏"
+                    />
+                    {servers.data?.length && !serverSlug ? (
+                      <div className="absolute top-full z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border bg-popover p-1 shadow-md">
+                        {servers.data.map((server) => (
+                          <button
+                            type="button"
+                            key={server.id}
+                            className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent"
+                            onClick={() => {
+                              setServerSearch(server.name);
+                              setServerSlug(server.slug);
+                              setCandidate(undefined);
+                            }}
+                          >
+                            <span>{server.name}</span>
+                            <span className="text-xs text-muted-foreground">{server.slug}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </Field>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => search.mutate()}
+                  disabled={search.isPending || !name.trim() || !serverSlug}
+                >
+                  {search.isPending ? <Spinner data-icon="inline-start" /> : <Search data-icon="inline-start" />}查询
+                  WCL
+                </Button>
+                {candidate ? (
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3">
+                    <div className="min-w-0">
+                      <p className="font-medium">
+                        {candidate.name} · {candidate.realm}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        <GameIcon
+                          src={candidate.classIconUrl}
+                          alt=""
+                          className="mr-1 inline-block size-4 rounded align-[-3px]"
+                        />
+                        <ClassAccent color={candidate.classColor}>{candidate.className}</ClassAccent>
+                        {candidate.raceName ? ` · ${candidate.raceName}` : ""}
+                        {candidate.activeSpecName ? ` · 当前${candidate.activeSpecName}` : ""}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        公会：{candidate.guildName ?? (candidate.guildNames.join(", ") || "未显示")}
+                        {candidate.itemLevel ? ` · ${candidate.itemLevel} 装等` : ""}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        create.mutate({
+                          name: candidate.name,
+                          serverSlug: candidate.serverSlug,
+                          serverRegion: candidate.serverRegion,
+                          isMain: characters.length === 0,
+                        })
+                      }
+                      disabled={create.isPending}
+                    >
+                      {create.isPending ? <Spinner data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
+                      提交审核
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
+            </DialogContent>
+          </Dialog>
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-end">
-          <Field className="flex-1">
-            <FieldLabel htmlFor="wcl-character-name">角色名</FieldLabel>
-            <Input id="wcl-character-name" value={name} onChange={(event) => setName(event.target.value)} />
-          </Field>
-          <Field className="relative flex-1">
-            <FieldLabel htmlFor="wcl-server-name">服务器</FieldLabel>
-            <Input
-              id="wcl-server-name"
-              value={serverSearch}
-              onChange={(event) => {
-                setServerSearch(event.target.value);
-                setServerSlug("");
-              }}
-              placeholder="输入中文服务器名，如安苏"
-            />
-            {servers.data?.length && !serverSlug ? (
-              <div className="absolute top-full z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border bg-popover p-1 shadow-md">
-                {servers.data.map((server) => (
-                  <button
-                    type="button"
-                    key={server.id}
-                    className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent"
-                    onClick={() => {
-                      setServerSearch(server.name);
-                      setServerSlug(server.slug);
-                    }}
-                  >
-                    <span>{server.name}</span>
-                    <span className="text-xs text-muted-foreground">{server.slug}</span>
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </Field>
-          <Button
-            variant="outline"
-            onClick={() => search.mutate()}
-            disabled={search.isPending || !name.trim() || !serverSlug}
-          >
-            {search.isPending ? <Spinner data-icon="inline-start" /> : <Search data-icon="inline-start" />}查询 WCL
-          </Button>
-        </div>
-        {candidate ? (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3">
-            <div className="min-w-0">
-              <p className="font-medium">
-                {candidate.name} · {candidate.realm}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                <GameIcon
-                  src={candidate.classIconUrl}
-                  alt=""
-                  className="mr-1 inline-block size-4 rounded align-[-3px]"
-                />
-                <ClassAccent color={candidate.classColor}>{candidate.className}</ClassAccent>
-                {candidate.raceName ? ` · ${candidate.raceName}` : ""}
-                {candidate.activeSpecName ? ` · 当前${candidate.activeSpecName}` : ""}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                公会：{candidate.guildName ?? (candidate.guildNames.join(", ") || "未显示")}
-                {candidate.itemLevel ? ` · ${candidate.itemLevel} 装等` : ""}
-              </p>
-            </div>
-            <Button
-              size="sm"
-              onClick={() =>
-                create.mutate({
-                  name: candidate.name,
-                  serverSlug: candidate.serverSlug,
-                  serverRegion: candidate.serverRegion,
-                  isMain: characters.length === 0,
-                })
-              }
-              disabled={create.isPending}
-            >
-              {create.isPending ? <Spinner data-icon="inline-start" /> : <Plus data-icon="inline-start" />}提交审核
-            </Button>
-          </div>
-        ) : null}
         {link?.linked ? (
           <p className="text-xs text-muted-foreground">
             WCL：{link.wclUsername} · 最近验证{" "}
