@@ -71,9 +71,9 @@ export function DashboardOverview() {
   return (
     <div className="@container/main flex flex-col gap-5 md:gap-6">
       <div>
-        <p className="text-sm text-muted-foreground">Asia/Shanghai</p>
+        <p className="text-xs text-muted-foreground tracking-[0.18em] font-bold">{"TTZ // THE TWILIGHT ZONE"}</p>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight">TTZ 公会工作台</h1>
-        <p className="mt-2 text-sm text-muted-foreground">活动、报名、名单和出勤的实时概览。</p>
+        <p className="text-sm text-muted-foreground">活动、报名、名单和出勤的实时概览。</p>
       </div>
       <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
         <Metric icon={CalendarDays} label="近期活动" value={String(upcoming.length)} note="未来已发布活动" />
@@ -95,7 +95,6 @@ export function DashboardOverview() {
         <Card>
           <CardHeader>
             <CardTitle>近期活动</CardTitle>
-            <CardDescription>报名截止或确认后，普通成员不能再修改或取消。</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             {upcoming.length ? (
@@ -133,7 +132,6 @@ export function DashboardOverview() {
         <Card>
           <CardHeader>
             <CardTitle>本人出勤</CardTitle>
-            <CardDescription>正常出勤和迟到计入有效出勤。</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             {attendance.data.activities.slice(0, 6).map((activity) => (
@@ -152,32 +150,33 @@ export function DashboardOverview() {
           </CardContent>
         </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell />
-            公告
-          </CardTitle>
-          <CardDescription>只显示当前成员可见且在有效期内的公告。</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-2">
-          {announcements.data.slice(0, 4).map((announcement) => (
-            <div key={announcement.id} className="rounded-lg border p-4">
-              <div className="flex items-center gap-2">
-                {announcement.isPinned ? <Badge>置顶</Badge> : null}
-                <p className="font-medium">{announcement.title}</p>
+      {announcements.data.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell />
+              公告
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 md:grid-cols-2">
+            {announcements.data.slice(0, 4).map((announcement) => (
+              <div key={announcement.id} className="rounded-lg border p-4">
+                <div className="flex items-center gap-2">
+                  {announcement.isPinned ? <Badge>置顶</Badge> : null}
+                  <p className="font-medium">{announcement.title}</p>
+                </div>
+                <p className="mt-2 line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground">
+                  {announcement.content}
+                </p>
               </div>
-              <p className="mt-2 line-clamp-3 whitespace-pre-wrap text-sm text-muted-foreground">
-                {announcement.content}
-              </p>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+            ))}
+          </CardContent>
+        </Card>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>公会成员</CardTitle>
-          <CardDescription>已审核且启用的成员 · 共 {members.data.pagination.total} 人</CardDescription>
+          <CardDescription>已审核认证的成员 · 共 {members.data.pagination.total} 人</CardDescription>
         </CardHeader>
         <CardContent>
           {members.data.items.length ? (
@@ -258,6 +257,12 @@ function formatDate(value: string) {
 }
 function signupLabel(status: string) {
   return (
-    { PENDING: "待确认", CONFIRMED: "已确认", BENCH: "替补", CANCELLED: "已取消", REJECTED: "已拒绝" }[status] ?? status
+    {
+      PENDING: "待确认",
+      CONFIRMED: "已确认",
+      BENCH: "替补",
+      CANCELLED: "已取消",
+      REJECTED: "已拒绝",
+    }[status] ?? status
   );
 }
