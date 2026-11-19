@@ -6,7 +6,6 @@ import { Bell, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, CircleAler
 import Link from "next/link";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +19,8 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiRequest } from "@/lib/api-client";
-import { getInitials } from "@/lib/utils";
 import { AttendanceStatusBadge } from "../_components/attendance-status";
+import { MemberTable } from "../_components/member-table";
 
 export function DashboardOverview() {
   const [memberPage, setMemberPage] = useState(1);
@@ -183,26 +182,7 @@ export function DashboardOverview() {
         <CardContent>
           {members.data.items.length ? (
             <>
-              <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
-                {visibleMembers.map((member) => {
-                  const main = member.characters.find((character) => character.isMain);
-                  const name = member.name ?? member.guildNickname ?? "未设置昵称";
-                  return (
-                    <div key={member.id} className="flex min-w-0 items-center gap-3 border-b pb-3">
-                      <Avatar className="size-9">
-                        <AvatarImage src={member.avatar ?? undefined} alt="" />
-                        <AvatarFallback>{getInitials(name)}</AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{name}</p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {main ? `${main.name} · ${main.className}` : "未设置主角色"}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <MemberTable members={visibleMembers} />
               {memberPageCount > 1 ? (
                 <div className="mt-4 flex items-center justify-end gap-2">
                   <Button

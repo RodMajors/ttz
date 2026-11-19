@@ -18,7 +18,6 @@ import { z } from "zod";
 import { ClassAccent } from "@/components/class-accent";
 import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,10 +37,9 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
-import { getInitials } from "@/lib/utils";
+import { MemberTable } from "../../_components/member-table";
 
 const changedSchema = z.unknown();
 
@@ -169,93 +167,21 @@ export function MembersScreen() {
               </EmptyHeader>
             </Empty>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>成员</TableHead>
-                  <TableHead>主角色</TableHead>
-                  <TableHead>职业</TableHead>
-                  <TableHead>身份组</TableHead>
-                  <TableHead>权限</TableHead>
-                  {me.data.privilege >= 1 ? <TableHead className="text-right">操作</TableHead> : null}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pagedMembers.map((member) => {
-                  const main = member.characters.find((character) => character.isMain);
-                  return (
-                    <TableRow key={member.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Avatar className="size-8">
-                            <AvatarImage src={member.avatar ?? undefined} alt="" />
-                            <AvatarFallback>{getInitials(member.name ?? member.guildNickname ?? "TTZ")}</AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <p className="truncate font-medium">
-                              {member.name ?? member.guildNickname ?? "未设置昵称"}
-                            </p>
-                            <p className="truncate text-xs text-muted-foreground">
-                              {member.wxNickname ?? "未设置微信名"}
-                            </p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {main ? (
-                          <div className="flex items-center">
-                            <GameIcon
-                              src={main.classIconUrl}
-                              alt=""
-                              className="mr-2 inline-block size-6 rounded align-[-3px]"
-                            />
-                            <ClassAccent color={main.classColor}>
-                              {main.name} - {main.realm}
-                            </ClassAccent>
-                            {main.verificationStatus === "VERIFIED" ? "" : <Badge variant="secondary">未验证</Badge>}
-                          </div>
-                        ) : (
-                          "未设置"
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {main ? (
-                          <div className="flex items-center">
-                            <ClassAccent color={main.classColor}> {main.className}</ClassAccent>
-                          </div>
-                        ) : (
-                          "未设置"
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {member.groups.length ? (
-                            member.groups.map((group) => (
-                              <Badge key={group.id} variant="secondary">
-                                {group.name}
-                              </Badge>
-                            ))
-                          ) : (
-                            <span className="text-muted-foreground">无</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{["成员", "管理员", "超级管理员"][member.privilege]}</TableCell>
-                      {me.data.privilege >= 1 ? (
-                        <TableCell className="text-right">
-                          <MemberManagement
-                            member={member}
-                            groups={groups.data}
-                            currentPrivilege={me.data.privilege}
-                            mutate={mutate}
-                          />
-                        </TableCell>
-                      ) : null}
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            <MemberTable
+              members={pagedMembers}
+              renderActions={
+                me.data.privilege >= 1
+                  ? (member) => (
+                      <MemberManagement
+                        member={member}
+                        groups={groups.data}
+                        currentPrivilege={me.data.privilege}
+                        mutate={mutate}
+                      />
+                    )
+                  : undefined
+              }
+            />
           )}
           {visibleMembers.length > memberPageSize ? (
             <div className="mt-4 flex items-center justify-between border-t pt-3">
