@@ -5,6 +5,7 @@ import { activityListSchema, announcementListSchema, attendanceSummarySchema, me
 import { Bell, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, CircleAlert, Clock3, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { EpicProgressTimeline } from "@/components/epic-progress-timeline";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,6 +76,7 @@ export function DashboardOverview() {
         <h1 className="mt-1 text-3xl font-semibold tracking-tight">TTZ 公会工作台</h1>
         <p className="text-sm text-muted-foreground">活动、报名、名单和出勤的实时概览。</p>
       </div>
+      <EpicProgressTimeline />
       <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
         <Metric icon={CalendarDays} label="近期活动" value={String(upcoming.length)} note="未来已发布活动" />
         <Metric

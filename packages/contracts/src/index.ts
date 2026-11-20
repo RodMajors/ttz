@@ -674,12 +674,23 @@ export const raidCatalogSchema = z.array(
     bosses: z.array(z.object({ id: idSchema, wclId: z.number().int(), name: z.string() })),
   }),
 );
+export const raidBossAttemptListSchema = z.array(
+  z.object({
+    pull: z.number().int().positive(),
+    startedAt: isoDateTimeSchema,
+    durationMs: z.number().int().nonnegative(),
+    kill: z.boolean(),
+    bossPercent: z.number().min(0).max(100).nullable(),
+  }),
+);
 export const raidDifficultySchema = z.enum(["HEROIC", "MYTHIC"]);
 export const raidProgressPlanListSchema = z.array(
   z.object({
     id: idSchema,
     raidId: idSchema,
     raidName: z.string(),
+    raidIcon: z.string().nullable(),
+    raidBackground: z.string().nullable(),
     zoneId: z.number().int().nullable(),
     difficulty: raidDifficultySchema,
     season: z.string(),
@@ -694,7 +705,9 @@ export const raidProgressPlanListSchema = z.array(
         id: idSchema,
         wclId: z.number().int(),
         name: z.string(),
+        icon: z.string().nullable(),
         orderIndex: z.number().int(),
+        attemptCount: z.number().int().nonnegative(),
         status: z.enum(["NOT_STARTED", "PROGRESSING", "DEFEATED"]),
         bestPercent: z.number().nullable(),
         firstKillAt: isoDateTimeSchema.nullable(),
@@ -705,6 +718,7 @@ export const raidProgressPlanListSchema = z.array(
     ),
   }),
 );
+export const raidEpicTimelineSchema = raidProgressPlanListSchema.element.nullable();
 export const publishedRaidStrategySchema = z.array(
   z.object({
     id: idSchema,

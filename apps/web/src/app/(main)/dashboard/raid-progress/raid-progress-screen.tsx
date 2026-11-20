@@ -5,17 +5,19 @@ import {
   authUserSchema,
   idSchema,
   publishedRaidStrategySchema,
-  raidCatalogSchema,
-  raidGuildSettingsSchema,
+  raidBossAttemptListSchema,
   raidProgressPlanListSchema,
 } from "@ttz/contracts";
-import { CircleAlert, CloudDownload, Plus, Save } from "lucide-react";
+import { CircleAlert, CloudDownload, Plus } from "lucide-react";
 import { type FormEvent, useState } from "react";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { z } from "zod";
+import { EpicProgressTimeline } from "@/components/epic-progress-timeline";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import {
   Dialog,
   DialogContent,
@@ -35,33 +37,30 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { apiRequest } from "@/lib/api-client";
 
 const queuedSchema = z.object({ jobId: z.string() });
-const createdSchema = z.object({ id: idSchema }).passthrough();
-const versionCreatedSchema = z.object({ id: idSchema, versionNo: z.number().int() });
+const versionCreatedSchema = z.object({
+  id: idSchema,
+  versionNo: z.number().int(),
+});
 type Plan = z.infer<typeof raidProgressPlanListSchema>[number];
 
 export function RaidProgressScreen() {
   const client = useQueryClient();
-  const me = useQuery({ queryKey: ["auth", "me"], queryFn: () => apiRequest("/auth/me", authUserSchema) });
+  const me = useQuery({
+    queryKey: ["auth", "me"],
+    queryFn: () => apiRequest("/auth/me", authUserSchema),
+  });
   const plans = useQuery({
     queryKey: ["raid-progress", "plans"],
     queryFn: () => apiRequest("/raid-progress/plans", raidProgressPlanListSchema),
-  });
-  const catalog = useQuery({
-    queryKey: ["raid-progress", "catalog"],
-    queryFn: () => apiRequest("/raid-progress/catalog", raidCatalogSchema),
-  });
-  const settings = useQuery({
-    queryKey: ["raid-progress", "settings"],
-    queryFn: () => apiRequest("/raid-progress/settings/guild", raidGuildSettingsSchema),
-    enabled: (me.data?.privilege ?? 0) >= 1,
+    refetchInterval: 30_000,
   });
   const sync = useMutation({
     mutationFn: () => apiRequest("/raid-progress/sync", queuedSchema, { method: "POST" }),
     onSuccess: () => client.invalidateQueries({ queryKey: ["raid-progress"] }),
   });
-  const pending = me.isPending || plans.isPending || catalog.isPending;
+  const pending = me.isPending || plans.isPending;
   if (pending) return <Skeleton className="h-[36rem] w-full" />;
-  const error = me.error ?? plans.error ?? catalog.error;
+  const error = me.error ?? plans.error;
   if (error)
     return (
       <Alert variant="destructive">
@@ -74,228 +73,85 @@ export function RaidProgressScreen() {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <p className="text-sm text-muted-foreground">WCL 公会进度与战术规划</p>
+        <p className="text-sm text-muted-foreground">The Twilight Zone</p>
         <h1 className="text-3xl font-semibold tracking-tight">团本进度</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          英雄与史诗分别维护；活动创建时引用已发布版本并生成独立快照。
-        </p>
       </div>
-      {canAdmin && settings.data ? <GuildSettingsCard value={settings.data} /> : null}
-      <Card>
-        <CardHeader>
-          <CardTitle>进度计划</CardTitle>
-          <CardDescription>WCL 只更新上游值，人工覆盖拥有更高优先级。</CardDescription>
+      <EpicProgressTimeline
+        plan={plans.data?.find((plan) => plan.difficulty === "MYTHIC" && plan.status === "ACTIVE") ?? null}
+      />
+      <section className="flex flex-col gap-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold">进度计划</h2>
+            <p className="text-sm text-muted-foreground">团本和首领信息由 WCL 同步维护。</p>
+          </div>
           {canAdmin ? (
-            <CardAction className="flex gap-2">
-              <CreatePlanDialog catalog={catalog.data ?? []} season={settings.data?.season ?? "current"} />
-              <Button variant="outline" disabled={sync.isPending} onClick={() => sync.mutate()}>
-                {sync.isPending ? <Spinner data-icon="inline-start" /> : <CloudDownload data-icon="inline-start" />}同步
-                WCL
-              </Button>
-            </CardAction>
+            <Button variant="outline" disabled={sync.isPending} onClick={() => sync.mutate()}>
+              {sync.isPending ? <Spinner data-icon="inline-start" /> : <CloudDownload data-icon="inline-start" />}
+              同步 WCL
+            </Button>
           ) : null}
-        </CardHeader>
-        <CardContent className="flex flex-col gap-5">
+        </div>
+        <div className="flex flex-col gap-5">
           {plans.data?.length ? (
             plans.data.map((plan) => <PlanTable key={plan.id} plan={plan} canAdmin={canAdmin} />)
           ) : (
             <Empty className="border">
               <EmptyHeader>
                 <EmptyTitle>还没有进度计划</EmptyTitle>
-                <EmptyDescription>管理员先同步 WCL 团本目录，再创建英雄或史诗计划。</EmptyDescription>
+                <EmptyDescription>首次 WCL 同步时会自动建立赛季进度。</EmptyDescription>
               </EmptyHeader>
             </Empty>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </section>
     </div>
   );
 }
 
-function GuildSettingsCard({ value }: { value: z.infer<typeof raidGuildSettingsSchema> }) {
-  const client = useQueryClient();
-  const [error, setError] = useState<string>();
-  const save = useMutation({
-    mutationFn: (body: unknown) =>
-      apiRequest("/raid-progress/settings/guild", raidGuildSettingsSchema, {
-        method: "PUT",
-        body: JSON.stringify(body),
-      }),
-    onSuccess: (data) => client.setQueryData(["raid-progress", "settings"], data),
-    onError: (reason) => setError(reason.message),
-  });
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    save.mutate({
-      guildId: Number(data.get("guildId")),
-      guildName: String(data.get("guildName")),
-      serverId: Number(data.get("serverId")),
-      serverName: String(data.get("serverName")),
-      serverSlug: String(data.get("serverSlug")),
-      serverRegion: String(data.get("serverRegion")),
-      zoneId: Number(data.get("zoneId")),
-      season: String(data.get("season")),
-    });
-  }
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>WCL 公会配置</CardTitle>
-        <CardDescription>Client 密钥仍只保存在后端环境变量；这里保存非敏感公会与当前团本信息。</CardDescription>
-      </CardHeader>
-      <form onSubmit={submit}>
-        <CardContent>
-          <FieldGroup>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                ["guildId", "Guild ID", value.guildId],
-                ["guildName", "公会名称", value.guildName],
-                ["serverId", "服务器 ID", value.serverId],
-                ["serverName", "服务器名称", value.serverName],
-                ["serverSlug", "服务器 Slug", value.serverSlug],
-                ["serverRegion", "区域", value.serverRegion],
-                ["zoneId", "Zone ID", value.zoneId],
-                ["season", "赛季", value.season],
-              ].map(([name, label, initial]) => (
-                <Field key={String(name)}>
-                  <FieldLabel htmlFor={String(name)}>{label}</FieldLabel>
-                  <Input
-                    id={String(name)}
-                    name={String(name)}
-                    type={String(name).endsWith("Id") ? "number" : "text"}
-                    defaultValue={String(initial)}
-                    required
-                  />
-                </Field>
-              ))}
-            </div>
-            {error ? (
-              <Alert variant="destructive">
-                <AlertTitle>保存失败</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            ) : null}
-          </FieldGroup>
-        </CardContent>
-        <div className="flex justify-end px-6 pb-6">
-          <Button disabled={save.isPending}>
-            {save.isPending ? <Spinner data-icon="inline-start" /> : <Save data-icon="inline-start" />}保存
-          </Button>
-        </div>
-      </form>
-    </Card>
-  );
-}
-
-function CreatePlanDialog({ catalog, season }: { catalog: z.infer<typeof raidCatalogSchema>; season: string }) {
-  const client = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [error, setError] = useState<string>();
-  const create = useMutation({
-    mutationFn: (body: unknown) =>
-      apiRequest("/raid-progress/plans", createdSchema, { method: "POST", body: JSON.stringify(body) }),
-    onSuccess: async () => {
-      setOpen(false);
-      await client.invalidateQueries({ queryKey: ["raid-progress"] });
-    },
-    onError: (reason) => setError(reason.message),
-  });
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    create.mutate({
-      raidId: data.get("raidId"),
-      difficulty: data.get("difficulty"),
-      season: data.get("season"),
-      name: data.get("name"),
-    });
-  }
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus data-icon="inline-start" />
-          新建计划
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>新建团本进度计划</DialogTitle>
-          <DialogDescription>同一团本、难度和赛季只能有一个计划。</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={submit}>
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="raidId">团本</FieldLabel>
-              <Select name="raidId" required>
-                <SelectTrigger id="raidId">
-                  <SelectValue placeholder="选择已同步团本" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {catalog.map((raid) => (
-                      <SelectItem key={raid.id} value={raid.id}>
-                        {raid.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="difficulty">难度</FieldLabel>
-              <Select name="difficulty" defaultValue="MYTHIC">
-                <SelectTrigger id="difficulty">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="HEROIC">英雄</SelectItem>
-                    <SelectItem value="MYTHIC">史诗</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="season">赛季</FieldLabel>
-              <Input id="season" name="season" defaultValue={season} required />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="name">计划名称</FieldLabel>
-              <Input id="name" name="name" placeholder="例如：烈毒之渊史诗开荒" required />
-            </Field>
-            {error ? (
-              <Alert variant="destructive">
-                <AlertTitle>创建失败</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            ) : null}
-          </FieldGroup>
-          <DialogFooter className="mt-4">
-            <Button type="submit" disabled={create.isPending}>
-              {create.isPending ? <Spinner data-icon="inline-start" /> : <Plus data-icon="inline-start" />}创建
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
+function formatDateTime(value: string) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date(value));
+  const get = (type: string) => parts.find((part) => part.type === type)?.value ?? "00";
+  return `${get("year")}/${get("month")}/${get("day")} - ${get("hour")}:${get("minute")}:${get("second")}`;
 }
 
 function PlanTable({ plan, canAdmin }: { plan: Plan; canAdmin: boolean }) {
   const difficulty = plan.difficulty === "MYTHIC" ? "史诗" : "英雄";
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="relative isolate overflow-hidden">
+        {plan.raidBackground ? (
+          <img
+            src={plan.raidBackground ?? undefined}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 right-0 -z-10 h-full w-64 object-cover opacity-10"
+          />
+        ) : null}
         <CardTitle className="flex items-center gap-2">
-          {plan.name}
-          <Badge variant="outline">{difficulty}</Badge>
+          {plan.raidIcon ? (
+            <img
+              src={plan.raidIcon ?? undefined}
+              alt=""
+              onError={(event) => {
+                event.currentTarget.hidden = true;
+              }}
+              className="size-9 object-contain"
+            />
+          ) : null}
+          {difficulty}-{plan.raidName}
+          <Badge variant="outline">{plan.season}</Badge>
         </CardTitle>
-        <CardDescription>
-          {plan.raidName} · {plan.season} · 最近同步{" "}
-          {plan.lastSyncedAt ? new Date(plan.lastSyncedAt).toLocaleString("zh-CN", { hour12: false }) : "未完成"}
-        </CardDescription>
+        <CardDescription>最近同步 {plan.lastSyncedAt ? formatDateTime(plan.lastSyncedAt) : "尚未同步"}</CardDescription>
         <CardAction>
           <StrategyDialog plan={plan} canAdmin={canAdmin} />
         </CardAction>
@@ -304,37 +160,17 @@ function PlanTable({ plan, canAdmin }: { plan: Plan; canAdmin: boolean }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Boss</TableHead>
-              <TableHead>状态</TableHead>
+              <TableHead>首领</TableHead>
+              <TableHead>进度</TableHead>
               <TableHead>最佳</TableHead>
-              <TableHead>默认战术</TableHead>
+              <TableHead>尝试次数</TableHead>
               <TableHead>首杀</TableHead>
-              {canAdmin ? <TableHead className="text-right">操作</TableHead> : null}
+              <TableHead>默认战术</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {plan.bosses.map((boss) => (
-              <TableRow key={boss.id}>
-                <TableCell>{boss.name}</TableCell>
-                <TableCell>
-                  <div className="flex gap-1">
-                    <Badge variant={boss.status === "DEFEATED" ? "default" : "secondary"}>
-                      {boss.status === "DEFEATED" ? "已击杀" : boss.status === "PROGRESSING" ? "开荒中" : "未开始"}
-                    </Badge>
-                    {boss.manuallyOverridden ? <Badge variant="outline">人工</Badge> : null}
-                  </div>
-                </TableCell>
-                <TableCell>{boss.bestPercent == null ? "—" : `${boss.bestPercent.toFixed(2)}%`}</TableCell>
-                <TableCell>{boss.defaultStrategy?.name ?? "未设置"}</TableCell>
-                <TableCell>
-                  {boss.firstKillAt ? new Date(boss.firstKillAt).toLocaleString("zh-CN", { hour12: false }) : "—"}
-                </TableCell>
-                {canAdmin ? (
-                  <TableCell className="text-right">
-                    <OverrideDialog boss={boss} />
-                  </TableCell>
-                ) : null}
-              </TableRow>
+              <BossProgressRow key={boss.id} planId={plan.id} boss={boss} />
             ))}
           </TableBody>
         </Table>
@@ -343,122 +179,113 @@ function PlanTable({ plan, canAdmin }: { plan: Plan; canAdmin: boolean }) {
   );
 }
 
-function OverrideDialog({ boss }: { boss: Plan["bosses"][number] }) {
-  const client = useQueryClient();
+function BossProgressRow({ planId, boss }: { planId: string; boss: Plan["bosses"][number] }) {
   const [open, setOpen] = useState(false);
-  const [error, setError] = useState<string>();
-  const save = useMutation({
-    mutationFn: (body: unknown) =>
-      apiRequest(`/raid-progress/bosses/${boss.progressId}/manual-override`, z.unknown(), {
-        method: "PUT",
-        body: JSON.stringify(body),
-      }),
-    onSuccess: async () => {
-      setOpen(false);
-      await client.invalidateQueries({ queryKey: ["raid-progress", "plans"] });
-    },
-    onError: (reason) => setError(reason.message),
+  const attempts = useQuery({
+    queryKey: ["raid-progress", "attempts", planId, boss.id],
+    queryFn: () => apiRequest(`/raid-progress/plans/${planId}/bosses/${boss.id}/attempts`, raidBossAttemptListSchema),
+    enabled: open,
   });
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const status = String(data.get("status"));
-    save.mutate({
-      status,
-      bestPercent: status === "DEFEATED" ? 0 : optionalNumber(data.get("bestPercent")),
-      firstKillAt: dateOrNull(data.get("firstKillAt")),
-      lastKillAt: dateOrNull(data.get("lastKillAt")),
-      reason: String(data.get("reason") || "") || null,
-    });
-  }
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          人工覆盖
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{boss.name} · 人工覆盖</DialogTitle>
-          <DialogDescription>人工值优先于 WCL；清除后恢复显示 WCL 聚合值。</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={submit}>
-          <FieldGroup>
-            <Field>
-              <FieldLabel>状态</FieldLabel>
-              <Select name="status" defaultValue={boss.status}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="NOT_STARTED">未开始</SelectItem>
-                    <SelectItem value="PROGRESSING">开荒中</SelectItem>
-                    <SelectItem value="DEFEATED">已击杀</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="bestPercent">最佳剩余血量 %</FieldLabel>
-              <Input
-                id="bestPercent"
-                name="bestPercent"
-                type="number"
-                min={0}
-                max={100}
-                step="0.01"
-                defaultValue={boss.bestPercent ?? ""}
+    <>
+      <TableRow onClick={() => setOpen((value) => !value)} className="cursor-pointer">
+        <TableCell className="font-medium">
+          <div className="flex items-center gap-2">
+            {boss.icon ? (
+              <img
+                src={boss.icon ?? undefined}
+                alt=""
+                onError={(event) => {
+                  event.currentTarget.hidden = true;
+                }}
+                className="w-20 object-contain"
+                loading="lazy"
               />
-            </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field>
-                <FieldLabel htmlFor="firstKillAt">首杀时间</FieldLabel>
-                <Input id="firstKillAt" name="firstKillAt" type="datetime-local" />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="lastKillAt">最近击杀</FieldLabel>
-                <Input id="lastKillAt" name="lastKillAt" type="datetime-local" />
-              </Field>
-            </div>
-            <Field>
-              <FieldLabel htmlFor="reason">覆盖理由</FieldLabel>
-              <Input id="reason" name="reason" />
-            </Field>
-            {error ? (
-              <Alert variant="destructive">
-                <AlertTitle>保存失败</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
             ) : null}
-          </FieldGroup>
-          <DialogFooter className="mt-4">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={save.isPending || !boss.manuallyOverridden}
-              onClick={() =>
-                save.mutate({ status: null, bestPercent: null, firstKillAt: null, lastKillAt: null, reason: null })
-              }
-            >
-              清除覆盖
-            </Button>
-            <Button disabled={save.isPending}>
-              {save.isPending ? <Spinner data-icon="inline-start" /> : <Save data-icon="inline-start" />}保存
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <span>{boss.name}</span>
+          </div>
+        </TableCell>
+        <TableCell>
+          <Badge
+            variant={boss.status === "NOT_STARTED" ? "secondary" : "outline"}
+            className={
+              boss.status === "DEFEATED"
+                ? "border-green-600 bg-green-600 text-white dark:border-green-700 dark:bg-green-700"
+                : boss.status === "PROGRESSING"
+                  ? "border-foreground bg-transparent text-foreground"
+                  : undefined
+            }
+          >
+            {boss.status === "DEFEATED" ? "已击杀" : boss.status === "PROGRESSING" ? "开荒中" : "未开始"}
+          </Badge>
+        </TableCell>
+        <TableCell>
+          {boss.status === "DEFEATED" ? "完成！" : boss.bestPercent == null ? "—" : `${boss.bestPercent.toFixed(2)}%`}
+        </TableCell>
+        <TableCell>{boss.attemptCount}</TableCell>
+        <TableCell className="font-mono tabular-nums">
+          {boss.firstKillAt ? formatDateTime(boss.firstKillAt) : "—"}
+        </TableCell>
+        <TableCell>{boss.defaultStrategy?.name ?? "未设置"}</TableCell>
+      </TableRow>
+      {open ? (
+        <TableRow>
+          <TableCell colSpan={6} className="p-4">
+            {attempts.isPending ? (
+              <Skeleton className="h-48 w-full" />
+            ) : attempts.error ? (
+              <p className="text-sm text-destructive">{attempts.error.message}</p>
+            ) : attempts.data?.length ? (
+              <>
+                <p className="mb-2 text-sm text-muted-foreground">每次 Pull 结束时 Boss 剩余血量；击杀记为 0%。</p>
+                <ChartContainer
+                  config={{
+                    bossPercent: { label: "剩余血量", color: "var(--chart-1)" },
+                  }}
+                  className="h-56 w-full aspect-auto"
+                >
+                  <LineChart data={attempts.data} margin={{ left: 8, right: 12, top: 8, bottom: 0 }}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis dataKey="pull" tickLine={false} axisLine={false} tickMargin={8} />
+                    <YAxis
+                      domain={[0, 100]}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value: number) => `${value}%`}
+                    />
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                          formatter={(value) => `${Number(value).toFixed(2)}%`}
+                          labelFormatter={(value) => `Pull ${value}`}
+                        />
+                      }
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="bossPercent"
+                      connectNulls={false}
+                      stroke="var(--color-bossPercent)"
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 4 }}
+                    />
+                  </LineChart>
+                </ChartContainer>
+              </>
+            ) : (
+              <Empty className="border">
+                <EmptyHeader>
+                  <EmptyTitle>暂无 WCL 拉次数据</EmptyTitle>
+                  <EmptyDescription>同步完成后会显示 Boss 血量曲线。</EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            )}
+          </TableCell>
+        </TableRow>
+      ) : null}
+    </>
   );
-}
-
-function optionalNumber(value: FormDataEntryValue | null) {
-  return value == null || value === "" ? null : Number(value);
-}
-function dateOrNull(value: FormDataEntryValue | null) {
-  return value ? new Date(String(value)).toISOString() : null;
 }
 
 function StrategyDialog({ plan, canAdmin }: { plan: Plan; canAdmin: boolean }) {
@@ -478,7 +305,9 @@ function StrategyDialog({ plan, canAdmin }: { plan: Plan; canAdmin: boolean }) {
         body: JSON.stringify(body),
       }),
     onSuccess: async (data) => {
-      await client.invalidateQueries({ queryKey: ["raid-progress", "strategies", plan.id] });
+      await client.invalidateQueries({
+        queryKey: ["raid-progress", "strategies", plan.id],
+      });
       if (data.draftVersionId) window.location.assign(`/dashboard/raid-progress/strategies/${data.draftVersionId}`);
     },
     onError: (reason) => setError(reason.message),
@@ -546,7 +375,8 @@ function StrategyDialog({ plan, canAdmin }: { plan: Plan; canAdmin: boolean }) {
             </FieldGroup>
             <DialogFooter className="mt-4">
               <Button disabled={create.isPending}>
-                {create.isPending ? <Spinner data-icon="inline-start" /> : <Plus data-icon="inline-start" />}新建草稿
+                {create.isPending ? <Spinner data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
+                新建草稿
               </Button>
             </DialogFooter>
           </form>

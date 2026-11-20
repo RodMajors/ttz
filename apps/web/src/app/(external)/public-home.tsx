@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { guildProfileSchema, publicProgressSchema } from "@ttz/contracts";
 import { ArrowRight, Mail, ShieldCheck, Swords, Users } from "lucide-react";
 import Link from "next/link";
+import { EpicProgressTimeline } from "@/components/epic-progress-timeline";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ export function PublicHome() {
             </Button>
           </div>
         </header>
+        <EpicProgressTimeline className="mt-6" />
         <section className="grid flex-1 items-center gap-10 py-14 lg:grid-cols-[1.15fr_0.85fr] lg:py-20">
           <div className="max-w-2xl">
             {guild.isPending ? (
