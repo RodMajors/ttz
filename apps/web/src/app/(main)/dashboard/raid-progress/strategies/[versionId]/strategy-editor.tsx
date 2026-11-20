@@ -36,6 +36,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
+import { StrategyPositioningCanvasLoader } from "./strategy-positioning-canvas-loader";
 
 const blockTypes = ["POSITIONING", "RAID_GROUPS", "SEQUENCE", "TIMELINE", "NOTES"] as const;
 type BlockType = (typeof blockTypes)[number];
@@ -277,6 +278,7 @@ export function StrategyEditor({ versionId }: { versionId: string }) {
                 key={block.key}
                 block={block}
                 editable={editable}
+                slotOptions={parseSlotOptions(currentSlotsText)}
                 onChange={(patch) => update(block.key, patch)}
                 onRemove={() => setBlocks(currentBlocks.filter((item) => item.key !== block.key))}
               />
@@ -990,11 +992,13 @@ function TaskCatalogDialog({ catalog, onChanged }: { catalog: TaskCatalog; onCha
 function BlockEditor({
   block,
   editable,
+  slotOptions,
   onChange,
   onRemove,
 }: {
   block: EditableBlock;
   editable: boolean;
+  slotOptions: Array<{ slotKey: string; label: string }>;
   onChange: (patch: Partial<EditableBlock>) => void;
   onRemove: () => void;
 }) {
@@ -1044,7 +1048,14 @@ function BlockEditor({
               />
             </Field>
           </div>
-          {block.type === "NOTES" ? (
+          {block.type === "POSITIONING" ? (
+            <StrategyPositioningCanvasLoader
+              value={safeJson(block.configText)}
+              slotOptions={slotOptions}
+              readOnly={!editable}
+              onChange={(canvas) => onChange({ configText: JSON.stringify(canvas, null, 2) })}
+            />
+          ) : block.type === "NOTES" ? (
             <Field>
               <FieldLabel>Markdown 战术笔记</FieldLabel>
               <Textarea
@@ -1069,6 +1080,14 @@ function BlockEditor({
       </CardContent>
     </Card>
   );
+}
+
+function safeJson(value: string) {
+  try {
+    return JSON.parse(value || "{}") as unknown;
+  } catch {
+    return null;
+  }
 }
 
 function parseSlots(value: string) {
