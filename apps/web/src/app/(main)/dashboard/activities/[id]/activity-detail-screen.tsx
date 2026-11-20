@@ -16,6 +16,8 @@ import {
   CalendarClock,
   Check,
   CircleAlert,
+  Clock3,
+  ListOrdered,
   Lock,
   LockOpen,
   Pencil,
@@ -150,6 +152,7 @@ function RaidStrategySnapshot({ activity, onChanged }: { activity: ActivityDetai
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               <StrategyTeamWorkspace activity={activity} target={target} onChanged={onChanged} />
+              <ActivityTaskPlan activity={activity} target={target} />
             </CardContent>
             {target.blocks.length ? (
               <CardContent className="flex flex-col gap-3">
@@ -176,6 +179,121 @@ function RaidStrategySnapshot({ activity, onChanged }: { activity: ActivityDetai
       </CardContent>
     </Card>
   );
+}
+
+function ActivityTaskPlan({
+  activity,
+  target,
+}: {
+  activity: ActivityDetail;
+  target: NonNullable<NonNullable<ActivityDetail["raid"]>["targets"][number]>;
+}) {
+  const sequence = target.tasks
+    .filter((task) => task.kind === "SEQUENCE")
+    .sort((left, right) => left.orderIndex - right.orderIndex);
+  const timeline = target.tasks
+    .filter((task) => task.kind === "TIMELINE")
+    .sort((left, right) => (left.offsetMs ?? 0) - (right.offsetMs ?? 0));
+  if (!sequence.length && !timeline.length) return null;
+  const slots = target.snapshot?.slots ?? [];
+  const renderPerson = (slotKey: string | null) => {
+    if (!slotKey) return null;
+    const slot = slots.find((entry) => entry.slotKey === slotKey);
+    if (!slot) return slotKey;
+    const signup = slot.signupId ? activity.signups.find((entry) => entry.id === slot.signupId) : undefined;
+    const name = signup?.memberName ?? slot.userName;
+    const character = signup?.character.name ?? slot.characterName;
+    return (
+      <span>
+        {slot.label}：{name ?? "未分配"}
+        {character ? ` · ${character}` : ""}
+      </span>
+    );
+  };
+  return (
+    <div className="grid gap-3 xl:grid-cols-2">
+      {sequence.length ? (
+        <Card className="border-dashed">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ListOrdered className="size-4" />
+              顺序分配
+            </CardTitle>
+            <CardDescription>按步骤编号执行；槽位绑定跟随本场快照名单。</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2">
+            {sequence.map((task) => (
+              <div key={task.id} className="rounded-md border p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary">{task.orderIndex + 1}</Badge>
+                  <Badge variant="outline">{task.taskTypeLabel}</Badge>
+                  <span className="font-medium">{task.label}</span>
+                </div>
+                {task.playerSpellName ? (
+                  <p className="mt-1 text-sm text-muted-foreground">执行技能：{task.playerSpellName}</p>
+                ) : null}
+                <p className="mt-1 text-sm">主执行者：{renderPerson(task.executorSlotKey)}</p>
+                {task.fallbackSlotKey ? (
+                  <p className="mt-1 text-sm text-muted-foreground">后备：{renderPerson(task.fallbackSlotKey)}</p>
+                ) : null}
+                {task.targetSlotKey ? (
+                  <p className="mt-1 text-sm text-muted-foreground">目标：{renderPerson(task.targetSlotKey)}</p>
+                ) : null}
+                {task.notes ? (
+                  <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{task.notes}</p>
+                ) : null}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+      {timeline.length ? (
+        <Card className="border-dashed">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Clock3 className="size-4" />
+              战斗时间轴
+            </CardTitle>
+            <CardDescription>固定相对战斗开始时间；重叠任务会在保存模板时由服务端检查。</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2">
+            {timeline.map((task) => (
+              <div key={task.id} className="grid grid-cols-[4rem_minmax(0,1fr)] gap-3 rounded-md border p-3">
+                <Badge className="h-fit justify-center">{formatTaskOffset(task.offsetMs ?? 0)}</Badge>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="secondary">{task.phaseLabel || task.taskTypeLabel}</Badge>
+                    <span className="font-medium">{task.label}</span>
+                    {task.occurrence ? (
+                      <span className="text-xs text-muted-foreground">第 {task.occurrence} 次</span>
+                    ) : null}
+                  </div>
+                  {task.encounterSpellName ? (
+                    <p className="mt-1 text-sm text-muted-foreground">机制：{task.encounterSpellName}</p>
+                  ) : null}
+                  {task.playerSpellName ? (
+                    <p className="mt-1 text-sm text-muted-foreground">技能：{task.playerSpellName}</p>
+                  ) : null}
+                  <p className="mt-1 text-sm">执行者：{renderPerson(task.executorSlotKey)}</p>
+                  {task.fallbackSlotKey ? (
+                    <p className="mt-1 text-sm text-muted-foreground">后备：{renderPerson(task.fallbackSlotKey)}</p>
+                  ) : null}
+                  {task.notes ? (
+                    <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{task.notes}</p>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+    </div>
+  );
+}
+
+function formatTaskOffset(offsetMs: number) {
+  const seconds = Math.floor(offsetMs / 1000);
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
 function strategyBlockLabel(type: string) {
