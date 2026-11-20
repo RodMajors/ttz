@@ -1,0 +1,19 @@
+packages/contracts/src/index.ts
+  s_0e3938aaaf8226::t_ac1eec9063b080 677-681,689-692,695-720,746,749-750
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "73a86152bff3ff351977f3e427b672bb0b7bda0e",
+  "prompts": {},
+  "sessions": {
+    "s_0e3938aaaf8226": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f8ef-d4d4-7f20-add3-20b5aa28c098",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
