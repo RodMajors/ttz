@@ -64,6 +64,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
+import { StrategyTeamWorkspace } from "./_components/strategy-team-workspace";
 
 const idResultSchema = z.object({ id: z.string() }).passthrough();
 const cancelledSchema = z.object({ cancelled: z.boolean() });
@@ -115,14 +116,14 @@ export function ActivityDetailScreen({ activityId }: { activityId: string }) {
         </Link>
       </Button>
       <ActivityOverview activity={activity} onChanged={refresh} />
-      {activity.raid ? <RaidStrategySnapshot activity={activity} /> : null}
+      {activity.raid ? <RaidStrategySnapshot activity={activity} onChanged={refresh} /> : null}
       <SignupPanel activity={activity} onChanged={refresh} />
       <SignupRoster activity={activity} onChanged={refresh} />
     </div>
   );
 }
 
-function RaidStrategySnapshot({ activity }: { activity: ActivityDetail }) {
+function RaidStrategySnapshot({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
   const raid = activity.raid;
   if (!raid) return null;
   return (
@@ -147,6 +148,9 @@ function RaidStrategySnapshot({ activity }: { activity: ActivityDetail }) {
                 {target.blocks.length ? `包含 ${target.blocks.length} 个战术区块` : "空白战术快照"}
               </CardDescription>
             </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <StrategyTeamWorkspace activity={activity} target={target} onChanged={onChanged} />
+            </CardContent>
             {target.blocks.length ? (
               <CardContent className="flex flex-col gap-3">
                 {target.blocks.map((block) => (
