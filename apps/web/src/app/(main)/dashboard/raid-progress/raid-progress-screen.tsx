@@ -9,7 +9,8 @@ import {
   raidBossBestPullGraphSchema,
   raidProgressPlanListSchema,
 } from "@ttz/contracts";
-import { CircleAlert, CloudDownload, Plus } from "lucide-react";
+import { CircleAlert, CloudDownload, Plus, ScrollText } from "lucide-react";
+import Link from "next/link";
 import { type FormEvent, useCallback, useState } from "react";
 import {
   CartesianGrid,
@@ -105,10 +106,18 @@ export function RaidProgressScreen() {
             <p className="text-sm text-muted-foreground">团本和首领信息由 WCL 同步维护。</p>
           </div>
           {canAdmin ? (
-            <Button variant="outline" disabled={sync.isPending} onClick={() => sync.mutate()}>
-              {sync.isPending ? <Spinner data-icon="inline-start" /> : <CloudDownload data-icon="inline-start" />}
-              同步 WCL
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline">
+                <Link href="/dashboard/raid-progress/strategies">
+                  <ScrollText data-icon="inline-start" />
+                  战术方案管理
+                </Link>
+              </Button>
+              <Button variant="outline" disabled={sync.isPending} onClick={() => sync.mutate()}>
+                {sync.isPending ? <Spinner data-icon="inline-start" /> : <CloudDownload data-icon="inline-start" />}
+                同步 WCL
+              </Button>
+            </div>
           ) : null}
         </div>
         <div className="flex flex-col gap-5">

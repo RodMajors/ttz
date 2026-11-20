@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Link2,
   type LucideIcon,
+  ScrollText,
   Settings2,
   Users,
 } from "lucide-react";
@@ -51,6 +52,13 @@ export const sidebarItems: NavGroup[] = [
       { id: "dashboard", title: "首页", url: "/dashboard/default", icon: LayoutDashboard },
       { id: "activities", title: "活动", url: "/dashboard/activities", icon: CalendarDays },
       { id: "raid-progress", title: "团本进度", url: "/dashboard/raid-progress", icon: ClipboardCheck },
+      {
+        id: "raid-strategy-management",
+        title: "战术方案",
+        url: "/dashboard/raid-progress/strategies",
+        icon: ScrollText,
+        minPrivilege: 1,
+      },
       { id: "members", title: "成员", url: "/dashboard/members", icon: Users },
       { id: "attendance", title: "出勤统计", url: "/dashboard/attendance", icon: BarChart3 },
     ],

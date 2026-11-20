@@ -836,7 +836,8 @@ export const activityRaidSnapshotsSchema = z.array(
     snapshot: z
       .object({
         id: idSchema,
-        status: z.string(),
+        status: z.enum(["EDITING", "LOCKED"]),
+        revision: z.number().int().min(1),
         lockedAt: isoDateTimeSchema.nullable(),
         blocks: z.array(
           z.object({
@@ -852,10 +853,13 @@ export const activityRaidSnapshotsSchema = z.array(
           z.object({
             slotKey: z.string(),
             label: z.string(),
+            groupNo: z.number().int().min(1).max(8).nullable(),
+            positionNo: z.number().int().min(1).max(5).nullable(),
             signupId: idSchema.nullable(),
             userName: z.string().nullable(),
             characterName: z.string().nullable(),
             realmName: z.string().nullable(),
+            classId: z.number().int().nullable(),
             className: z.string().nullable(),
             specName: z.string().nullable(),
           }),
@@ -935,6 +939,46 @@ export const activityStrategyAssignmentsSchema = z
     }
   });
 export type ActivityStrategyAssignmentsInput = z.infer<typeof activityStrategyAssignmentsSchema>;
+
+export const bossStrategyCreateSchema = z.object({
+  progressPlanId: idSchema,
+  bossId: idSchema,
+  name: z.string().trim().min(2).max(128),
+  description: z.string().trim().max(500).nullable().optional(),
+});
+export const bossStrategyUpdateSchema = z.object({
+  name: z.string().trim().min(2).max(128),
+  description: z.string().trim().max(500).nullable(),
+});
+export const bossStrategyManagementListSchema = z.array(
+  z.object({
+    id: idSchema,
+    progressPlanId: idSchema,
+    planName: z.string(),
+    difficulty: z.enum(["HEROIC", "MYTHIC"]),
+    planStatus: z.string(),
+    bossId: idSchema,
+    bossName: z.string(),
+    name: z.string(),
+    description: z.string().nullable(),
+    status: z.enum(["ACTIVE", "ARCHIVED"]),
+    isDefault: z.boolean(),
+    versions: z.array(
+      z.object({
+        id: idSchema,
+        versionNo: z.number().int(),
+        status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
+        changeSummary: z.string().nullable(),
+        createdAt: isoDateTimeSchema,
+        publishedAt: isoDateTimeSchema.nullable(),
+        createdByName: z.string(),
+        publishedByName: z.string().nullable(),
+      }),
+    ),
+  }),
+);
+export const strategyMutationResultSchema = z.object({ id: idSchema }).passthrough();
+export const strategyStatusResultSchema = z.object({ id: idSchema, status: z.string() });
 
 export const publicProgressSchema = z.object({
   source: z.literal("WCL"),
