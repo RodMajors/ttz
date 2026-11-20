@@ -1,0 +1,29 @@
+apps/web/package.json
+  s_0e3938aaaf8226::t_854a582840e8ab 28,39
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/positioning-board-loader.tsx
+  s_0e3938aaaf8226::t_472cb09803188c 1-13
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/positioning-board.tsx
+  s_0e3938aaaf8226::t_5b9516a0526d98 1-591
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  s_0e3938aaaf8226::t_e7c0d108093c6f 69,157
+packages/contracts/src/index.ts
+  s_0e3938aaaf8226::t_063219be44f323 818-892
+pnpm-lock.yaml
+  s_0e3938aaaf8226::t_045bb7a7a4bad9 233-235,266-268,1885-1894,2478-2482,2517-2527,2887-2899,4837-4844,5312-5318,5341-5342,5723-5739
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "05feffed6d40c234b1fecb453095a732c9e1b180",
+  "prompts": {},
+  "sessions": {
+    "s_0e3938aaaf8226": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f8ef-d4d4-7f20-add3-20b5aa28c098",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
