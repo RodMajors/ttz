@@ -1,0 +1,23 @@
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/strategy-team-workspace.tsx
+  s_0e3938aaaf8226::t_18cf7c31e40d0e 1-349
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  s_0e3938aaaf8226::t_070ceaa6be7dca 67,119,126,151-153
+packages/contracts/src/index.ts
+  s_0e3938aaaf8226::t_b898f3b8d668a4 298-320,867-938
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "310be8bcde64c1bf9ba34f08d4a555bc38414286",
+  "prompts": {},
+  "sessions": {
+    "s_0e3938aaaf8226": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f8ef-d4d4-7f20-add3-20b5aa28c098",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
