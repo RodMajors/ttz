@@ -1,0 +1,23 @@
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/[versionId]/strategy-editor.tsx
+  s_0e3938aaaf8226::t_5e1a6b2108596b 39,281,995,1001,1051-1058,1085-1092
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/[versionId]/strategy-positioning-canvas-loader.tsx
+  s_0e3938aaaf8226::t_9f95c2cc60fd37 1-13
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/[versionId]/strategy-positioning-canvas.tsx
+  s_0e3938aaaf8226::t_5cd8d6e737375f 1-410
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4e7cf71efe9846761ba2553912095975a4fda673",
+  "prompts": {},
+  "sessions": {
+    "s_0e3938aaaf8226": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f8ef-d4d4-7f20-add3-20b5aa28c098",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
