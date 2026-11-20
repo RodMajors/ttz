@@ -66,6 +66,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
+import { PositioningBoardLoader } from "./_components/positioning-board-loader";
 import { StrategyTeamWorkspace } from "./_components/strategy-team-workspace";
 
 const idResultSchema = z.object({ id: z.string() }).passthrough();
@@ -153,6 +154,7 @@ function RaidStrategySnapshot({ activity, onChanged }: { activity: ActivityDetai
             <CardContent className="flex flex-col gap-3">
               <StrategyTeamWorkspace activity={activity} target={target} onChanged={onChanged} />
               <ActivityTaskPlan activity={activity} target={target} />
+              <PositioningBoardLoader activity={activity} target={target} onChanged={onChanged} />
             </CardContent>
             {target.blocks.length ? (
               <CardContent className="flex flex-col gap-3">
