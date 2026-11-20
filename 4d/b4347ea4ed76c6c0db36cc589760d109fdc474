@@ -1,0 +1,27 @@
+apps/web/src/app/(main)/dashboard/raid-progress/raid-progress-screen.tsx
+  s_0e3938aaaf8226::t_14503a0fe76b5a 12-13,109-120
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/page.tsx
+  s_0e3938aaaf8226::t_b951691965630f 1-8
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/strategy-management-screen.tsx
+  s_0e3938aaaf8226::t_b2072534fa87a2 1-481
+apps/web/src/navigation/sidebar/sidebar-items.ts
+  s_0e3938aaaf8226::t_a52d718d79d6e1 9,55-61
+packages/contracts/src/index.ts
+  s_0e3938aaaf8226::t_86a78c0c67be94 839-840,856-857,862,943-982
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4db4347ea4ed76c6c0db36cc589760d109fdc474",
+  "prompts": {},
+  "sessions": {
+    "s_0e3938aaaf8226": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f8ef-d4d4-7f20-add3-20b5aa28c098",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
