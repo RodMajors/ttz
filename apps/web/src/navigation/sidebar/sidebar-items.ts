@@ -50,6 +50,7 @@ export const sidebarItems: NavGroup[] = [
     items: [
       { id: "dashboard", title: "首页", url: "/dashboard/default", icon: LayoutDashboard },
       { id: "activities", title: "活动", url: "/dashboard/activities", icon: CalendarDays },
+      { id: "raid-progress", title: "团本进度", url: "/dashboard/raid-progress", icon: ClipboardCheck },
       { id: "members", title: "成员", url: "/dashboard/members", icon: Users },
       { id: "attendance", title: "出勤统计", url: "/dashboard/attendance", icon: BarChart3 },
     ],
@@ -63,5 +64,5 @@ export const sidebarItems: NavGroup[] = [
       { id: "system", title: "系统设置", url: "/dashboard/system", icon: Settings2, minPrivilege: 1 },
     ],
   },
-  { id: 3, label: "快捷入口", items: [{ id: "progress", title: "团本进度", url: "/progress", icon: ClipboardCheck }] },
+  { id: 3, label: "快捷入口", items: [{ id: "progress", title: "公开进度", url: "/progress", icon: ClipboardCheck }] },
 ];

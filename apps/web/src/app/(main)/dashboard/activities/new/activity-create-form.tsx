@@ -1,7 +1,13 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type ActivityTypeCode, createActivitySchema, idSchema } from "@ttz/contracts";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  type ActivityTypeCode,
+  createActivitySchema,
+  idSchema,
+  publishedRaidStrategySchema,
+  raidProgressPlanListSchema,
+} from "@ttz/contracts";
 import { ArrowLeft, CalendarPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,7 +17,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
@@ -23,6 +29,21 @@ export function ActivityCreateForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [error, setError] = useState<string>();
+  const [activityType, setActivityType] = useState<ActivityTypeCode>("raid_progress");
+  const [planId, setPlanId] = useState("");
+  const [mode, setMode] = useState<"PROGRESSION" | "FARM">("PROGRESSION");
+  const [selectedBosses, setSelectedBosses] = useState<string[]>([]);
+  const [strategyByBoss, setStrategyByBoss] = useState<Record<string, string | null>>({});
+  const plans = useQuery({
+    queryKey: ["raid-progress", "plans"],
+    queryFn: () => apiRequest("/raid-progress/plans", raidProgressPlanListSchema),
+  });
+  const strategies = useQuery({
+    queryKey: ["raid-progress", "strategies", planId],
+    queryFn: () => apiRequest(`/raid-progress/plans/${planId}/strategies`, publishedRaidStrategySchema),
+    enabled: Boolean(planId),
+  });
+  const selectedPlan = plans.data?.find((plan) => plan.id === planId);
   const mutation = useMutation({
     mutationFn: (input: z.infer<typeof createActivitySchema>) =>
       apiRequest("/activities", createdSchema, { method: "POST", body: JSON.stringify(input) }),
@@ -51,6 +72,20 @@ export function ActivityCreateForm() {
       meleeSlots: optionalNumber(form.get("meleeSlots")),
       rangedSlots: optionalNumber(form.get("rangedSlots")),
       attendanceEnabled: form.get("attendanceEnabled") === "on",
+      ...(activityType === "raid_progress" || activityType === "raid_farm"
+        ? {
+            raid: {
+              progressPlanId: planId,
+              mode,
+              targets: selectedBosses.map((bossId, orderIndex) => ({
+                bossId,
+                orderIndex,
+                targetCount: null,
+                strategyVersionId: strategyByBoss[bossId] ?? null,
+              })),
+            },
+          }
+        : {}),
     });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? "请检查活动信息");
@@ -82,7 +117,11 @@ export function ActivityCreateForm() {
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field>
                   <FieldLabel htmlFor="type">活动类型</FieldLabel>
-                  <Select name="type" defaultValue="raid_progress">
+                  <Select
+                    name="type"
+                    value={activityType}
+                    onValueChange={(value) => setActivityType(value as ActivityTypeCode)}
+                  >
                     <SelectTrigger id="type">
                       <SelectValue />
                     </SelectTrigger>
@@ -102,6 +141,108 @@ export function ActivityCreateForm() {
                   <Input id="maxPlayers" name="maxPlayers" type="number" min={1} max={100} defaultValue={20} required />
                 </Field>
               </div>
+              {activityType === "raid_progress" || activityType === "raid_farm" ? (
+                <FieldSet>
+                  <FieldLegend>团本进度与战术快照</FieldLegend>
+                  <FieldDescription>选择长期进度计划和本场目标 Boss。未选择战术版本时会生成空白快照。</FieldDescription>
+                  <FieldGroup>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field>
+                        <FieldLabel>进度计划</FieldLabel>
+                        <Select
+                          value={planId}
+                          onValueChange={(value) => {
+                            setPlanId(value);
+                            setSelectedBosses([]);
+                            setStrategyByBoss({});
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="选择英雄或史诗计划" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {plans.data?.map((plan) => (
+                                <SelectItem key={plan.id} value={plan.id}>
+                                  {plan.name} · {plan.difficulty === "MYTHIC" ? "史诗" : "英雄"}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                      <Field>
+                        <FieldLabel>活动模式</FieldLabel>
+                        <Select value={mode} onValueChange={(value) => setMode(value as "PROGRESSION" | "FARM")}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="PROGRESSION">开荒</SelectItem>
+                              <SelectItem value="FARM">Farm</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    </div>
+                    {selectedPlan ? (
+                      <div className="flex flex-col gap-3">
+                        {selectedPlan.bosses.map((boss) => {
+                          const checked = selectedBosses.includes(boss.id);
+                          const options = strategies.data?.filter((strategy) => strategy.bossId === boss.id) ?? [];
+                          return (
+                            <Field key={boss.id} orientation="horizontal">
+                              <Checkbox
+                                id={`boss-${boss.id}`}
+                                checked={checked}
+                                onCheckedChange={(value) => {
+                                  setSelectedBosses(
+                                    value === true
+                                      ? [...selectedBosses, boss.id]
+                                      : selectedBosses.filter((id) => id !== boss.id),
+                                  );
+                                }}
+                              />
+                              <FieldLabel htmlFor={`boss-${boss.id}`} className="min-w-40">
+                                {boss.name}
+                              </FieldLabel>
+                              {checked ? (
+                                <Select
+                                  value={strategyByBoss[boss.id] ?? "blank"}
+                                  onValueChange={(value) =>
+                                    setStrategyByBoss({
+                                      ...strategyByBoss,
+                                      [boss.id]: value === "blank" ? null : value,
+                                    })
+                                  }
+                                >
+                                  <SelectTrigger className="max-w-sm">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      <SelectItem value="blank">空白战术快照</SelectItem>
+                                      {options.flatMap((strategy) =>
+                                        strategy.versions.map((version) => (
+                                          <SelectItem key={version.id} value={version.id}>
+                                            {strategy.name} v{version.versionNo}
+                                            {strategy.isDefault ? "（默认）" : ""}
+                                          </SelectItem>
+                                        )),
+                                      )}
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
+                              ) : null}
+                            </Field>
+                          );
+                        })}
+                      </div>
+                    ) : null}
+                  </FieldGroup>
+                </FieldSet>
+              ) : null}
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field>
                   <FieldLabel htmlFor="beginAt">开始时间</FieldLabel>

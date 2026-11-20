@@ -210,6 +210,7 @@ export const activityDetailSchema = z.object({
   canChangeMySignup: z.boolean(),
   mySignup: activitySignupSchema.nullable(),
   signups: z.array(activitySignupSchema),
+  raid: z.lazy(() => raidActivityDetailSchema).nullable(),
 });
 export type ActivityDetail = z.infer<typeof activityDetailSchema>;
 
@@ -228,9 +229,37 @@ const activityFieldsSchema = z.object({
   meleeSlots: z.number().int().min(0).max(100).nullable().optional(),
   rangedSlots: z.number().int().min(0).max(100).nullable().optional(),
   attendanceEnabled: z.boolean().optional(),
+  raid: z
+    .object({
+      progressPlanId: idSchema,
+      mode: z.enum(["PROGRESSION", "FARM"]),
+      targets: z
+        .array(
+          z.object({
+            bossId: idSchema,
+            orderIndex: z.number().int().min(0).max(100),
+            targetCount: z.number().int().min(1).max(100).nullable().optional(),
+            strategyVersionId: idSchema.nullable(),
+          }),
+        )
+        .min(1)
+        .max(20),
+    })
+    .optional(),
 });
 
 export const createActivitySchema = activityFieldsSchema.superRefine((value, context) => {
+  const isRaid = value.type === "raid_progress" || value.type === "raid_farm";
+  if (isRaid && !value.raid)
+    context.addIssue({ code: "custom", path: ["raid"], message: "团本活动必须选择进度计划和目标 Boss" });
+  if (!isRaid && value.raid)
+    context.addIssue({ code: "custom", path: ["raid"], message: "只有团本活动可以配置 Boss 目标" });
+  if (value.raid) {
+    const bossIds = value.raid.targets.map((target) => target.bossId);
+    if (new Set(bossIds).size !== bossIds.length) {
+      context.addIssue({ code: "custom", path: ["raid", "targets"], message: "同一活动不能重复选择 Boss" });
+    }
+  }
   const beginAt = new Date(value.beginAt);
   if (new Date(value.signupDeadline) >= beginAt) {
     context.addIssue({ code: "custom", path: ["signupDeadline"], message: "报名截止时间必须早于活动开始时间" });
@@ -250,6 +279,34 @@ export type CreateActivityInput = z.infer<typeof createActivitySchema>;
 
 export const updateActivitySchema = activityFieldsSchema.partial().extend({ version: z.number().int().positive() });
 export type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
+
+export const raidActivityDetailSchema = z.object({
+  progressPlanId: idSchema,
+  raidName: z.string(),
+  difficulty: z.enum(["HEROIC", "MYTHIC"]),
+  mode: z.enum(["PROGRESSION", "FARM"]),
+  targets: z.array(
+    z.object({
+      id: idSchema,
+      bossId: idSchema,
+      bossName: z.string(),
+      wclId: z.number().int(),
+      orderIndex: z.number().int(),
+      strategyName: z.string(),
+      strategyVersionNo: z.number().int().nullable(),
+      strategySnapshotId: idSchema.nullable(),
+      blocks: z.array(
+        z.object({
+          type: z.string(),
+          title: z.string(),
+          orderIndex: z.number().int(),
+          config: z.record(z.string(), z.unknown()).nullable(),
+          markdown: z.string().nullable(),
+        }),
+      ),
+    }),
+  ),
+});
 
 export const createCharacterSchema = z.object({
   name: z.string().trim().min(2).max(64),
@@ -595,6 +652,143 @@ export const contactSettingSchema = z
   .passthrough();
 export const toolLinkSchema = z.object({ name: z.string(), url: z.string().url(), description: z.string().optional() });
 export const toolLinksSettingSchema = z.object({ links: z.array(toolLinkSchema).default([]) }).passthrough();
+export const wclGuildProgressSettingSchema = z.object({
+  guildId: z.number().int().positive(),
+  guildName: z.string(),
+  serverId: z.number().int().positive(),
+  serverName: z.string(),
+  serverSlug: z.string(),
+  serverRegion: z.string(),
+  zoneId: z.number().int().positive(),
+  season: z.string(),
+});
+export const raidGuildSettingsSchema = wclGuildProgressSettingSchema.extend({
+  source: z.enum(["DATABASE", "ENVIRONMENT"]).optional(),
+  updatedAt: isoDateTimeSchema.nullable().optional(),
+});
+export const raidCatalogSchema = z.array(
+  z.object({
+    id: idSchema,
+    name: z.string(),
+    wclZoneId: z.number().int().nullable(),
+    bosses: z.array(z.object({ id: idSchema, wclId: z.number().int(), name: z.string() })),
+  }),
+);
+export const raidDifficultySchema = z.enum(["HEROIC", "MYTHIC"]);
+export const raidProgressPlanListSchema = z.array(
+  z.object({
+    id: idSchema,
+    raidId: idSchema,
+    raidName: z.string(),
+    zoneId: z.number().int().nullable(),
+    difficulty: raidDifficultySchema,
+    season: z.string(),
+    name: z.string(),
+    status: z.string(),
+    startedAt: isoDateTimeSchema,
+    completedAt: isoDateTimeSchema.nullable(),
+    lastSyncedAt: isoDateTimeSchema.nullable(),
+    bosses: z.array(
+      z.object({
+        progressId: idSchema,
+        id: idSchema,
+        wclId: z.number().int(),
+        name: z.string(),
+        orderIndex: z.number().int(),
+        status: z.enum(["NOT_STARTED", "PROGRESSING", "DEFEATED"]),
+        bestPercent: z.number().nullable(),
+        firstKillAt: isoDateTimeSchema.nullable(),
+        lastKillAt: isoDateTimeSchema.nullable(),
+        manuallyOverridden: z.boolean(),
+        defaultStrategy: z.object({ id: idSchema, name: z.string() }).nullable(),
+      }),
+    ),
+  }),
+);
+export const publishedRaidStrategySchema = z.array(
+  z.object({
+    id: idSchema,
+    bossId: idSchema,
+    bossName: z.string(),
+    name: z.string(),
+    description: z.string().nullable(),
+    isDefault: z.boolean(),
+    versions: z.array(
+      z.object({ id: idSchema, versionNo: z.number().int(), publishedAt: isoDateTimeSchema.nullable() }),
+    ),
+  }),
+);
+export const strategyVersionDtoSchema = z.object({
+  id: idSchema,
+  strategyId: idSchema,
+  strategyName: z.string(),
+  bossId: idSchema,
+  bossName: z.string(),
+  versionNo: z.number().int(),
+  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
+  changeSummary: z.string().nullable(),
+  createdAt: isoDateTimeSchema,
+  publishedAt: isoDateTimeSchema.nullable(),
+  blocks: z.array(
+    z.object({
+      id: idSchema,
+      type: z.string(),
+      title: z.string(),
+      orderIndex: z.number().int(),
+      config: z.record(z.string(), z.unknown()).nullable(),
+      markdown: z.string().nullable(),
+    }),
+  ),
+  slots: z.array(
+    z.object({
+      id: idSchema,
+      slotKey: z.string(),
+      label: z.string(),
+      roleConstraint: z.number().int().nullable(),
+      isRequired: z.boolean(),
+      orderIndex: z.number().int(),
+    }),
+  ),
+});
+export const activityRaidSnapshotsSchema = z.array(
+  z.object({
+    targetId: idSchema,
+    bossId: idSchema,
+    bossName: z.string(),
+    orderIndex: z.number().int(),
+    strategyName: z.string(),
+    sourceVersionId: idSchema.nullable(),
+    snapshot: z
+      .object({
+        id: idSchema,
+        status: z.string(),
+        lockedAt: isoDateTimeSchema.nullable(),
+        blocks: z.array(
+          z.object({
+            id: idSchema,
+            type: z.string(),
+            title: z.string(),
+            orderIndex: z.number().int(),
+            config: z.record(z.string(), z.unknown()).nullable(),
+            markdown: z.string().nullable(),
+          }),
+        ),
+        slots: z.array(
+          z.object({
+            slotKey: z.string(),
+            label: z.string(),
+            signupId: idSchema.nullable(),
+            userName: z.string().nullable(),
+            characterName: z.string().nullable(),
+            realmName: z.string().nullable(),
+            className: z.string().nullable(),
+            specName: z.string().nullable(),
+          }),
+        ),
+      })
+      .nullable(),
+  }),
+);
 export const publicProgressSchema = z.object({
   source: z.literal("WCL"),
   region: z.literal("CN"),

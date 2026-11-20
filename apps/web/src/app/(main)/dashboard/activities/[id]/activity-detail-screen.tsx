@@ -115,9 +115,70 @@ export function ActivityDetailScreen({ activityId }: { activityId: string }) {
         </Link>
       </Button>
       <ActivityOverview activity={activity} onChanged={refresh} />
+      {activity.raid ? <RaidStrategySnapshot activity={activity} /> : null}
       <SignupPanel activity={activity} onChanged={refresh} />
       <SignupRoster activity={activity} onChanged={refresh} />
     </div>
+  );
+}
+
+function RaidStrategySnapshot({ activity }: { activity: ActivityDetail }) {
+  const raid = activity.raid;
+  if (!raid) return null;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>本场战术快照</CardTitle>
+        <CardDescription>
+          {raid.raidName} · {raid.difficulty === "MYTHIC" ? "史诗" : "英雄"} ·{" "}
+          {raid.mode === "PROGRESSION" ? "开荒" : "Farm"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {raid.targets.map((target) => (
+          <Card key={target.id}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {target.bossName}
+                <Badge variant="outline">{target.strategyName}</Badge>
+                {target.strategyVersionNo ? <Badge variant="secondary">v{target.strategyVersionNo}</Badge> : null}
+              </CardTitle>
+              <CardDescription>
+                {target.blocks.length ? `包含 ${target.blocks.length} 个战术区块` : "空白战术快照"}
+              </CardDescription>
+            </CardHeader>
+            {target.blocks.length ? (
+              <CardContent className="flex flex-col gap-3">
+                {target.blocks.map((block) => (
+                  <div key={block.type + block.orderIndex} className="rounded-lg border p-4">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">{strategyBlockLabel(block.type)}</Badge>
+                      <p className="font-medium">{block.title}</p>
+                    </div>
+                    {block.markdown ? (
+                      <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-6">{block.markdown}</pre>
+                    ) : null}
+                    {!block.markdown && block.config && Object.keys(block.config).length ? (
+                      <pre className="mt-3 overflow-x-auto rounded-lg bg-muted p-3 text-xs">
+                        {JSON.stringify(block.config, null, 2)}
+                      </pre>
+                    ) : null}
+                  </div>
+                ))}
+              </CardContent>
+            ) : null}
+          </Card>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+function strategyBlockLabel(type: string) {
+  return (
+    { POSITIONING: "站位", RAID_GROUPS: "团队分组", SEQUENCE: "顺序分配", TIMELINE: "时序分配", NOTES: "战术笔记" }[
+      type
+    ] ?? type
   );
 }
 
