@@ -1,0 +1,21 @@
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  s_0e3938aaaf8226::t_1044398ea2df28 150-152,229,310
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/[versionId]/strategy-editor.tsx
+  s_0e3938aaaf8226::t_475a7fadbd772b 5,11-22,35,41-42,45-71,85,94,121,124-128,130,134-183,189,197,215,224,251-282,285-309,311-434
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "49b22890403fcb5b047ca7396a3dcd8145f1f2d9",
+  "prompts": {},
+  "sessions": {
+    "s_0e3938aaaf8226": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f8ef-d4d4-7f20-add3-20b5aa28c098",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
