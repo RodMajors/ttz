@@ -1,0 +1,27 @@
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/positioning-board.tsx
+  s_0e3938aaaf8226::t_de4c75d5f3a018 65-77
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/strategy-team-workspace.tsx
+  s_0e3938aaaf8226::t_e64b7f3d106e72 5,10,16,26,38,40-41,46,50-54,62,65-75,81,86-87,105-114,120-123,125,129-130,134-142,152,200,207-209,211,215-217,228,264,276,282
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  s_0e3938aaaf8226::t_73b1b0dad7034e 121
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/[versionId]/strategy-editor.tsx
+  s_0e3938aaaf8226::t_c2fe33720ac7a2 11,240
+packages/contracts/src/index.ts
+  s_0e3938aaaf8226::t_c1a481a49186b4 188-233,259,863,870
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f7075c757841411d4e0d37bef13d23a5b4711f83",
+  "prompts": {},
+  "sessions": {
+    "s_0e3938aaaf8226": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f8ef-d4d4-7f20-add3-20b5aa28c098",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
