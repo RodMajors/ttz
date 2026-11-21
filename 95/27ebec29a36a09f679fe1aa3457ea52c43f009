@@ -1,0 +1,51 @@
+apps/web/src/app/(main)/dashboard/_components/header/layout-controls.tsx
+  s_0e3938aaaf8226::t_6d1cd8f6668eca 5
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/positioning-board.tsx
+  s_0e3938aaaf8226::t_7a83957858fed5 19
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/strategy-team-workspace.tsx
+  s_0e3938aaaf8226::t_cb2c3a1953451f 10
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  s_0e3938aaaf8226::t_93267a2bcea2e6 50-58
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  s_0e3938aaaf8226::t_76bf384c390d4f 8
+apps/web/src/app/(main)/dashboard/activities/new/activity-create-form.tsx
+  s_0e3938aaaf8226::t_44634679df35bb 16
+apps/web/src/app/(main)/dashboard/announcements/announcements-screen.tsx
+  s_0e3938aaaf8226::t_dd839c5dc01c96 22-28
+apps/web/src/app/(main)/dashboard/attendance/[id]/attendance-detail-screen.tsx
+  s_0e3938aaaf8226::t_d365765a33fe2c 18
+apps/web/src/app/(main)/dashboard/members/_components/members-screen.tsx
+  s_0e3938aaaf8226::t_da7ea4b1f2629e 26-33
+apps/web/src/app/(main)/dashboard/profile/profile-screen.tsx
+  s_0e3938aaaf8226::t_5f3ce17c49f20d 40-46
+apps/web/src/app/(main)/dashboard/raid-progress/raid-progress-screen.tsx
+  s_0e3938aaaf8226::t_f945190e7f9ed6 14,26-35,758-771
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/[versionId]/strategy-editor.tsx
+  s_0e3938aaaf8226::t_772ab03bdee771 26-31,42-48,1016,1042
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/[versionId]/strategy-positioning-canvas.tsx
+  s_0e3938aaaf8226::t_b65dda4eacb49b 8
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/strategy-management-screen.tsx
+  s_0e3938aaaf8226::t_2db602d759231e 26-31
+apps/web/src/components/app-dialog.tsx
+  s_0e3938aaaf8226::t_8ac9e91e539677 1-34
+apps/web/src/components/app-select.tsx
+  s_0e3938aaaf8226::t_70094e725d91a6 1-46
+apps/web/src/components/select-portal-context.ts
+  s_0e3938aaaf8226::t_f5f4cf64e96e32 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9527ebec29a36a09f679fe1aa3457ea52c43f009",
+  "prompts": {},
+  "sessions": {
+    "s_0e3938aaaf8226": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f8ef-d4d4-7f20-add3-20b5aa28c098",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
