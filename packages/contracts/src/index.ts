@@ -790,7 +790,7 @@ export const strategyTaskListSchema = z.array(strategyTaskInputSchema).superRefi
     if (task.kind === "TIMELINE" && task.offsetMs == null)
       context.addIssue({ code: "custom", path: [index, "offsetMs"], message: "时间轴任务必须填写相对战斗开始的时间" });
     if (task.kind === "SEQUENCE" && task.offsetMs != null)
-      context.addIssue({ code: "custom", path: [index, "offsetMs"], message: "顺序分配不应填写时间轴偏移" });
+      context.addIssue({ code: "custom", path: [index, "offsetMs"], message: "顺序任务不应填写时间轴偏移" });
   }
 });
 // Presets describe requirements; only an individual activity may assign people and times.
@@ -805,6 +805,35 @@ export const strategyRequirementSchema = strategyTaskInputSchema
     notes: true,
   })
   .strict();
+
+const strategyPresetItemBaseSchema = {
+  title: z.string().trim().min(1).max(128),
+  orderIndex: z.number().int().min(0).max(1000),
+  markdown: z.string().max(200_000).nullable().optional(),
+};
+
+/**
+ * A strategy preset is one ordered list of five peer content types. The database
+ * still stores text blocks and executable task rows separately for compatibility,
+ * but this is the public model used by the editor and API.
+ */
+export const strategyPresetItemSchema = z.union([
+  z.strictObject({
+    ...strategyPresetItemBaseSchema,
+    type: z.enum(["POSITIONING", "RAID_GROUPS", "NOTES"]),
+  }),
+  z.strictObject({
+    ...strategyPresetItemBaseSchema,
+    markdown: z.string().max(1000).nullable().optional(),
+    type: z.enum(["SEQUENCE", "TIMELINE"]),
+    taskTypeId: z.number().int().positive(),
+    encounterSpellId: z.number().int().positive().nullable().optional(),
+    playerSpellId: z.number().int().positive().nullable().optional(),
+  }),
+]);
+export type StrategyPresetItem = z.infer<typeof strategyPresetItemSchema>;
+
+// Kept as a compatibility export for callers that still handle the legacy split model.
 export const strategyRequirementBlockSchema = z.strictObject({
   type: z.enum(["POSITIONING", "RAID_GROUPS", "SEQUENCE", "TIMELINE", "NOTES"]),
   title: z.string().trim().min(1).max(128),
@@ -813,8 +842,7 @@ export const strategyRequirementBlockSchema = z.strictObject({
 });
 export const strategyPresetSaveSchema = z.strictObject({
   changeSummary: z.string().trim().max(500).nullable().optional(),
-  blocks: z.array(strategyRequirementBlockSchema).max(50),
-  tasks: z.array(strategyRequirementSchema).max(200),
+  items: z.array(strategyPresetItemSchema).max(250),
 });
 export type StrategyPresetSaveInput = z.infer<typeof strategyPresetSaveSchema>;
 
@@ -1053,6 +1081,7 @@ export const strategyVersionDtoSchema = z.object({
     }),
   ),
   tasks: z.array(z.lazy(() => strategyTaskDtoSchema)),
+  items: z.array(strategyPresetItemSchema),
 });
 export const activityRaidSnapshotsSchema = z.array(
   z.object({

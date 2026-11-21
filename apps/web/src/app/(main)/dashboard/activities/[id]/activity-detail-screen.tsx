@@ -147,7 +147,9 @@ function RaidStrategySnapshot({ activity, onChanged }: { activity: ActivityDetai
                 {target.strategyVersionNo ? <Badge variant="secondary">v{target.strategyVersionNo}</Badge> : null}
               </CardTitle>
               <CardDescription>
-                {target.blocks.length ? `包含 ${target.blocks.length} 个战术区块` : "空白战术快照"}
+                {target.blocks.length + target.tasks.length
+                  ? `包含 ${target.blocks.length + target.tasks.length} 个战术内容项`
+                  : "空白战术快照"}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
@@ -224,7 +226,7 @@ function ActivityTaskPlan({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <ListOrdered className="size-4" />
-              顺序分配
+              顺序任务
             </CardTitle>
             <CardDescription>按步骤编号执行；槽位绑定跟随本场快照名单。</CardDescription>
           </CardHeader>
@@ -305,7 +307,7 @@ function formatTaskOffset(offsetMs: number) {
 
 function strategyBlockLabel(type: string) {
   return (
-    { POSITIONING: "站位", RAID_GROUPS: "团队分组", SEQUENCE: "顺序分配", TIMELINE: "时序分配", NOTES: "战术笔记" }[
+    { POSITIONING: "站位", RAID_GROUPS: "团队分组", SEQUENCE: "顺序任务", TIMELINE: "时序任务", NOTES: "战术笔记" }[
       type
     ] ?? type
   );
