@@ -1,0 +1,29 @@
+apps/web/src/app/(main)/dashboard/_components/strategy-task-fields.tsx
+  s_0e3938aaaf8226::t_c111014c5408eb 1-115
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/activity-tactics.tsx
+  s_0e3938aaaf8226::t_68de1c1e6dc32f 1-450
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  s_0e3938aaaf8226::t_dd3b63cc44e041 67,155-159,164-179,181,824-826,849-854
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/[versionId]/strategy-editor.tsx
+  s_0e3938aaaf8226::t_c37c81c1422a75 5-6,10,12,17,23-24,26,32-35,39-45,47,49-53,55-58,61-62,67,71-76,79-80,84,87-113,115-124,126-141,153-156,159-161,164-173,175,177-181,184,186-187,190-193,196,199-212,214-215,217-229,231-232,234-296,298-300,302-339,341-356,360-382,384-391
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/[versionId]/task-catalog-dialog.tsx
+  s_0e3938aaaf8226::t_1bc119e1291fa2 1-368
+packages/contracts/src/index.ts
+  s_0e3938aaaf8226::t_96d7e012d1a113 303,325,796-860,862-866,1026
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4deb5f14d62db41752775f169c3f8b1185da1921",
+  "prompts": {},
+  "sessions": {
+    "s_0e3938aaaf8226": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f8ef-d4d4-7f20-add3-20b5aa28c098",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
