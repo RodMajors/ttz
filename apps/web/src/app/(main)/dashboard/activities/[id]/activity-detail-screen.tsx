@@ -118,6 +118,7 @@ export function ActivityDetailScreen({ activityId }: { activityId: string }) {
         </Link>
       </Button>
       <ActivityOverview activity={activity} onChanged={refresh} />
+      <StrategyTeamWorkspace activity={activity} onChanged={refresh} />
       {activity.raid ? <RaidStrategySnapshot activity={activity} onChanged={refresh} /> : null}
       <SignupPanel activity={activity} onChanged={refresh} />
       <SignupRoster activity={activity} onChanged={refresh} />
@@ -153,7 +154,6 @@ function RaidStrategySnapshot({ activity, onChanged }: { activity: ActivityDetai
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
-              <StrategyTeamWorkspace activity={activity} target={target} onChanged={onChanged} />
               {target.snapshot?.assignmentMode === "DIRECT" ? (
                 <ActivityTactics activity={activity} target={target} onChanged={onChanged} />
               ) : (

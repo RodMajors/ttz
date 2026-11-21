@@ -8,18 +8,7 @@ import {
   strategyTaskCatalogSchema,
   strategyVersionDtoSchema,
 } from "@ttz/contracts";
-import {
-  ArrowDown,
-  ArrowLeft,
-  ArrowUp,
-  BookOpenText,
-  CircleDot,
-  Clock3,
-  Group,
-  Save,
-  Send,
-  Trash2,
-} from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, BookOpenText, CircleDot, Clock3, Save, Send, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { z } from "zod";
@@ -37,14 +26,12 @@ import { TaskCatalogDialog } from "./task-catalog-dialog";
 
 const labels = {
   POSITIONING: "站位",
-  RAID_GROUPS: "团队分组",
   SEQUENCE: "顺序任务",
   TIMELINE: "时序任务",
   NOTES: "战术笔记",
 } as const;
 const icons = {
   POSITIONING: CircleDot,
-  RAID_GROUPS: Group,
   SEQUENCE: ArrowDown,
   TIMELINE: Clock3,
   NOTES: BookOpenText,
@@ -250,7 +237,7 @@ export function StrategyEditor({ versionId }: { versionId: string }) {
           {editable ? (
             <div className="flex flex-wrap gap-2 rounded-lg border border-dashed p-3">
               <span className="self-center text-sm text-muted-foreground">添加内容项：</span>
-              {(["POSITIONING", "RAID_GROUPS", "NOTES"] as const).map((type) => {
+              {(["POSITIONING", "NOTES"] as const).map((type) => {
                 const Icon = icons[type];
                 return (
                   <Button

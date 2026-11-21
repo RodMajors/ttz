@@ -62,7 +62,19 @@ export function PositioningBoard({
   const [error, setError] = useState<string>();
   const stageRef = useRef<Konva.Stage>(null);
   const currentRevision = target.snapshot?.revision ?? 1;
-  const slots = target.snapshot?.slots ?? [];
+  const slots = useMemo(
+    () => [
+      ...(activity.teamLayout?.seats ?? []).map((seat) => ({
+        ...seat,
+        slotKey: `__team_g${seat.groupNo}_p${seat.positionNo}`,
+        label: `第${seat.groupNo}组 · ${seat.positionNo}号位`,
+        groupNo: seat.groupNo,
+        positionNo: seat.positionNo,
+      })),
+      ...(target.snapshot?.slots ?? []),
+    ],
+    [activity.teamLayout, target.snapshot?.slots],
+  );
   const canEdit = activity.canManage && !activity.rosterLockedAt && target.snapshot?.status === "EDITING" && !viewMode;
 
   useEffect(() => {
