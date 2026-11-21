@@ -5,11 +5,11 @@ import type Konva from "konva";
 import { ArrowDownToLine, Circle as CircleIcon, MoveRight, Square, Trash2, Type } from "lucide-react";
 import { useRef, useState } from "react";
 import { Arrow, Text as CanvasText, Circle, Layer, Line, Rect, Stage } from "react-konva";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/app-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Shape = PositioningCanvas["shapes"][number];
 type Color = Shape["color"];

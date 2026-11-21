@@ -2,11 +2,10 @@
 
 import { Settings } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
-
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/app-select";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { fontOptions } from "@/lib/fonts/registry";
 import { PREFERENCE_REGISTRY } from "@/lib/preferences/preferences-config";

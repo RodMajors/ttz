@@ -11,7 +11,7 @@ import {
 } from "@ttz/contracts";
 import { CircleAlert, CloudDownload, Plus, ScrollText } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, useCallback, useState } from "react";
+import { type FormEvent, useState } from "react";
 import {
   CartesianGrid,
   type DotItemDotProps,
@@ -23,6 +23,16 @@ import {
   YAxis,
 } from "recharts";
 import { z } from "zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/app-dialog";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/app-select";
 import { EpicProgressTimeline } from "@/components/epic-progress-timeline";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -35,19 +45,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -704,10 +704,6 @@ function StrategyDialog({ plan, canAdmin }: { plan: Plan; canAdmin: boolean }) {
   const client = useQueryClient();
   const [open, setOpen] = useState(false);
   const [bossId, setBossId] = useState(plan.bosses[0]?.id ?? "");
-  const [selectPortalContainer, setSelectPortalContainer] = useState<Element>();
-  const setSelectPortalHost = useCallback((element: HTMLDivElement | null) => {
-    setSelectPortalContainer(element ?? undefined);
-  }, []);
   const [error, setError] = useState<string>();
   const strategies = useQuery({
     queryKey: ["raid-progress", "strategies", plan.id],
@@ -759,22 +755,20 @@ function StrategyDialog({ plan, canAdmin }: { plan: Plan; canAdmin: boolean }) {
             <FieldGroup>
               <Field>
                 <FieldLabel>Boss</FieldLabel>
-                <div ref={setSelectPortalHost}>
-                  <Select value={bossId} onValueChange={setBossId}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent UNSTABLE_portalContainer={selectPortalContainer}>
-                      <SelectGroup>
-                        {plan.bosses.map((boss) => (
-                          <SelectItem key={boss.id} value={boss.id}>
-                            {boss.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <Select value={bossId} onValueChange={setBossId}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {plan.bosses.map((boss) => (
+                        <SelectItem key={boss.id} value={boss.id}>
+                          {boss.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </Field>
               <Field>
                 <FieldLabel htmlFor="strategyName">方案名称</FieldLabel>

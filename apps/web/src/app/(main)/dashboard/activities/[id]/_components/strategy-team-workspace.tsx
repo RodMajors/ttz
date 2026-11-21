@@ -7,10 +7,10 @@ import { cn } from "cn";
 import { Check, GripVertical, Lock, RotateCcw, Save, UserPlus, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/app-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest } from "@/lib/api-client";
 
 const saveResponseSchema = z.object({ snapshotId: z.string(), revision: z.number().int(), updated: z.boolean() });

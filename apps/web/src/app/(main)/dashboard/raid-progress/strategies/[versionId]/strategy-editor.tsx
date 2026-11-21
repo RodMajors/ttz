@@ -15,10 +15,6 @@ import { ArrowLeft, Pencil, Plus, Save, Send, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -27,11 +23,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/app-dialog";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/app-select";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,6 +39,13 @@ import { apiRequest } from "@/lib/api-client";
 import { StrategyPositioningCanvasLoader } from "./strategy-positioning-canvas-loader";
 
 const blockTypes = ["POSITIONING", "RAID_GROUPS", "SEQUENCE", "TIMELINE", "NOTES"] as const;
+const blockTypeLabels: Record<BlockType, string> = {
+  POSITIONING: "站位",
+  RAID_GROUPS: "团队分组",
+  SEQUENCE: "顺序分配",
+  TIMELINE: "时序分配",
+  NOTES: "战术笔记",
+};
 type BlockType = (typeof blockTypes)[number];
 type EditableBlock = {
   key: string;
@@ -1006,7 +1013,7 @@ function BlockEditor({
     <Card>
       <CardHeader>
         <CardTitle>{block.title || "未命名区块"}</CardTitle>
-        <CardDescription>{block.type}</CardDescription>
+        <CardDescription>{blockTypeLabels[block.type]}</CardDescription>
         {editable ? (
           <CardAction>
             <Button variant="ghost" size="icon" aria-label="删除区块" onClick={onRemove}>
@@ -1032,7 +1039,7 @@ function BlockEditor({
                   <SelectGroup>
                     {blockTypes.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {type}
+                        {blockTypeLabels[type]}
                       </SelectItem>
                     ))}
                   </SelectGroup>
