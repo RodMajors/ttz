@@ -64,6 +64,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
+import { ActivityTactics } from "./_components/activity-tactics";
 import { PositioningBoardLoader } from "./_components/positioning-board-loader";
 import { StrategyTeamWorkspace } from "./_components/strategy-team-workspace";
 
@@ -151,27 +152,33 @@ function RaidStrategySnapshot({ activity, onChanged }: { activity: ActivityDetai
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               <StrategyTeamWorkspace activity={activity} target={target} onChanged={onChanged} />
-              <ActivityTaskPlan activity={activity} target={target} />
+              {target.snapshot?.assignmentMode === "DIRECT" ? (
+                <ActivityTactics activity={activity} target={target} onChanged={onChanged} />
+              ) : (
+                <ActivityTaskPlan activity={activity} target={target} />
+              )}
               <PositioningBoardLoader activity={activity} target={target} onChanged={onChanged} />
             </CardContent>
             {target.blocks.length ? (
               <CardContent className="flex flex-col gap-3">
-                {target.blocks.map((block) => (
-                  <div key={block.type + block.orderIndex} className="rounded-lg border p-4">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">{strategyBlockLabel(block.type)}</Badge>
-                      <p className="font-medium">{block.title}</p>
+                {target.blocks
+                  .filter((block) => target.snapshot?.assignmentMode !== "DIRECT" || block.type !== "NOTES")
+                  .map((block) => (
+                    <div key={block.id ?? block.type + block.orderIndex} className="rounded-lg border p-4">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">{strategyBlockLabel(block.type)}</Badge>
+                        <p className="font-medium">{block.title}</p>
+                      </div>
+                      {block.markdown ? (
+                        <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-6">{block.markdown}</pre>
+                      ) : null}
+                      {!block.markdown && block.config && Object.keys(block.config).length ? (
+                        <pre className="mt-3 overflow-x-auto rounded-lg bg-muted p-3 text-xs">
+                          {JSON.stringify(block.config, null, 2)}
+                        </pre>
+                      ) : null}
                     </div>
-                    {block.markdown ? (
-                      <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-6">{block.markdown}</pre>
-                    ) : null}
-                    {!block.markdown && block.config && Object.keys(block.config).length ? (
-                      <pre className="mt-3 overflow-x-auto rounded-lg bg-muted p-3 text-xs">
-                        {JSON.stringify(block.config, null, 2)}
-                      </pre>
-                    ) : null}
-                  </div>
-                ))}
+                  ))}
               </CardContent>
             ) : null}
           </Card>
@@ -814,7 +821,9 @@ function CancelSignup({ activity, onChanged }: { activity: ActivityDetail; onCha
 function SignupRoster({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
   const mutation = useMutation({
     mutationFn: (path: string) =>
-      apiRequest(`/activities/${activity.id}/roster/${path}`, idResultSchema, { method: "POST" }),
+      apiRequest(`/activities/${activity.id}/roster/${path}`, z.object({ rosterLockedAt: z.string().nullable() }), {
+        method: "POST",
+      }),
     onSuccess: onChanged,
   });
   const visible = activity.signups.filter((signup) => !["CANCELLED", "REJECTED"].includes(signup.status));
@@ -837,6 +846,12 @@ function SignupRoster({ activity, onChanged }: { activity: ActivityDetail; onCha
         ) : null}
       </CardHeader>
       <CardContent>
+        {mutation.error ? (
+          <Alert variant="destructive">
+            <AlertTitle>名单操作失败</AlertTitle>
+            <AlertDescription>{mutation.error.message}</AlertDescription>
+          </Alert>
+        ) : null}
         {visible.length === 0 ? (
           <Empty className="min-h-48 border">
             <EmptyHeader>
