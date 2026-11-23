@@ -183,6 +183,7 @@ export function ActivitiesScreen() {
                   </TableCell>
                   <TableCell>
                     {activity.confirmedCount} 已确认 / {activity.signupCount} 已报名
+                    {activity.maxPlayers == null ? " · 不限人数" : ` · 建议 ${activity.maxPlayers} 人`}
                   </TableCell>
                   <TableCell>{activity.creatorName}</TableCell>
                 </TableRow>

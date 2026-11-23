@@ -35,6 +35,7 @@ import {
 } from "@/components/app-dialog";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/app-select";
 import { EpicProgressTimeline } from "@/components/epic-progress-timeline";
+import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -585,17 +586,13 @@ function BossProgressRow({ planId, boss }: { planId: string; boss: Plan["bosses"
       <TableRow onClick={() => setOpen((value) => !value)} className="cursor-pointer">
         <TableCell className="font-medium">
           <div className="flex items-center gap-2">
-            {boss.icon ? (
-              <img
-                src={boss.icon ?? undefined}
-                alt=""
-                onError={(event) => {
-                  event.currentTarget.hidden = true;
-                }}
-                className="w-20 object-contain"
-                loading="lazy"
-              />
-            ) : null}
+            <GameIcon
+              src={boss.icon}
+              onError={(event) => {
+                event.currentTarget.hidden = true;
+              }}
+              className="size-8 shrink-0 object-contain"
+            />
             <span>{boss.name}</span>
           </div>
         </TableCell>

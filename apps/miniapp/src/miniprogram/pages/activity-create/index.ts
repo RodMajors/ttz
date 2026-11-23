@@ -9,7 +9,12 @@ Page({
     beginDate: dateOffset(1),
     beginTime: "21:00",
     deadlineDate: dateOffset(1),
-    deadlineTime: "19:00",
+    deadlineTime: "20:00",
+    teamUpDate: dateOffset(1),
+    teamUpTime: "20:40",
+    followsBeginDeadline: true,
+    followsBeginTeamUp: true,
+    hasRosterGuidance: false,
     attendanceEnabled: true,
     submitting: false,
     error: "",
@@ -18,24 +23,61 @@ Page({
     this.setData({ selectedType: Number(event.detail.value) });
   },
   selectBeginDate(event: WechatMiniprogram.PickerChange) {
-    this.setData({ beginDate: String(event.detail.value) });
+    const beginDate = String(event.detail.value);
+    const changes: Record<string, string> = { beginDate };
+    if (this.data.followsBeginDeadline) {
+      const deadline = shiftLocalDateTime(beginDate, this.data.beginTime, -60);
+      changes.deadlineDate = deadline.date;
+      changes.deadlineTime = deadline.time;
+    }
+    if (this.data.followsBeginTeamUp) {
+      const teamUp = shiftLocalDateTime(beginDate, this.data.beginTime, -20);
+      changes.teamUpDate = teamUp.date;
+      changes.teamUpTime = teamUp.time;
+    }
+    this.setData(changes);
   },
   selectBeginTime(event: WechatMiniprogram.PickerChange) {
-    this.setData({ beginTime: String(event.detail.value) });
+    const beginTime = String(event.detail.value);
+    const changes: Record<string, string> = { beginTime };
+    if (this.data.followsBeginDeadline) {
+      const deadline = shiftLocalDateTime(this.data.beginDate, beginTime, -60);
+      changes.deadlineDate = deadline.date;
+      changes.deadlineTime = deadline.time;
+    }
+    if (this.data.followsBeginTeamUp) {
+      const teamUp = shiftLocalDateTime(this.data.beginDate, beginTime, -20);
+      changes.teamUpDate = teamUp.date;
+      changes.teamUpTime = teamUp.time;
+    }
+    this.setData(changes);
   },
   selectDeadlineDate(event: WechatMiniprogram.PickerChange) {
-    this.setData({ deadlineDate: String(event.detail.value) });
+    this.setData({ deadlineDate: String(event.detail.value), followsBeginDeadline: false });
   },
   selectDeadlineTime(event: WechatMiniprogram.PickerChange) {
-    this.setData({ deadlineTime: String(event.detail.value) });
+    this.setData({ deadlineTime: String(event.detail.value), followsBeginDeadline: false });
+  },
+  selectTeamUpDate(event: WechatMiniprogram.PickerChange) {
+    this.setData({ teamUpDate: String(event.detail.value), followsBeginTeamUp: false });
+  },
+  selectTeamUpTime(event: WechatMiniprogram.PickerChange) {
+    this.setData({ teamUpTime: String(event.detail.value), followsBeginTeamUp: false });
   },
   toggleAttendance(event: WechatMiniprogram.SwitchChange) {
     this.setData({ attendanceEnabled: event.detail.value });
+  },
+  toggleRosterGuidance(event: WechatMiniprogram.SwitchChange) {
+    this.setData({ hasRosterGuidance: event.detail.value });
   },
   async submit(event: WechatMiniprogram.CustomEvent) {
     const value = event.detail.value as {
       name: string;
       maxPlayers: string;
+      tankSlots: string;
+      healerSlots: string;
+      meleeSlots: string;
+      rangedSlots: string;
       durationMinutes: string;
       description: string;
       passphrase: string;
@@ -51,8 +93,13 @@ Page({
           passphrase: value.passphrase || null,
           beginAt: localDateTime(this.data.beginDate, this.data.beginTime),
           signupDeadline: localDateTime(this.data.deadlineDate, this.data.deadlineTime),
+          teamUpAt: localDateTime(this.data.teamUpDate, this.data.teamUpTime),
           durationMinutes: Number(value.durationMinutes),
-          maxPlayers: Number(value.maxPlayers),
+          maxPlayers: this.data.hasRosterGuidance && value.maxPlayers !== "" ? Number(value.maxPlayers) : null,
+          tankSlots: this.data.hasRosterGuidance ? optionalNumber(value.tankSlots) : null,
+          healerSlots: this.data.hasRosterGuidance ? optionalNumber(value.healerSlots) : null,
+          meleeSlots: this.data.hasRosterGuidance ? optionalNumber(value.meleeSlots) : null,
+          rangedSlots: this.data.hasRosterGuidance ? optionalNumber(value.rangedSlots) : null,
           attendanceEnabled: this.data.attendanceEnabled,
         },
       });
@@ -73,4 +120,16 @@ function dateOffset(days: number) {
 }
 function localDateTime(date: string, time: string) {
   return new Date(`${date}T${time}:00`).toISOString();
+}
+function shiftLocalDateTime(date: string, time: string, minutes: number) {
+  const value = new Date(`${date}T${time}:00`);
+  value.setMinutes(value.getMinutes() + minutes);
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return {
+    date: `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`,
+    time: `${pad(value.getHours())}:${pad(value.getMinutes())}`,
+  };
+}
+function optionalNumber(value: string | undefined) {
+  return value == null || value === "" ? null : Number(value);
 }

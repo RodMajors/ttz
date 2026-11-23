@@ -114,7 +114,7 @@ export function DashboardOverview() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary">
-                      {activity.confirmedCount}/{activity.maxPlayers}
+                      {activity.confirmedCount}/{activity.maxPlayers ?? "不限"}
                     </Badge>
                     <Badge variant={activity.mySignupStatus === "CONFIRMED" ? "default" : "outline"}>
                       {activity.mySignupStatus

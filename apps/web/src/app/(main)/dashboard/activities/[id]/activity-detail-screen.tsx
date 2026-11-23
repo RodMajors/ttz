@@ -28,7 +28,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { z } from "zod";
 import {
   AlertDialog,
@@ -64,6 +64,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
+import { ActivityRosterGuidance } from "../../_components/activity-roster-guidance";
+import { ActivityScheduleFields } from "../../_components/activity-schedule-fields";
+import { CharacterPicker, type CharacterPickerSelection } from "../../_components/character-picker";
 import { ActivityTactics } from "./_components/activity-tactics";
 import { PositioningBoardLoader } from "./_components/positioning-board-loader";
 import { StrategyTeamWorkspace } from "./_components/strategy-team-workspace";
@@ -369,8 +372,35 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
           <Info label="集合时间" value={formatDate(activity.teamUpAt)} />
           <Info label="开始时间" value={formatDate(activity.beginAt)} />
           <Info label="报名截止" value={activity.signupDeadline ? formatDate(activity.signupDeadline) : "未设置"} />
-          <Info label="人数上限" value={`${activity.maxPlayers} 人`} />
+          <Info label="建议人数" value={activity.maxPlayers == null ? "不限" : `${activity.maxPlayers} 人`} />
+          {activity.inviter ? (
+            <Info label="发起邀请角色" value={`${activity.inviter.name} · ${activity.inviter.realm}`} />
+          ) : null}
         </div>
+        {[
+          ["坦克", activity.tankSlots],
+          ["治疗", activity.healerSlots],
+          ["近战", activity.meleeSlots],
+          ["远程", activity.rangedSlots],
+        ].some(([, count]) => count != null) ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm text-muted-foreground">建议职责构成（仅展示）</span>
+            {(
+              [
+                ["坦克", activity.tankSlots],
+                ["治疗", activity.healerSlots],
+                ["近战", activity.meleeSlots],
+                ["远程", activity.rangedSlots],
+              ] as const
+            )
+              .filter(([, count]) => count != null)
+              .map(([label, count]) => (
+                <Badge key={label} variant="outline">
+                  {label} {count}
+                </Badge>
+              ))}
+          </div>
+        ) : null}
         {activity.description ? <p className="whitespace-pre-wrap text-sm leading-6">{activity.description}</p> : null}
         {activity.passphrase ? (
           <Alert>
@@ -393,6 +423,15 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
 function ActivityEditDialog({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
+  const [inviterId, setInviterId] = useState<string | null>(activity.inviter?.id ?? null);
+  const [inviterSelection, setInviterSelection] = useState<CharacterPickerSelection | null>(
+    activity.inviter ? { memberName: "发起邀请角色", character: activity.inviter } : null,
+  );
+  useEffect(() => {
+    if (!open) return;
+    setInviterId(activity.inviter?.id ?? null);
+    setInviterSelection(activity.inviter ? { memberName: "发起邀请角色", character: activity.inviter } : null);
+  }, [activity.inviter, open]);
   const durationMinutes = Math.round(
     (new Date(activity.endAt).getTime() - new Date(activity.beginAt).getTime()) / 60_000,
   );
@@ -408,20 +447,25 @@ function ActivityEditDialog({ activity, onChanged }: { activity: ActivityDetail;
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const beginAt = localDateTimeToIso(String(data.get("beginAt") ?? ""));
+    const teamUpAt = String(data.get("teamUpAt") ?? "");
+    const signupDeadline = localDateTimeToIso(String(data.get("signupDeadline") ?? ""));
+    const hasRosterGuidance = data.get("rosterGuidanceEnabled") === "1";
     const parsed = updateActivitySchema.safeParse({
       version: activity.version,
       name: data.get("name"),
       description: data.get("description") || undefined,
       passphrase: data.get("passphrase") || null,
-      beginAt: new Date(String(data.get("beginAt"))).toISOString(),
-      teamUpAt: data.get("teamUpAt") ? new Date(String(data.get("teamUpAt"))).toISOString() : undefined,
-      signupDeadline: new Date(String(data.get("signupDeadline"))).toISOString(),
+      inviterId,
+      beginAt,
+      teamUpAt: teamUpAt ? localDateTimeToIso(teamUpAt) : undefined,
+      signupDeadline,
       durationMinutes: Number(data.get("durationMinutes")),
-      maxPlayers: Number(data.get("maxPlayers")),
-      tankSlots: optionalNumber(data.get("tankSlots")),
-      healerSlots: optionalNumber(data.get("healerSlots")),
-      meleeSlots: optionalNumber(data.get("meleeSlots")),
-      rangedSlots: optionalNumber(data.get("rangedSlots")),
+      maxPlayers: hasRosterGuidance ? optionalNumber(data.get("maxPlayers")) : null,
+      tankSlots: hasRosterGuidance ? optionalNumber(data.get("tankSlots")) : null,
+      healerSlots: hasRosterGuidance ? optionalNumber(data.get("healerSlots")) : null,
+      meleeSlots: hasRosterGuidance ? optionalNumber(data.get("meleeSlots")) : null,
+      rangedSlots: hasRosterGuidance ? optionalNumber(data.get("rangedSlots")) : null,
       attendanceEnabled: data.get("attendanceEnabled") === "on",
     });
     if (!parsed.success) return setError(parsed.error.issues[0]?.message ?? "请检查活动信息");
@@ -447,74 +491,44 @@ function ActivityEditDialog({ activity, onChanged }: { activity: ActivityDetail;
               <FieldLabel htmlFor="edit-name">活动名称</FieldLabel>
               <Input id="edit-name" name="name" defaultValue={activity.name} required />
             </Field>
+            <ActivityScheduleFields
+              key={`${activity.id}-${activity.version}-${open}`}
+              initialBeginAt={toLocal(activity.beginAt)}
+              initialSignupDeadline={activity.signupDeadline ? toLocal(activity.signupDeadline) : ""}
+              initialTeamUpAt={toLocal(activity.teamUpAt)}
+              initialDurationMinutes={durationMinutes}
+            />
+            <ActivityRosterGuidance
+              key={`${activity.id}-${activity.version}-${open}-guidance`}
+              initialMaxPlayers={activity.maxPlayers}
+              initialTankSlots={activity.tankSlots}
+              initialHealerSlots={activity.healerSlots}
+              initialMeleeSlots={activity.meleeSlots}
+              initialRangedSlots={activity.rangedSlots}
+            />
             <div className="grid gap-4 sm:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="edit-begin">开始时间</FieldLabel>
+                <FieldLabel htmlFor="edit-passphrase">进组暗号 / 语音频道</FieldLabel>
                 <Input
-                  id="edit-begin"
-                  name="beginAt"
-                  type="datetime-local"
-                  defaultValue={toLocal(activity.beginAt)}
-                  required
+                  id="edit-passphrase"
+                  name="passphrase"
+                  defaultValue={activity.passphrase ?? ""}
+                  maxLength={255}
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="edit-team-up">集合时间</FieldLabel>
-                <Input
-                  id="edit-team-up"
-                  name="teamUpAt"
-                  type="datetime-local"
-                  defaultValue={toLocal(activity.teamUpAt)}
+                <FieldLabel htmlFor="edit-inviter">发起邀请角色</FieldLabel>
+                <CharacterPicker
+                  id="edit-inviter"
+                  value={inviterId}
+                  initialSelection={inviterSelection}
+                  onChange={(selection) => {
+                    setInviterSelection(selection);
+                    setInviterId(selection?.character.id ?? null);
+                  }}
                 />
               </Field>
             </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Field>
-                <FieldLabel htmlFor="edit-deadline">报名截止</FieldLabel>
-                <Input
-                  id="edit-deadline"
-                  name="signupDeadline"
-                  type="datetime-local"
-                  defaultValue={activity.signupDeadline ? toLocal(activity.signupDeadline) : ""}
-                  required
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="edit-duration">持续分钟</FieldLabel>
-                <Input
-                  id="edit-duration"
-                  name="durationMinutes"
-                  type="number"
-                  min={30}
-                  max={1440}
-                  step={30}
-                  defaultValue={durationMinutes}
-                  required
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="edit-max">人数上限</FieldLabel>
-                <Input
-                  id="edit-max"
-                  name="maxPlayers"
-                  type="number"
-                  min={1}
-                  max={100}
-                  defaultValue={activity.maxPlayers}
-                  required
-                />
-              </Field>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-4">
-              <SlotField id="tankSlots" label="坦克" value={activity.tankSlots} />
-              <SlotField id="healerSlots" label="治疗" value={activity.healerSlots} />
-              <SlotField id="meleeSlots" label="近战" value={activity.meleeSlots} />
-              <SlotField id="rangedSlots" label="远程" value={activity.rangedSlots} />
-            </div>
-            <Field>
-              <FieldLabel htmlFor="edit-passphrase">进组暗号 / 语音频道</FieldLabel>
-              <Input id="edit-passphrase" name="passphrase" defaultValue={activity.passphrase ?? ""} maxLength={255} />
-            </Field>
             <Field>
               <FieldLabel htmlFor="edit-description">说明</FieldLabel>
               <Textarea
@@ -544,15 +558,6 @@ function ActivityEditDialog({ activity, onChanged }: { activity: ActivityDetail;
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function SlotField({ id, label, value }: { id: string; label: string; value: number | null }) {
-  return (
-    <Field>
-      <FieldLabel htmlFor={`edit-${id}`}>{label}</FieldLabel>
-      <Input id={`edit-${id}`} name={id} type="number" min={0} max={100} defaultValue={value ?? ""} />
-    </Field>
   );
 }
 
@@ -1083,6 +1088,10 @@ function formatDate(value: string) {
 }
 function optionalNumber(value: FormDataEntryValue | null) {
   return value === null || value === "" ? null : Number(value);
+}
+function localDateTimeToIso(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toISOString();
 }
 function toLocal(value: string) {
   const date = new Date(value);

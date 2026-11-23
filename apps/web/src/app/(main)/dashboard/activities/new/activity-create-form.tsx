@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/app-select";
+import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,12 +24,17 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
+import { ActivityRosterGuidance } from "../../_components/activity-roster-guidance";
+import { ActivityScheduleFields } from "../../_components/activity-schedule-fields";
+import { CharacterPicker, type CharacterPickerSelection } from "../../_components/character-picker";
 
 const createdSchema = z.object({ id: idSchema }).passthrough();
 export function ActivityCreateForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [error, setError] = useState<string>();
+  const [inviterId, setInviterId] = useState<string | null>(null);
+  const [inviterSelection, setInviterSelection] = useState<CharacterPickerSelection | null>(null);
   const [activityType, setActivityType] = useState<ActivityTypeCode>("raid_progress");
   const [planId, setPlanId] = useState("");
   const [mode, setMode] = useState<"PROGRESSION" | "FARM">("PROGRESSION");
@@ -56,21 +62,25 @@ export function ActivityCreateForm() {
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const beginAt = new Date(String(form.get("beginAt")));
+    const beginAt = localDateTimeToIso(String(form.get("beginAt") ?? ""));
+    const signupDeadline = localDateTimeToIso(String(form.get("signupDeadline") ?? ""));
+    const teamUpAtValue = String(form.get("teamUpAt") ?? "");
+    const hasRosterGuidance = form.get("rosterGuidanceEnabled") === "1";
     const parsed = createActivitySchema.safeParse({
       name: form.get("name"),
       type: form.get("type") as ActivityTypeCode,
       description: form.get("description"),
-      passphrase: form.get("passphrase") || null,
-      beginAt: beginAt.toISOString(),
-      teamUpAt: form.get("teamUpAt") ? new Date(String(form.get("teamUpAt"))).toISOString() : undefined,
-      signupDeadline: new Date(String(form.get("signupDeadline"))).toISOString(),
+      passphrase: form.get("passphrase") || "123",
+      inviterId: inviterId || null,
+      beginAt,
+      teamUpAt: teamUpAtValue ? localDateTimeToIso(teamUpAtValue) : undefined,
+      signupDeadline,
       durationMinutes: Number(form.get("durationMinutes")),
-      maxPlayers: Number(form.get("maxPlayers")),
-      tankSlots: optionalNumber(form.get("tankSlots")),
-      healerSlots: optionalNumber(form.get("healerSlots")),
-      meleeSlots: optionalNumber(form.get("meleeSlots")),
-      rangedSlots: optionalNumber(form.get("rangedSlots")),
+      maxPlayers: hasRosterGuidance ? optionalNumber(form.get("maxPlayers")) : null,
+      tankSlots: hasRosterGuidance ? optionalNumber(form.get("tankSlots")) : null,
+      healerSlots: hasRosterGuidance ? optionalNumber(form.get("healerSlots")) : null,
+      meleeSlots: hasRosterGuidance ? optionalNumber(form.get("meleeSlots")) : null,
+      rangedSlots: hasRosterGuidance ? optionalNumber(form.get("rangedSlots")) : null,
       attendanceEnabled: form.get("attendanceEnabled") === "on",
       ...(activityType === "raid_progress" || activityType === "raid_farm"
         ? {
@@ -114,33 +124,27 @@ export function ActivityCreateForm() {
                 <FieldLabel htmlFor="name">活动名称</FieldLabel>
                 <Input id="name" name="name" required maxLength={64} placeholder="例如：M 团本开荒" />
               </Field>
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Field>
-                  <FieldLabel htmlFor="type">活动类型</FieldLabel>
-                  <Select
-                    name="type"
-                    value={activityType}
-                    onValueChange={(value) => setActivityType(value as ActivityTypeCode)}
-                  >
-                    <SelectTrigger id="type">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="raid_progress">团本开荒</SelectItem>
-                        <SelectItem value="raid_farm">团本 Farm</SelectItem>
-                        <SelectItem value="mythic_plus_push">大秘境冲层</SelectItem>
-                        <SelectItem value="mythic_plus_vault">大秘境低保</SelectItem>
-                        <SelectItem value="casual">休闲活动</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="maxPlayers">人数上限</FieldLabel>
-                  <Input id="maxPlayers" name="maxPlayers" type="number" min={1} max={100} defaultValue={20} required />
-                </Field>
-              </div>
+              <Field>
+                <FieldLabel htmlFor="type">活动类型</FieldLabel>
+                <Select
+                  name="type"
+                  value={activityType}
+                  onValueChange={(value) => setActivityType(value as ActivityTypeCode)}
+                >
+                  <SelectTrigger id="type" className="cursor-pointer">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="raid_progress">团本开荒</SelectItem>
+                      <SelectItem value="raid_farm">团本 Farm</SelectItem>
+                      <SelectItem value="mythic_plus_push">大秘境冲层</SelectItem>
+                      <SelectItem value="mythic_plus_vault">大秘境低保</SelectItem>
+                      <SelectItem value="casual">休闲活动</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
               {activityType === "raid_progress" || activityType === "raid_farm" ? (
                 <FieldSet>
                   <FieldLegend>团本进度与战术快照</FieldLegend>
@@ -157,7 +161,7 @@ export function ActivityCreateForm() {
                             setStrategyByBoss({});
                           }}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="cursor-pointer">
                             <SelectValue placeholder="选择英雄或史诗计划" />
                           </SelectTrigger>
                           <SelectContent>
@@ -174,7 +178,7 @@ export function ActivityCreateForm() {
                       <Field>
                         <FieldLabel>活动模式</FieldLabel>
                         <Select value={mode} onValueChange={(value) => setMode(value as "PROGRESSION" | "FARM")}>
-                          <SelectTrigger>
+                          <SelectTrigger className="cursor-pointer">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -195,6 +199,7 @@ export function ActivityCreateForm() {
                             <Field key={boss.id} orientation="horizontal">
                               <Checkbox
                                 id={`boss-${boss.id}`}
+                                className="cursor-pointer"
                                 checked={checked}
                                 onCheckedChange={(value) => {
                                   setSelectedBosses(
@@ -204,8 +209,11 @@ export function ActivityCreateForm() {
                                   );
                                 }}
                               />
-                              <FieldLabel htmlFor={`boss-${boss.id}`} className="min-w-40">
-                                {boss.name}
+                              <FieldLabel htmlFor={`boss-${boss.id}`} className="min-w-40 cursor-pointer">
+                                <span className="flex items-center gap-2">
+                                  <GameIcon src={boss.icon} className="size-7 shrink-0 rounded object-contain" />
+                                  {boss.name}
+                                </span>
                               </FieldLabel>
                               {checked ? (
                                 <Select
@@ -218,7 +226,7 @@ export function ActivityCreateForm() {
                                   }
                                   className="justify-end flex"
                                 >
-                                  <SelectTrigger className="max-w-sm">
+                                  <SelectTrigger className="max-w-sm cursor-pointer">
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -244,67 +252,33 @@ export function ActivityCreateForm() {
                   </FieldGroup>
                 </FieldSet>
               ) : null}
-              <div className="grid gap-5 sm:grid-cols-2">
+              <ActivityScheduleFields />
+              <ActivityRosterGuidance />
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Field>
-                  <FieldLabel htmlFor="beginAt">开始时间</FieldLabel>
-                  <Input id="beginAt" name="beginAt" type="datetime-local" required />
+                  <FieldLabel htmlFor="passphrase">进组暗号 / 语音频道</FieldLabel>
+                  <Input id="passphrase" name="passphrase" maxLength={255} defaultValue="123" />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="signupDeadline">报名截止</FieldLabel>
-                  <Input id="signupDeadline" name="signupDeadline" type="datetime-local" required />
-                </Field>
-              </div>
-              <Field>
-                <FieldLabel htmlFor="teamUpAt">集合时间（可选）</FieldLabel>
-                <Input id="teamUpAt" name="teamUpAt" type="datetime-local" />
-                <FieldDescription>不填写时，服务端默认设置为开始前 20 分钟。</FieldDescription>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="durationMinutes">持续时间</FieldLabel>
-                <Select name="durationMinutes" defaultValue="120">
-                  <SelectTrigger id="durationMinutes">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="60">1 小时</SelectItem>
-                      <SelectItem value="90">1.5 小时</SelectItem>
-                      <SelectItem value="120">2 小时</SelectItem>
-                      <SelectItem value="180">3 小时</SelectItem>
-                      <SelectItem value="240">4 小时</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Field>
-              <div className="grid gap-4 sm:grid-cols-4">
-                <Field>
-                  <FieldLabel htmlFor="tankSlots">坦克</FieldLabel>
-                  <Input id="tankSlots" name="tankSlots" type="number" min={0} max={100} defaultValue={2} />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="healerSlots">治疗</FieldLabel>
-                  <Input id="healerSlots" name="healerSlots" type="number" min={0} max={100} defaultValue={4} />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="meleeSlots">近战</FieldLabel>
-                  <Input id="meleeSlots" name="meleeSlots" type="number" min={0} max={100} defaultValue={7} />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="rangedSlots">远程</FieldLabel>
-                  <Input id="rangedSlots" name="rangedSlots" type="number" min={0} max={100} defaultValue={7} />
+                  <FieldLabel htmlFor="inviter">发起邀请角色</FieldLabel>
+                  <CharacterPicker
+                    id="inviter"
+                    value={inviterId}
+                    initialSelection={inviterSelection}
+                    onChange={(selection) => {
+                      setInviterSelection(selection);
+                      setInviterId(selection?.character.id ?? null);
+                    }}
+                  />
                 </Field>
               </div>
-              <Field>
-                <FieldLabel htmlFor="passphrase">进组暗号 / 语音频道</FieldLabel>
-                <Input id="passphrase" name="passphrase" maxLength={255} />
-              </Field>
               <Field>
                 <FieldLabel htmlFor="description">说明</FieldLabel>
                 <Textarea id="description" name="description" maxLength={10000} placeholder="活动要求、集合说明等" />
                 <FieldDescription>站位和团本准备事项不在本期活动模型中，后续由模板功能承载。</FieldDescription>
               </Field>
               <Field orientation="horizontal">
-                <Checkbox id="attendanceEnabled" name="attendanceEnabled" defaultChecked />
+                <Checkbox id="attendanceEnabled" name="attendanceEnabled" defaultChecked className="cursor-pointer" />
                 <FieldLabel htmlFor="attendanceEnabled">计入团本开荒出勤统计</FieldLabel>
               </Field>
               {error ? (
@@ -329,4 +303,9 @@ export function ActivityCreateForm() {
 
 function optionalNumber(value: FormDataEntryValue | null) {
   return value === null || value === "" ? null : Number(value);
+}
+
+function localDateTimeToIso(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toISOString();
 }

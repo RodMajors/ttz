@@ -27,7 +27,7 @@ interface ActivityDetail {
   teamUpAt: string;
   signupDeadline: string | null;
   status: string;
-  maxPlayers: number;
+  maxPlayers: number | null;
   canSignup: boolean;
   canChangeMySignup: boolean;
   mySignup: Signup | null;
@@ -37,7 +37,14 @@ Page({
   data: {
     id: "",
     loading: true,
-    activity: null as (ActivityDetail & { beginAtLabel: string; teamUpAtLabel: string; deadlineLabel: string }) | null,
+    activity: null as
+      | (ActivityDetail & {
+          beginAtLabel: string;
+          teamUpAtLabel: string;
+          deadlineLabel: string;
+          maxPlayersLabel: string;
+        })
+      | null,
     characters: [] as Character[],
     characterLabels: [] as string[],
     selectedCharacterIndex: 0,
@@ -76,6 +83,7 @@ Page({
           beginAtLabel: formatDate(activity.beginAt),
           teamUpAtLabel: formatDate(activity.teamUpAt),
           deadlineLabel: activity.signupDeadline ? formatDate(activity.signupDeadline) : "未设置",
+          maxPlayersLabel: activity.maxPlayers == null ? "不限人数" : `建议 ${activity.maxPlayers} 人`,
         },
         characters: activeCharacters,
         characterLabels: activeCharacters.map(

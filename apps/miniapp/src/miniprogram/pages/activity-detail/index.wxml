@@ -1,7 +1,7 @@
 <view class="page">
   <view class="card" wx:if="{{loading}}"><view class="muted">正在加载活动…</view></view>
   <view wx:elif="{{activity}}">
-    <view class="eyebrow">{{activity.status}} · {{activity.maxPlayers}} 人上限</view>
+    <view class="eyebrow">{{activity.status}} · {{activity.maxPlayersLabel}}</view>
     <view class="title">{{activity.name}}</view>
     <view class="card detail-list">
       <view><view class="muted">集合时间</view><view>{{activity.teamUpAtLabel}}</view></view>
