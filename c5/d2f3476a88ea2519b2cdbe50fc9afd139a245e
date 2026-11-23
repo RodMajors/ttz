@@ -1,0 +1,31 @@
+apps/miniapp/src/miniprogram/pages/activity-detail/index.wxml
+  s_0e3938aaaf8226::t_3dfb7de15abd74 4
+apps/web/src/app/(main)/dashboard/_components/activity-roster-guidance.tsx
+  s_0e3938aaaf8226::t_d6d6ca41f79f0a 1-78
+apps/web/src/app/(main)/dashboard/_components/activity-schedule-fields.tsx
+  s_0e3938aaaf8226::t_ea99ebc2d447b3 1-176
+apps/web/src/app/(main)/dashboard/_components/character-picker.tsx
+  s_0e3938aaaf8226::t_f21acce3c08e1c 1-132
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  s_0e3938aaaf8226::t_78fc454eb18f4c 31,67-69,375-378,380-403,426-434,450-453,459-462,464-468,494-508,511,513-516,520-528,1092-1095
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  s_0e3938aaaf8226::t_a9edb6d4df39e1 186
+apps/web/src/app/(main)/dashboard/default/dashboard-overview.tsx
+  s_0e3938aaaf8226::t_ae1b8c782e255c 117
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c5d2f3476a88ea2519b2cdbe50fc9afd139a245e",
+  "prompts": {},
+  "sessions": {
+    "s_0e3938aaaf8226": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f8ef-d4d4-7f20-add3-20b5aa28c098",
+        "model": "unknown"
+      },
+      "human_author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
