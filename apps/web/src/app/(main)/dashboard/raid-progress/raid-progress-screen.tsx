@@ -11,7 +11,7 @@ import {
 } from "@ttz/contracts";
 import { CircleAlert, CloudDownload, Plus, ScrollText } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import {
   CartesianGrid,
   type DotItemDotProps,
@@ -22,6 +22,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { toast } from "sonner";
 import { z } from "zod";
 import {
   Dialog,
@@ -54,7 +55,24 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { apiRequest } from "@/lib/api-client";
 
-const queuedSchema = z.object({ jobId: z.string() });
+const queuedSchema = z.object({ jobId: z.string(), followUpJobIds: z.array(z.string()).default([]) });
+const syncStatusSchema = z.object({
+  jobId: z.string(),
+  state: z.string(),
+  progress: z.unknown(),
+  result: z.unknown(),
+  failedReason: z.string().nullable(),
+});
+const syncProgressSchema = z.object({
+  phase: z.enum(["preparing", "syncing"]),
+  planName: z.string().optional(),
+  planIndex: z.number().optional(),
+  planCount: z.number().optional(),
+  page: z.number().optional(),
+  reportsRead: z.number().optional(),
+  fightsRead: z.number().optional(),
+});
+const syncResultSchema = z.object({ followUpJobIds: z.array(z.string()).default([]) }).passthrough();
 const versionCreatedSchema = z.object({
   id: idSchema,
   versionNo: z.number().int(),
@@ -65,6 +83,9 @@ type BestPullGraph = z.infer<typeof raidBossBestPullGraphSchema>;
 
 export function RaidProgressScreen() {
   const client = useQueryClient();
+  const [syncJobIds, setSyncJobIds] = useState<string[]>([]);
+  const [syncError, setSyncError] = useState<string>();
+  const [syncCompleted, setSyncCompleted] = useState(false);
   const me = useQuery({
     queryKey: ["auth", "me"],
     queryFn: () => apiRequest("/auth/me", authUserSchema),
@@ -76,8 +97,76 @@ export function RaidProgressScreen() {
   });
   const sync = useMutation({
     mutationFn: () => apiRequest("/raid-progress/sync", queuedSchema, { method: "POST" }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["raid-progress"] }),
+    onSuccess: ({ jobId, followUpJobIds }) => {
+      setSyncError(undefined);
+      setSyncCompleted(false);
+      setSyncJobIds([jobId, ...followUpJobIds]);
+    },
+    onError: (error) => setSyncError(error.message),
   });
+  const activeSyncJobId = syncJobIds[0];
+  const syncStatus = useQuery({
+    queryKey: ["raid-progress", "sync-status", activeSyncJobId],
+    queryFn: () => {
+      if (!activeSyncJobId) throw new Error("缺少 WCL 同步任务 ID");
+      return apiRequest(`/raid-progress/sync/${encodeURIComponent(activeSyncJobId)}`, syncStatusSchema);
+    },
+    enabled: Boolean(activeSyncJobId),
+    refetchInterval: (query) =>
+      ["waiting", "active", "delayed", "prioritized", "waiting-children"].includes(query.state.data?.state ?? "")
+        ? 1500
+        : false,
+  });
+  useEffect(() => {
+    const status = syncStatus.data;
+    if (!activeSyncJobId || !status || !["completed", "failed", "missing"].includes(status.state)) return;
+
+    if (status.state === "failed" || status.state === "missing") {
+      setSyncError(
+        status.failedReason ??
+          (status.state === "missing" ? "WCL 同步任务状态已过期，请重新发起同步。" : "WCL 同步失败。"),
+      );
+      setSyncJobIds((current) => (current[0] === activeSyncJobId ? current.slice(1) : current));
+      return;
+    }
+
+    const result = syncResultSchema.safeParse(status.result);
+    const followUpJobIds = result.success ? result.data.followUpJobIds : [];
+    const remainingJobIds = syncJobIds[0] === activeSyncJobId ? syncJobIds.slice(1) : syncJobIds;
+    const nextJobIds = [...remainingJobIds, ...followUpJobIds];
+    setSyncJobIds(nextJobIds);
+    if (!nextJobIds.length) {
+      setSyncCompleted(true);
+      void client.invalidateQueries({ queryKey: ["raid-progress"] });
+    }
+  }, [activeSyncJobId, client, syncJobIds, syncStatus.data]);
+  const progress = syncProgressSchema.safeParse(syncStatus.data?.progress);
+  const visibleSyncError = syncError ?? (syncStatus.isError ? syncStatus.error.message : undefined);
+  const isSyncWorking =
+    sync.isPending ||
+    Boolean(
+      activeSyncJobId &&
+        (syncStatus.isPending ||
+          ["waiting", "active", "delayed", "prioritized", "waiting-children"].includes(syncStatus.data?.state ?? "")),
+    );
+  useEffect(() => {
+    const toastId = "raid-progress-wcl-sync";
+    if (isSyncWorking) {
+      const description =
+        progress.success && progress.data.phase === "syncing"
+          ? `团本进度：${progress.data.planName ?? "WCL"}，已读取第 ${progress.data.page ?? 0} 页、${progress.data.reportsRead ?? 0} 份报告、${progress.data.fightsRead ?? 0} 场战斗` +
+            (progress.data.planIndex && progress.data.planCount
+              ? ` · 团本 ${progress.data.planIndex}/${progress.data.planCount}`
+              : "") +
+            (syncJobIds.length > 1 ? ` · 队列任务 1/${syncJobIds.length}` : "")
+          : `同步任务已排队，正在准备读取 WCL 报告${syncJobIds.length > 1 ? ` · 队列任务 1/${syncJobIds.length}` : ""}。`;
+      toast.loading("正在同步 WCL 公会报告", { id: toastId, description });
+    } else if (visibleSyncError) {
+      toast.error("WCL 同步未完成", { id: toastId, description: visibleSyncError });
+    } else if (syncCompleted) {
+      toast.success("WCL 同步完成", { id: toastId });
+    }
+  }, [isSyncWorking, progress, syncCompleted, syncJobIds.length, visibleSyncError]);
   const pending = me.isPending || plans.isPending;
   if (pending) return <Skeleton className="h-[36rem] w-full" />;
   const error = me.error ?? plans.error;
@@ -113,9 +202,9 @@ export function RaidProgressScreen() {
                   战术方案管理
                 </Link>
               </Button>
-              <Button variant="outline" disabled={sync.isPending} onClick={() => sync.mutate()}>
-                {sync.isPending ? <Spinner data-icon="inline-start" /> : <CloudDownload data-icon="inline-start" />}
-                同步 WCL
+              <Button variant="outline" disabled={isSyncWorking} onClick={() => sync.mutate()}>
+                {isSyncWorking ? <Spinner data-icon="inline-start" /> : <CloudDownload data-icon="inline-start" />}
+                {isSyncWorking ? "WCL 同步中" : "同步 WCL"}
               </Button>
             </div>
           ) : null}
@@ -299,11 +388,7 @@ function PlanPullSummary({ plan }: { plan: Plan }) {
   );
 
   return (
-    <section className="mb-5 rounded-lg border p-3">
-      <div className="mb-2">
-        <h3 className="text-sm font-medium">Boss Pull 汇总</h3>
-        <p className="text-xs text-muted-foreground">横轴为本计划累计 Pull 数；纵轴按 Boss 顺序从下至上排列。</p>
-      </div>
+    <section className="mb-5 p-3">
       <ChartContainer config={chartConfig} className="h-64 w-full aspect-auto">
         <LineChart data={chartData} margin={{ left: 8, right: 12, top: 8, bottom: 0 }}>
           <CartesianGrid vertical={false} />

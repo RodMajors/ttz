@@ -112,7 +112,7 @@ function SelectContent({
       placement={placement}
       offset={offset}
       className={cn(
-        "z-50 w-(--trigger-width) overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md outline-none ring-1 ring-foreground/10 entering:animate-in entering:fade-in-0 entering:zoom-in-95 exiting:animate-out exiting:fade-out-0 exiting:zoom-out-95 cursor-pointer",
+        "z-50 w-(--trigger-width) overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md outline-none ring-1 ring-foreground/10 duration-150 ease-out data-[entering]:animate-in data-[entering]:fade-in-0 data-[entering]:zoom-in-95 data-[entering]:slide-in-from-top-1 data-[exiting]:animate-out data-[exiting]:fade-out-0 data-[exiting]:zoom-out-95 data-[exiting]:slide-out-to-top-1 cursor-pointer",
         className,
       )}
       {...props}

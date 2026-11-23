@@ -1,14 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { guildProfileSchema, publicProgressSchema } from "@ttz/contracts";
+import { guildProfileSchema } from "@ttz/contracts";
 import { ArrowRight, Mail, ShieldCheck, Swords, Users } from "lucide-react";
 import Link from "next/link";
-import { EpicProgressTimeline } from "@/components/epic-progress-timeline";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { APP_CONFIG } from "@/config/app-config";
 import { apiRequest } from "@/lib/api-client";
@@ -19,10 +17,6 @@ export function PublicHome() {
   const guild = useQuery({
     queryKey: ["public", "guild"],
     queryFn: () => apiRequest("/public/guild", guildProfileSchema),
-  });
-  const progress = useQuery({
-    queryKey: ["public", "progress"],
-    queryFn: () => apiRequest("/public/progress", publicProgressSchema),
   });
   const data = guild.data ?? defaultGuild;
   return (
@@ -41,9 +35,6 @@ export function PublicHome() {
             </span>
           </Link>
           <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/progress">团本进度</Link>
-            </Button>
             <Button asChild size="sm">
               <Link href="/login">
                 进入工作台 <ArrowRight data-icon="inline-end" />
@@ -51,9 +42,8 @@ export function PublicHome() {
             </Button>
           </div>
         </header>
-        <EpicProgressTimeline className="mt-6" />
-        <section className="grid flex-1 items-center gap-10 py-14 lg:grid-cols-[1.15fr_0.85fr] lg:py-20">
-          <div className="max-w-2xl">
+        <section className="flex flex-1 items-center py-14 lg:py-20">
+          <div className="max-w-4xl">
             {guild.isPending ? (
               <Skeleton className="h-56 w-full" />
             ) : (
@@ -76,33 +66,11 @@ export function PublicHome() {
               </>
             )}
           </div>
-          <Card>
-            <CardHeader>
-              <CardTitle>近期 WCL 记录</CardTitle>
-              <CardDescription>CN 区 · 伊森利恩 server id 569</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              {progress.isPending ? (
-                <Skeleton className="h-40 w-full" />
-              ) : progress.data?.reports.length ? (
-                progress.data.reports.slice(0, 4).map((report) => (
-                  <div className="rounded-lg border p-3" key={report.reportCode}>
-                    <p className="font-medium">{report.activityName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDate(report.beginAt)} · {Number(report.summary?.killCount ?? 0)} 次击杀
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">暂无已导入的公开 WCL 报告。</p>
-              )}
-            </CardContent>
-          </Card>
         </section>
-        {guild.isError || progress.isError ? (
+        {guild.isError ? (
           <Alert variant="destructive">
-            <AlertTitle>部分公开内容暂时不可用</AlertTitle>
-            <AlertDescription>{guild.error?.message ?? progress.error?.message}</AlertDescription>
+            <AlertTitle>公会资料暂时不可用</AlertTitle>
+            <AlertDescription>{guild.error?.message}</AlertDescription>
           </Alert>
         ) : null}
         <section className="grid gap-4 border-t py-10 md:grid-cols-3">
@@ -128,10 +96,5 @@ function Feature({ icon: Icon, title, text }: { icon: typeof Swords; title: stri
       <h2 className="mt-4 font-medium">{title}</h2>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p>
     </div>
-  );
-}
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "short", hour12: false }).format(
-    new Date(value),
   );
 }

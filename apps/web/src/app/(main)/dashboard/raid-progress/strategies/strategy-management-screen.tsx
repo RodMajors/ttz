@@ -174,7 +174,7 @@ function StrategyCard({ strategy, onChanged }: { strategy: ManagedStrategy; onCh
     onError: (reason) => setError(reason.message),
   });
   return (
-    <div className="flex flex-col gap-3 rounded-lg border p-4">
+    <div className="flex flex-col gap-3 rounded border p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -191,7 +191,7 @@ function StrategyCard({ strategy, onChanged }: { strategy: ManagedStrategy; onCh
               </Badge>
             ) : null}
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">{strategy.description || "暂无说明"}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{strategy.description || ""}</p>
           <p className="mt-1 text-xs text-muted-foreground">
             {strategy.difficulty === "MYTHIC" ? "史诗" : "英雄"} ·{" "}
             {strategy.planStatus === "ACTIVE" ? "当前进度计划" : "历史进度计划"}

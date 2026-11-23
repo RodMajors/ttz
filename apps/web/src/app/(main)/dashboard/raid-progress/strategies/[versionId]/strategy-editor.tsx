@@ -328,8 +328,8 @@ export function StrategyEditor({ versionId }: { versionId: string }) {
                         </>
                       ) : (
                         <FieldGroup>
-                          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-                            <Field>
+                          <div className="flex flex-col gap-2">
+                            <Field className="flex-1">
                               <FieldLabel htmlFor={`${item.key}-title`}>内容项名称</FieldLabel>
                               <Input
                                 id={`${item.key}-title`}
@@ -338,7 +338,7 @@ export function StrategyEditor({ versionId }: { versionId: string }) {
                                 onChange={(event) => updateItem(item.key, { title: event.target.value })}
                               />
                             </Field>
-                            <Field>
+                            <Field className="flex-1">
                               <FieldLabel htmlFor={`${item.key}-markdown`}>
                                 {item.type === "NOTES" ? "战术笔记正文" : "需求说明"} · Markdown
                               </FieldLabel>

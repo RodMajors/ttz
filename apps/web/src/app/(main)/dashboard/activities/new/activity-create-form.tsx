@@ -216,6 +216,7 @@ export function ActivityCreateForm() {
                                       [boss.id]: value === "blank" ? null : value,
                                     })
                                   }
+                                  className="justify-end flex"
                                 >
                                   <SelectTrigger className="max-w-sm">
                                     <SelectValue />
