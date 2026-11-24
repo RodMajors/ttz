@@ -1,0 +1,49 @@
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  h_1dc22111645538 457
+  h_1dc22111645538 7,21,62,67,89-95,136,141-179,185-187,195-217,219-225,227-239,370,388,426,455-456,458-494,913-923,931-944,949,951-952,965-980,1001-1003,1015-1038,1047-1063,1079-1135
+apps/miniapp/miniprogram/pages/activities/index.wxml
+  s_91209f3f10bb14::t_867af206c2413a 8
+apps/web/src/app/(main)/dashboard/members/[memberId]/public-member-profile-screen.tsx
+  s_d0b0c16abfe273::t_16ec12da2413a3 53,55,95-96
+apps/miniapp/src/miniprogram/pages/activities/index.ts
+  h_1dc22111645538 12
+apps/miniapp/src/miniprogram/pages/activities/index.wxml
+  h_1dc22111645538 8
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/strategy-team-workspace.tsx
+  h_1dc22111645538 22,26,30,33,39,43,46-48,53,58,76,84,90,92-98,100-105,138,141,147-148,176,197,199-204,214-219,228-229,232,241-244,252,258-259,287-293
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  h_1dc22111645538 4-5,8,14-21,23,38-45,47-54,56-68,70,72-84,87-99,116,118-121,129,136-143,145-187,190,198,209-215,244,262,264,282-306,312-349
+apps/web/src/app/(main)/dashboard/default/dashboard-overview.tsx
+  h_1dc22111645538 22,105,110-112,114,129
+packages/contracts/src/index.ts
+  h_1dc22111645538 70-91,141,149,228,294,300
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "53a6ee972bb4bdccfa18a3b038e9043c60832b8c",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_91209f3f10bb14": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ce5e-3ad5-7553-9333-b05a2d9c46fd",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    },
+    "s_d0b0c16abfe273": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f796-5bec-7292-ac04-125fbae10083",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
