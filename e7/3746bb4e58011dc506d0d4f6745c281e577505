@@ -1,0 +1,42 @@
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  h_1dc22111645538 331,372,1079
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/strategy-team-workspace.tsx
+  h_1dc22111645538 129-130
+  s_d0b0c16abfe273::t_7edbea5f4f9a91 176,199,203,220
+apps/web/src/app/(main)/dashboard/raids/strategy-management-screen.tsx
+  h_1dc22111645538 28,50,57,151-152,159-167
+  s_d0b0c16abfe273::t_387ba5170de8f1 41-44,47-49,51,55-56,58,70-72,137-143,153-158,209,432-433,513-514
+apps/web/src/app/(main)/dashboard/activities/new/activity-create-form.tsx
+  h_1dc22111645538 270
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  s_d0b0c16abfe273::t_e08fb34d803e83 7,31,173-179,181,217
+apps/web/src/hooks/use-highlighted-code.ts
+  s_d0b0c16abfe273::t_924b52837c98d2 1-72
+apps/web/src/lib/highlighter.tsx
+  s_d0b0c16abfe273::t_4a9eeae61b7af2 1-119
+apps/web/package.json
+  h_1dc22111645538 43
+pnpm-lock.yaml
+  h_1dc22111645538 278-280,1689-1719,1908-1913,1938-1940,1947-1949,2041-2043,2052-2057,2109-2111,2237-2240,2248-2250,2423-2431,2711-2713,2721-2735,2821-2826,2921-2923,3082-3090,3160-3163,3200-3202,3223-3225,3296-3298,3350-3364,3416-3421,3511-3513,4828-4867,5012-5019,5044-5045,5050-5051,5125-5126,5134-5137,5184-5185,5284-5285,5290-5293,5456-5475,5663-5674,5679-5695,5771-5778,5871-5872,6101-6110,6220-6230,6255-6256,6277-6281,6332-6333,6386-6408,6451-6460,6555-6556
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e73746bb4e58011dc506d0d4f6745c281e577505",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_d0b0c16abfe273": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f796-5bec-7292-ac04-125fbae10083",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
