@@ -1,0 +1,34 @@
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  s_d0b0c16abfe273::t_218f8cfa922b33 66,340
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  s_d0b0c16abfe273::t_d60e92ffc187ed 18,194-196
+apps/web/src/app/(main)/dashboard/members/[memberId]/page.tsx
+  s_d0b0c16abfe273::t_d1956238e34e9c 1-9
+apps/web/src/app/(main)/dashboard/members/[memberId]/public-member-profile-screen.tsx
+  s_d0b0c16abfe273::t_08a8d51d2fac16 1-120
+apps/web/src/components/user-identity.tsx
+  s_d0b0c16abfe273::t_a686b6404088a5 1-104
+packages/contracts/src/index.ts
+  s_d0b0c16abfe273::t_8fc65700336d17 94-114,126,185-195,290
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "10f25bbb782f28bd67fb9b326effd7def9a4dac6",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_d0b0c16abfe273": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f796-5bec-7292-ac04-125fbae10083",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
