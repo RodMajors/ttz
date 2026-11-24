@@ -9,7 +9,7 @@ interface ActivitySummary {
   signupDeadline: string | null;
   signupCount: number;
   confirmedCount: number;
-  creatorName: string;
+  creator: { name: string };
 }
 
 Page({

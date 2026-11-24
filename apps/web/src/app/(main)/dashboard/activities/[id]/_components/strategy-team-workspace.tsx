@@ -19,36 +19,43 @@ type Assignment = { groupNo: number; positionNo: number; signupId: string };
 export function StrategyTeamWorkspace({
   activity,
   onChanged,
+  readOnly = false,
 }: {
   activity: ActivityDetail;
   onChanged: () => Promise<void>;
+  readOnly?: boolean;
 }) {
   const layout = activity.teamLayout;
   const eligible = useMemo(
-    () => activity.signups.filter((signup) => signup.status === "CONFIRMED" || signup.status === "BENCH"),
+    () => activity.signups.filter((signup) => signup.status === "CONFIRMED"),
     [activity.signups],
   );
+  const groupsToShow = Math.min(6, Math.max(4, Math.ceil(eligible.length / 5)));
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [error, setError] = useState<string>();
   const [saved, setSaved] = useState(false);
+  const visibleAssignments = assignments.filter((entry) => entry.groupNo <= groupsToShow);
 
   useEffect(() => {
     if (!layout) return;
+    const confirmedIds = new Set(eligible.map((signup) => signup.id));
     setAssignments(
       layout.seats.flatMap((seat) =>
-        seat.signupId ? [{ groupNo: seat.groupNo, positionNo: seat.positionNo, signupId: seat.signupId }] : [],
+        seat.signupId && confirmedIds.has(seat.signupId)
+          ? [{ groupNo: seat.groupNo, positionNo: seat.positionNo, signupId: seat.signupId }]
+          : [],
       ),
     );
     setSelectedId(null);
     setSaved(false);
-  }, [layout]);
+  }, [eligible, layout]);
 
   const save = useMutation({
     mutationFn: async () => {
       if (!layout) throw new Error("活动团队框架不存在");
-      const body = activityTeamLayoutSaveSchema.parse({ revision: layout.revision, assignments });
+      const body = activityTeamLayoutSaveSchema.parse({ revision: layout.revision, assignments: visibleAssignments });
       return apiRequest(`/activities/${activity.id}/team-layout`, saveResponseSchema, {
         method: "PUT",
         body: JSON.stringify(body),
@@ -66,7 +73,7 @@ export function StrategyTeamWorkspace({
     return (
       <Card className="border-destructive/30">
         <CardHeader>
-          <CardTitle className="text-base">团队分组（必选）</CardTitle>
+          <CardTitle className="text-base">团队分组</CardTitle>
           <CardDescription>活动团队框架尚未初始化，无法进行团队分组。</CardDescription>
         </CardHeader>
       </Card>
@@ -74,17 +81,28 @@ export function StrategyTeamWorkspace({
   }
 
   const canEdit =
+    !readOnly &&
     activity.canManage &&
     activity.status !== "FINISHED" &&
     activity.status !== "CANCELLED" &&
     !activity.rosterLockedAt &&
     layout.status === "EDITING";
-  const assignedIds = new Set(assignments.map(({ signupId }) => signupId));
+  const assignedIds = new Set(visibleAssignments.map(({ signupId }) => signupId));
   const unassigned = eligible.filter((signup) => !assignedIds.has(signup.id));
+  const ownCharacterIds = new Set(
+    activity.signups.filter((signup) => signup.userId === activity.mySignup?.userId).map((signup) => signup.id),
+  );
+  const classColorFor = (signupId: string | undefined, fallbackClassId: number | null) =>
+    signupId
+      ? eligible.find((signup) => signup.id === signupId)?.character.classColor
+      : activity.signups.find((signup) => signup.character.classId === fallbackClassId)?.character.classColor;
   const currentAssignment = (groupNo: number, positionNo: number) =>
-    assignments.find((entry) => entry.groupNo === groupNo && entry.positionNo === positionNo);
-  const currentSeat = (groupNo: number, positionNo: number) =>
-    layout.seats.find((seat) => seat.groupNo === groupNo && seat.positionNo === positionNo);
+    visibleAssignments.find((entry) => entry.groupNo === groupNo && entry.positionNo === positionNo);
+  const currentSeat = (groupNo: number, positionNo: number) => {
+    const seat = layout.seats.find((entry) => entry.groupNo === groupNo && entry.positionNo === positionNo);
+    if (seat?.signupId && !eligible.some((signup) => signup.id === seat.signupId)) return undefined;
+    return seat;
+  };
 
   const place = (groupNo: number, positionNo: number, signupId: string) => {
     setSaved(false);
@@ -117,17 +135,17 @@ export function StrategyTeamWorkspace({
     <Card className="border-dashed">
       <CardHeader>
         <CardTitle className="flex flex-wrap items-center gap-2 text-base">
-          团队分组（必选）
+          团队分组
           <Badge variant="secondary">活动级共享</Badge>
           <Badge variant={layout.status === "LOCKED" ? "default" : "outline"}>
-            {layout.status === "LOCKED" ? "已锁定" : "可编辑"}
+            {layout.status === "LOCKED" ? "已锁定" : canEdit ? "可编辑" : "只读"}
           </Badge>
           <Badge variant="outline">修订 {layout.revision}</Badge>
         </CardTitle>
         <CardDescription>
           {canEdit
-            ? "这份团队框架由本场活动所有 Boss 共享。可拖动成员，或先点击成员再点击目标席位。"
-            : "这份团队框架由本场活动所有 Boss 共享"}
+            ? "根据最终确认名单显示团队分组。可拖动角色，或先点击角色再点击目标席位。"
+            : "团队分组展示最终确认名单。"}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -155,7 +173,7 @@ export function StrategyTeamWorkspace({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="font-medium">未分配池</p>
-              <p className="text-xs text-muted-foreground">{unassigned.length} 名确认/替补成员未占团队席位</p>
+              <p className="text-xs text-muted-foreground">{unassigned.length} 名确认成员未占团队席位</p>
             </div>
             {selectedId ? (
               <Button type="button" variant="ghost" size="sm" onClick={() => setSelectedId(null)}>
@@ -176,7 +194,14 @@ export function StrategyTeamWorkspace({
                     "flex items-center gap-1.5 border bg-background px-2 py-1.5 text-left text-sm",
                     canEdit ? "cursor-grab hover:border-primary/50" : "opacity-70",
                     selectedId === signup.id && "border-primary bg-primary/10 ring-2 ring-primary/20",
+                    ownCharacterIds.has(signup.id) && "ring-2 ring-primary",
                   )}
+                  data-class-accent-surface={Boolean(signup.character.classColor)}
+                  style={
+                    signup.character.classColor
+                      ? { ["--class-color" as string]: signup.character.classColor }
+                      : undefined
+                  }
                   onClick={() => setSelectedId((current) => (current === signup.id ? null : signup.id))}
                   onDragStart={(event) => {
                     event.dataTransfer.setData("text/plain", signup.id);
@@ -186,8 +211,12 @@ export function StrategyTeamWorkspace({
                   aria-pressed={selectedId === signup.id}
                 >
                   <GripVertical className="size-3.5 text-muted-foreground" aria-hidden="true" />
-                  <span>{signup.memberName}</span>
-                  <span className="text-xs text-muted-foreground">{signup.character.name}</span>
+                  <span
+                    data-class-accent
+                    style={{ ["--class-color" as string]: signup.character.classColor ?? "currentColor" }}
+                  >
+                    {signup.character.name}
+                  </span>
                   {selectedId === signup.id ? <Check className="size-3.5 text-primary" aria-hidden="true" /> : null}
                 </button>
               ))
@@ -196,11 +225,11 @@ export function StrategyTeamWorkspace({
             )}
           </div>
         </div>
-        <div className="grid gap-1 sm:grid-cols-2 xl:grid-cols-6">
-          {Array.from({ length: layout.groupCount }, (_, groupIndex) => {
+        <div className="mx-auto flex w-fit max-w-full gap-2 overflow-x-auto">
+          {Array.from({ length: groupsToShow }, (_, groupIndex) => {
             const groupNo = groupIndex + 1;
             return (
-              <div key={groupNo} className="flex flex-col gap-2">
+              <div key={groupNo} className="flex w-40 shrink-0 flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <p className="font-medium">第 {groupNo} 组</p>
                 </div>
@@ -209,8 +238,10 @@ export function StrategyTeamWorkspace({
                   const assignment = currentAssignment(groupNo, positionNo);
                   const signup = assignment ? eligible.find((entry) => entry.id === assignment.signupId) : undefined;
                   const seat = currentSeat(groupNo, positionNo);
-                  const name = signup?.memberName ?? seat?.userName ?? "空席";
-                  const character = signup?.character.name ?? seat?.characterName;
+                  const name = signup?.character.name ?? seat?.characterName ?? "空席";
+                  const isOwn = Boolean(assignment?.signupId && ownCharacterIds.has(assignment.signupId));
+                  const classColor =
+                    signup?.character.classColor ?? classColorFor(assignment?.signupId, seat?.classId ?? null);
                   return (
                     <button
                       key={positionNo}
@@ -218,11 +249,14 @@ export function StrategyTeamWorkspace({
                       disabled={!canEdit}
                       className={cn(
                         "flex min-h-12 w-full items-center gap-2 border px-2 py-1.5 text-left",
+                        isOwn && "ring-2 ring-primary",
                         canEdit && "cursor-pointer hover:border-primary/50",
                         selectedId && !signup && "border-primary/50 bg-primary/5",
                         draggedId && !signup && "border-dashed border-primary bg-primary/5",
                         !signup && !seat?.userName && "text-muted-foreground",
                       )}
+                      data-class-accent-surface={Boolean(classColor)}
+                      style={classColor ? { ["--class-color" as string]: classColor } : undefined}
                       onClick={() => {
                         if (!canEdit) return;
                         if (selectedId) place(groupNo, positionNo, selectedId);
@@ -250,10 +284,13 @@ export function StrategyTeamWorkspace({
                         {positionNo}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium">{name}</span>
-                        {character ? (
-                          <span className="block truncate text-xs text-muted-foreground">{character}</span>
-                        ) : null}
+                        <span
+                          className="block truncate text-sm font-medium"
+                          data-class-accent
+                          style={{ ["--class-color" as string]: classColor ?? "currentColor" }}
+                        >
+                          {name}
+                        </span>
                       </span>
                       {signup ? (
                         <UserPlus className="size-3.5 text-muted-foreground" aria-hidden="true" />

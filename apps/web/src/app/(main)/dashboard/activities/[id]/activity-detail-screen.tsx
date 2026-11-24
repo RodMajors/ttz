@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   type ActivityDetail,
   type ActivitySignup,
+  activityBulkConfirmResultSchema,
   activityDetailSchema,
   characterListSchema,
   type Role,
@@ -17,12 +18,12 @@ import {
   Check,
   CircleAlert,
   Clock3,
+  Copy,
   ListOrdered,
   Lock,
   LockOpen,
   Pencil,
   Send,
-  ShieldCheck,
   UserRoundPlus,
   Users,
   X,
@@ -58,10 +59,12 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { Checkbox } from "@/components/ui/checkbox";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { UserIdentity } from "@/components/user-identity";
 import { apiRequest } from "@/lib/api-client";
@@ -83,6 +86,13 @@ const statusLabels = {
 } as const;
 const activityStatusLabels = { DRAFT: "草稿", PUBLISHED: "已发布", FINISHED: "已结束", CANCELLED: "已取消" } as const;
 const roleLabels: Record<Role, string> = { TANK: "坦克", HEALER: "治疗", MELEE: "近战", RANGED: "远程" };
+const activityTypeLabels: Record<ActivityDetail["type"], string> = {
+  raid_progress: "团本开荒",
+  raid_farm: "团本 Farm",
+  mythic_plus_push: "大秘境冲层",
+  mythic_plus_vault: "大秘境低保",
+  casual: "休闲活动",
+};
 
 export function ActivityDetailScreen({ activityId }: { activityId: string }) {
   const client = useQueryClient();
@@ -122,21 +132,59 @@ export function ActivityDetailScreen({ activityId }: { activityId: string }) {
         </Link>
       </Button>
       <ActivityOverview activity={activity} onChanged={refresh} />
-      <StrategyTeamWorkspace activity={activity} onChanged={refresh} />
-      {activity.raid ? <RaidStrategySnapshot activity={activity} onChanged={refresh} /> : null}
       <SignupPanel activity={activity} onChanged={refresh} />
-      <SignupRoster activity={activity} onChanged={refresh} />
+      <ActivityDetailTabs activity={activity} onChanged={refresh} />
     </div>
   );
 }
 
-function RaidStrategySnapshot({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
+function ActivityDetailTabs({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
+  const [finalRosterOnly, setFinalRosterOnly] = useState(false);
+  return (
+    <Tabs defaultValue="roster" className="min-w-0">
+      <TabsList className="h-auto max-w-full flex-wrap justify-start">
+        <TabsTrigger value="roster">报名与最终名单</TabsTrigger>
+        {activity.raid?.targets.map((target) => (
+          <TabsTrigger key={target.id} value={target.id}>
+            {target.bossName} - {target.strategyName}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+      <TabsContent value="roster" className="flex min-w-0 flex-col gap-5">
+        <SignupRoster
+          activity={activity}
+          onChanged={onChanged}
+          finalRosterOnly={finalRosterOnly}
+          onFinalRosterOnlyChange={setFinalRosterOnly}
+        />
+        <StrategyTeamWorkspace activity={activity} onChanged={onChanged} />
+      </TabsContent>
+      {activity.raid?.targets.map((target) => (
+        <TabsContent key={target.id} value={target.id} className="min-w-0">
+          <RaidStrategyTarget activity={activity} target={target} onChanged={onChanged} />
+        </TabsContent>
+      ))}
+    </Tabs>
+  );
+}
+
+function RaidStrategyTarget({
+  activity,
+  target,
+  onChanged,
+}: {
+  activity: ActivityDetail;
+  target: NonNullable<NonNullable<ActivityDetail["raid"]>["targets"][number]>;
+  onChanged: () => Promise<void>;
+}) {
   const raid = activity.raid;
   if (!raid) return null;
   return (
     <Card>
       <CardHeader>
-        <CardTitle>本场战术快照</CardTitle>
+        <CardTitle>
+          {target.bossName} - {target.strategyName}
+        </CardTitle>
         <CardDescription>
           {raid.raidName} ·{" "}
           {raid.difficulty === "MYTHIC" ? "史诗" : raid.difficulty === "HEROIC" ? "英雄" : "未指定难度"} ·{" "}
@@ -144,52 +192,51 @@ function RaidStrategySnapshot({ activity, onChanged }: { activity: ActivityDetai
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {raid.targets.map((target) => (
-          <Card key={target.id}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                {target.bossName}
-                <Badge variant="outline">{target.strategyName}</Badge>
-                {target.strategyVersionNo ? <Badge variant="secondary">v{target.strategyVersionNo}</Badge> : null}
-              </CardTitle>
-              <CardDescription>
-                {target.blocks.length + target.tasks.length
-                  ? `包含 ${target.blocks.length + target.tasks.length} 个战术内容项`
-                  : "空白战术快照"}
-              </CardDescription>
-            </CardHeader>
+        <StrategyTeamWorkspace activity={activity} onChanged={onChanged} readOnly />
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {target.bossName}
+              <Badge variant="outline">{target.strategyName}</Badge>
+              {target.strategyVersionNo ? <Badge variant="secondary">v{target.strategyVersionNo}</Badge> : null}
+            </CardTitle>
+            <CardDescription>
+              {target.blocks.length + target.tasks.length
+                ? `包含 ${target.blocks.length + target.tasks.length} 个战术内容项`
+                : "空白战术快照"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            {target.snapshot?.assignmentMode === "DIRECT" ? (
+              <ActivityTactics activity={activity} target={target} onChanged={onChanged} />
+            ) : (
+              <ActivityTaskPlan activity={activity} target={target} />
+            )}
+            <PositioningBoardLoader activity={activity} target={target} onChanged={onChanged} />
+          </CardContent>
+          {target.blocks.length ? (
             <CardContent className="flex flex-col gap-3">
-              {target.snapshot?.assignmentMode === "DIRECT" ? (
-                <ActivityTactics activity={activity} target={target} onChanged={onChanged} />
-              ) : (
-                <ActivityTaskPlan activity={activity} target={target} />
-              )}
-              <PositioningBoardLoader activity={activity} target={target} onChanged={onChanged} />
-            </CardContent>
-            {target.blocks.length ? (
-              <CardContent className="flex flex-col gap-3">
-                {target.blocks
-                  .filter((block) => target.snapshot?.assignmentMode !== "DIRECT" || block.type !== "NOTES")
-                  .map((block) => (
-                    <div key={block.id ?? block.type + block.orderIndex} className="rounded-lg border p-4">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">{strategyBlockLabel(block.type)}</Badge>
-                        <p className="font-medium">{block.title}</p>
-                      </div>
-                      {block.markdown ? (
-                        <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-6">{block.markdown}</pre>
-                      ) : null}
-                      {!block.markdown && block.config && Object.keys(block.config).length ? (
-                        <pre className="mt-3 overflow-x-auto rounded-lg bg-muted p-3 text-xs">
-                          {JSON.stringify(block.config, null, 2)}
-                        </pre>
-                      ) : null}
+              {target.blocks
+                .filter((block) => target.snapshot?.assignmentMode !== "DIRECT" || block.type !== "NOTES")
+                .map((block) => (
+                  <div key={block.id ?? block.type + block.orderIndex} className="rounded-lg border p-4">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">{strategyBlockLabel(block.type)}</Badge>
+                      <p className="font-medium">{block.title}</p>
                     </div>
-                  ))}
-              </CardContent>
-            ) : null}
-          </Card>
-        ))}
+                    {block.markdown ? (
+                      <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-6">{block.markdown}</pre>
+                    ) : null}
+                    {!block.markdown && block.config && Object.keys(block.config).length ? (
+                      <pre className="mt-3 overflow-x-auto rounded-lg bg-muted p-3 text-xs">
+                        {JSON.stringify(block.config, null, 2)}
+                      </pre>
+                    ) : null}
+                  </div>
+                ))}
+            </CardContent>
+          ) : null}
+        </Card>
       </CardContent>
     </Card>
   );
@@ -320,6 +367,7 @@ function strategyBlockLabel(type: string) {
 
 function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
   const [error, setError] = useState<string>();
+  const [copiedInvite, setCopiedInvite] = useState(false);
   const action = useMutation({
     mutationFn: async (path: string) =>
       apiRequest(`/activities/${activity.id}/${path}`, idResultSchema, { method: "POST" }),
@@ -337,7 +385,7 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
           {activity.rosterLockedAt ? <Badge variant="outline">名单已锁定</Badge> : null}
         </CardTitle>
         <CardDescription>
-          {activity.type} · 负责人 <UserIdentity user={activity.creator} />
+          {activity.typeName || activityTypeLabels[activity.type]} · 负责人 <UserIdentity user={activity.creator} />
         </CardDescription>
         {activity.canManage ? (
           <CardAction className="flex flex-wrap justify-end gap-2">
@@ -375,9 +423,7 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
           <Info label="开始时间" value={formatDate(activity.beginAt)} />
           <Info label="报名截止" value={activity.signupDeadline ? formatDate(activity.signupDeadline) : "未设置"} />
           <Info label="建议人数" value={activity.maxPlayers == null ? "不限" : `${activity.maxPlayers} 人`} />
-          {activity.inviter ? (
-            <Info label="发起邀请角色" value={`${activity.inviter.name} · ${activity.inviter.realm}`} />
-          ) : null}
+          {activity.raid ? <Info label="团本" value={activity.raid.raidName} /> : null}
         </div>
         {[
           ["坦克", activity.tankSlots],
@@ -406,9 +452,46 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
         {activity.description ? <p className="whitespace-pre-wrap text-sm leading-6">{activity.description}</p> : null}
         {activity.passphrase ? (
           <Alert>
-            <ShieldCheck />
-            <AlertTitle>进组信息</AlertTitle>
-            <AlertDescription>{activity.passphrase}</AlertDescription>
+            <AlertTitle>游戏内私信邀请</AlertTitle>
+            {activity.inviter ? (
+              <>
+                <AlertDescription>复制后可直接粘贴到游戏聊天框发送。</AlertDescription>
+                <div className="flex flex-wrap items-center gap-2">
+                  <pre className="min-w-0 flex-1 overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-sm">
+                    <code>
+                      {"/w " +
+                        activity.inviter.name +
+                        "-" +
+                        activity.inviter.realm +
+                        " 进组暗号：" +
+                        activity.passphrase}
+                    </code>
+                  </pre>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const message =
+                        "/w " +
+                        activity.inviter?.name +
+                        "-" +
+                        activity.inviter?.realm +
+                        " 进组暗号：" +
+                        activity.passphrase;
+                      void navigator.clipboard
+                        .writeText(message)
+                        .then(() => setCopiedInvite(true))
+                        .catch(() => setError("无法访问剪贴板，请手动选择并复制私信内容。"));
+                    }}
+                  >
+                    {copiedInvite ? <Check data-icon="inline-start" /> : <Copy data-icon="inline-start" />}
+                    {copiedInvite ? "已复制" : "复制私信"}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <AlertDescription>进组暗号：{activity.passphrase}。活动负责人尚未设置邀请角色。</AlertDescription>
+            )}
           </Alert>
         ) : null}
         {error ? (
@@ -827,7 +910,17 @@ function CancelSignup({ activity, onChanged }: { activity: ActivityDetail; onCha
   );
 }
 
-function SignupRoster({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
+function SignupRoster({
+  activity,
+  onChanged,
+  finalRosterOnly,
+  onFinalRosterOnlyChange,
+}: {
+  activity: ActivityDetail;
+  onChanged: () => Promise<void>;
+  finalRosterOnly: boolean;
+  onFinalRosterOnlyChange: (value: boolean) => void;
+}) {
   const mutation = useMutation({
     mutationFn: (path: string) =>
       apiRequest(`/activities/${activity.id}/roster/${path}`, z.object({ rosterLockedAt: z.string().nullable() }), {
@@ -835,14 +928,28 @@ function SignupRoster({ activity, onChanged }: { activity: ActivityDetail; onCha
       }),
     onSuccess: onChanged,
   });
-  const visible = activity.signups.filter((signup) => !["CANCELLED", "REJECTED"].includes(signup.status));
+  const allRows = activity.signups
+    .filter((signup) => signup.status !== "CANCELLED")
+    .sort((left, right) => {
+      const order = { PENDING: 0, CONFIRMED: 1, BENCH: 2, REJECTED: 3, CANCELLED: 4 } as const;
+      return order[left.status] - order[right.status] || left.signedUpAt.localeCompare(right.signedUpAt);
+    });
+  const visible = finalRosterOnly ? allRows.filter((signup) => signup.status === "CONFIRMED") : allRows;
+  const roleCounts = visible.reduce<Record<Role, number>>(
+    (counts, signup) => {
+      if (signup.preferredRole) counts[signup.preferredRole] += 1;
+      return counts;
+    },
+    { TANK: 0, HEALER: 0, MELEE: 0, RANGED: 0 },
+  );
   return (
     <Card>
       <CardHeader>
         <CardTitle>报名与最终名单</CardTitle>
-        <CardDescription>确认和替补组成名单；本期不记录名单变更历史。</CardDescription>
+        <CardDescription>按待确认、已确认、替补、已拒绝排序；最终名单仅显示已确认成员。</CardDescription>
         {activity.canManage && activity.status !== "FINISHED" && activity.status !== "CANCELLED" ? (
-          <CardAction>
+          <CardAction className="flex flex-wrap gap-2">
+            {!finalRosterOnly ? <BulkConfirmDialog activity={activity} onChanged={onChanged} /> : null}
             <Button
               variant="outline"
               onClick={() => mutation.mutate(activity.rosterLockedAt ? "unlock" : "lock")}
@@ -855,6 +962,22 @@ function SignupRoster({ activity, onChanged }: { activity: ActivityDetail; onCha
         ) : null}
       </CardHeader>
       <CardContent>
+        <Button
+          className="mb-4"
+          variant={finalRosterOnly ? "default" : "outline"}
+          onClick={() => onFinalRosterOnlyChange(!finalRosterOnly)}
+          aria-pressed={finalRosterOnly}
+        >
+          {finalRosterOnly ? "显示全部报名" : "切换最终名单"}
+        </Button>
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg bg-muted/40 p-3">
+          <Badge variant="outline">总人数 {visible.length}</Badge>
+          {(["TANK", "HEALER", "MELEE", "RANGED"] as const).map((role) => (
+            <Badge key={role} variant="secondary">
+              {roleLabels[role]} {roleCounts[role]}
+            </Badge>
+          ))}
+        </div>
         {mutation.error ? (
           <Alert variant="destructive">
             <AlertTitle>名单操作失败</AlertTitle>
@@ -875,7 +998,9 @@ function SignupRoster({ activity, onChanged }: { activity: ActivityDetail; onCha
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>成员 / 角色</TableHead>
+                <TableHead>成员</TableHead>
+                <TableHead>报名角色</TableHead>
+                <TableHead>职业 / 专精</TableHead>
                 <TableHead>职责</TableHead>
                 <TableHead>状态</TableHead>
                 <TableHead>分组</TableHead>
@@ -887,15 +1012,30 @@ function SignupRoster({ activity, onChanged }: { activity: ActivityDetail; onCha
               {visible.map((signup) => (
                 <TableRow key={signup.id}>
                   <TableCell>
-                    <p className="font-medium">{signup.memberName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      <GameIcon
-                        src={signup.character.classIconUrl}
-                        alt=""
-                        className="mr-1 inline-block size-4 rounded align-[-3px]"
-                      />
-                      {signup.character.name} · {signup.character.realm}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <UserIdentity user={signup.member} />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <GameIcon src={signup.character.classIconUrl} alt="" className="size-6 rounded" />
+                      <ClassAccent color={signup.character.classColor}>
+                        {signup.character.name} · {signup.character.realm}
+                      </ClassAccent>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {(() => {
+                      const spec = signup.character.availableSpecs.find((entry) => entry.id === signup.preferredSpecId);
+                      return spec ? (
+                        <div className="flex items-center gap-2">
+                          <GameIcon src={spec.iconUrl} alt="" className="size-5 rounded" />
+                          <span>{spec.name}</span>
+                        </div>
+                      ) : (
+                        "未指定"
+                      );
+                    })()}
                   </TableCell>
                   <TableCell>{signup.preferredRole ? roleLabels[signup.preferredRole] : "未指定"}</TableCell>
                   <TableCell>
@@ -904,7 +1044,23 @@ function SignupRoster({ activity, onChanged }: { activity: ActivityDetail; onCha
                     </Badge>
                   </TableCell>
                   <TableCell>{signup.groupNo ? `${signup.groupNo} 组` : "—"}</TableCell>
-                  <TableCell className="max-w-56 truncate">{signup.note ?? "—"}</TableCell>
+                  <TableCell className="max-w-56">
+                    {signup.note ? (
+                      <HoverCard>
+                        <HoverCardTrigger asChild>
+                          <button
+                            type="button"
+                            className="block max-w-56 truncate text-left underline decoration-dotted"
+                          >
+                            {signup.note}
+                          </button>
+                        </HoverCardTrigger>
+                        <HoverCardContent className="max-w-sm whitespace-pre-wrap">{signup.note}</HoverCardContent>
+                      </HoverCard>
+                    ) : (
+                      "—"
+                    )}
+                  </TableCell>
                   {activity.canManage ? (
                     <TableCell className="text-right">
                       <DecisionDialog activity={activity} signup={signup} onChanged={onChanged} />
@@ -917,6 +1073,63 @@ function SignupRoster({ activity, onChanged }: { activity: ActivityDetail; onCha
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function BulkConfirmDialog({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string>();
+  const pending = activity.signups.filter((signup) => signup.status === "PENDING");
+  const mutation = useMutation({
+    mutationFn: () =>
+      apiRequest(`/activities/${activity.id}/signups/confirm-pending`, activityBulkConfirmResultSchema, {
+        method: "POST",
+      }),
+    onSuccess: async () => {
+      setOpen(false);
+      await onChanged();
+    },
+    onError: (reason) => setError(reason.message),
+  });
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" disabled={pending.length === 0}>
+          一键确认
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>一键确认待确认报名</DialogTitle>
+          <DialogDescription>将确认以下 {pending.length} 人。替补和已拒绝报名不会被一键确认。</DialogDescription>
+        </DialogHeader>
+        <div className="max-h-64 overflow-y-auto rounded-md border">
+          {pending.map((signup) => (
+            <div key={signup.id} className="border-b px-3 py-2 last:border-b-0">
+              <p className="truncate font-medium">{signup.memberName}</p>
+              <p className="truncate text-xs text-muted-foreground">
+                {signup.character.name} · {signup.character.realm}
+              </p>
+            </div>
+          ))}
+        </div>
+        {error ? (
+          <Alert variant="destructive">
+            <AlertTitle>批量确认失败</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            返回
+          </Button>
+          <Button disabled={!pending.length || mutation.isPending} onClick={() => mutation.mutate()}>
+            {mutation.isPending ? <Spinner data-icon="inline-start" /> : <Check data-icon="inline-start" />}
+            确认 {pending.length} 人
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

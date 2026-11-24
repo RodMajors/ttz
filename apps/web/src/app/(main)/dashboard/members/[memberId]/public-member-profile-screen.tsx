@@ -50,9 +50,9 @@ function ProfileContent({ profile }: { profile: PublicMemberProfile }) {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-5">
       <Button asChild variant="ghost" className="w-fit">
-        <Link href="/dashboard/activities">
+        <Link href="/dashboard/members">
           <ArrowLeft data-icon="inline-start" />
-          返回活动
+          返回成员列表
         </Link>
       </Button>
       <Card>
@@ -92,6 +92,8 @@ function ProfileContent({ profile }: { profile: PublicMemberProfile }) {
                         主角色
                       </Badge>
                     ) : null}
+                    {character.isRetired ? <Badge variant="destructive">已退役</Badge> : null}
+                    {character.verificationStatus !== "VERIFIED" ? <Badge variant="secondary">未验证</Badge> : null}
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {character.realm} · {character.className}

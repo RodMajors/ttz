@@ -19,6 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UserIdentity } from "@/components/user-identity";
 import { apiRequest } from "@/lib/api-client";
 import { AttendanceStatusBadge } from "../_components/attendance-status";
 import { MemberTable } from "../_components/member-table";
@@ -101,15 +102,16 @@ export function DashboardOverview() {
           <CardContent className="flex flex-col gap-3">
             {upcoming.length ? (
               upcoming.map((activity) => (
-                <Link
+                <div
                   key={activity.id}
-                  href={`/dashboard/activities/${activity.id}`}
                   className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 transition-colors hover:bg-muted"
                 >
                   <div>
-                    <p className="font-medium">{activity.name}</p>
+                    <Link className="font-medium hover:underline" href={`/dashboard/activities/${activity.id}`}>
+                      {activity.name}
+                    </Link>
                     <p className="text-xs text-muted-foreground">
-                      {formatDate(activity.beginAt)} · {activity.creatorName}
+                      {formatDate(activity.beginAt)} · <UserIdentity user={activity.creator} />
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -124,7 +126,7 @@ export function DashboardOverview() {
                           : "已截止"}
                     </Badge>
                   </div>
-                </Link>
+                </div>
               ))
             ) : (
               <p className="text-sm text-muted-foreground">暂无近期活动。</p>

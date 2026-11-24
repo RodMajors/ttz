@@ -5,7 +5,7 @@
   <view class="card" wx:elif="{{activities.length === 0}}"><view class="section-title">暂无活动</view><view class="muted">发布活动后会显示在这里。</view></view>
   <view class="activity-card" wx:for="{{activities}}" wx:key="id" data-id="{{item.id}}" bindtap="openActivity">
     <view class="activity-row"><view class="section-title">{{item.name}}</view><view class="status-pill">{{item.statusLabel}}</view></view>
-    <view class="muted">{{item.beginAtLabel}} · {{item.creatorName}}</view>
+    <view class="muted">{{item.beginAtLabel}} · {{item.creator.name}}</view>
     <view class="muted">{{item.confirmedCount}} 人已确认 / {{item.signupCount}} 人报名</view>
   </view>
 </view>
