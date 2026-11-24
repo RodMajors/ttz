@@ -1,0 +1,14 @@
+apps/web/src/app/(main)/dashboard/activities/new/activity-create-form.tsx
+  h_745ff005454789 281-282
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3dfd15dddfa9a831e8fcb8702fe82403e70b91b2",
+  "prompts": {},
+  "humans": {
+    "h_745ff005454789": {
+      "author": "RodMajors <pro-vana@outlook.com>"
+    }
+  }
+}
