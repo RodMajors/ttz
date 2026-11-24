@@ -152,8 +152,6 @@ export function ActivityCreateForm() {
               </div>
               {activityType === "raid_progress" || activityType === "raid_farm" ? (
                 <FieldSet>
-                  <FieldLegend>团本进度与战术快照</FieldLegend>
-                  <FieldDescription>选择长期进度计划和本场目标 Boss。未选择战术版本时会生成空白快照。</FieldDescription>
                   <FieldGroup>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <Field>
@@ -258,7 +256,6 @@ export function ActivityCreateForm() {
                 </FieldSet>
               ) : null}
               <ActivityScheduleFields />
-              <ActivityRosterGuidance />
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field>
                   <FieldLabel htmlFor="passphrase">进组暗号 / 语音频道</FieldLabel>
@@ -280,8 +277,9 @@ export function ActivityCreateForm() {
               <Field>
                 <FieldLabel htmlFor="description">说明</FieldLabel>
                 <Textarea id="description" name="description" maxLength={10000} placeholder="活动要求、集合说明等" />
-                <FieldDescription>站位和团本准备事项不在本期活动模型中，后续由模板功能承载。</FieldDescription>
               </Field>
+
+              <ActivityRosterGuidance />
               <Field orientation="horizontal">
                 <Checkbox id="attendanceEnabled" name="attendanceEnabled" defaultChecked className="cursor-pointer" />
                 <FieldLabel htmlFor="attendanceEnabled">计入团本开荒出勤统计</FieldLabel>
