@@ -1,0 +1,37 @@
+apps/miniapp/miniprogram/pages/activity-create/index.wxml
+  s_d0b0c16abfe273::t_eaa3201683558e 6-20,22-27
+apps/miniapp/src/miniprogram/pages/activity-create/index.wxml
+  s_d0b0c16abfe273::t_3e1ea18c97c5bb 14-18
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/[versionId]/page.tsx
+  s_d0b0c16abfe273::t_e501a27e7efbb4 1,3,5
+apps/web/src/app/(main)/dashboard/raids/page.tsx
+  s_d0b0c16abfe273::t_fd3a28816c928b 1-8
+apps/web/src/app/(main)/dashboard/raids/strategies/[versionId]/page.tsx
+  s_d0b0c16abfe273::t_93ffa0df4087ac 1-9
+apps/web/src/navigation/sidebar/sidebar-items.ts
+  s_91209f3f10bb14::t_a5cf2ea2aa5a3b 57-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "00bb682716b0e255da893e037d3da9f8af537c4c",
+  "prompts": {},
+  "sessions": {
+    "s_91209f3f10bb14": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ce5e-3ad5-7553-9333-b05a2d9c46fd",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    },
+    "s_d0b0c16abfe273": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f796-5bec-7292-ac04-125fbae10083",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
