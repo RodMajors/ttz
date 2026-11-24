@@ -63,30 +63,34 @@ export function ActivityScheduleFields({
           </Select>
         </Field>
       </div>
-      <Field>
-        <FieldLabel htmlFor="signupDeadline-date">报名截止时间</FieldLabel>
-        <DateTimePicker
-          id="signupDeadline-date"
-          label="报名截止时间"
-          value={signupDeadline}
-          onChange={(value) => {
-            setManualDeadline(value);
-            setFollowsDeadline(false);
-          }}
-        />
-      </Field>
-      <Field>
-        <FieldLabel htmlFor="teamUpAt-date">集合时间</FieldLabel>
-        <DateTimePicker
-          id="teamUpAt-date"
-          label="集合时间"
-          value={teamUpAt}
-          onChange={(value) => {
-            setManualTeamUp(value);
-            setFollowsTeamUp(false);
-          }}
-        />
-      </Field>
+      <FieldGroup>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field>
+            <FieldLabel htmlFor="signupDeadline-date">报名截止时间</FieldLabel>
+            <DateTimePicker
+              id="signupDeadline-date"
+              label="报名截止时间"
+              value={signupDeadline}
+              onChange={(value) => {
+                setManualDeadline(value);
+                setFollowsDeadline(false);
+              }}
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="teamUpAt-date">集合时间</FieldLabel>
+            <DateTimePicker
+              id="teamUpAt-date"
+              label="集合时间"
+              value={teamUpAt}
+              onChange={(value) => {
+                setManualTeamUp(value);
+                setFollowsTeamUp(false);
+              }}
+            />
+          </Field>
+        </div>
+      </FieldGroup>
     </FieldGroup>
   );
 }
@@ -105,7 +109,12 @@ function DateTimePicker({
   const [datePart, timePart = "21:00"] = value.split("T");
   const selectedDate = parseLocalDate(datePart);
   const triggerLabel = selectedDate
-    ? selectedDate.toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric", weekday: "short" })
+    ? selectedDate.toLocaleDateString("zh-CN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "short",
+      })
     : "选择日期";
 
   return (

@@ -10,7 +10,10 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { apiRequest } from "@/lib/api-client";
 
-export type CharacterPickerSelection = { memberName: string; character: CharacterSummary };
+export type CharacterPickerSelection = {
+  memberName: string;
+  character: CharacterSummary;
+};
 
 export function CharacterPicker({
   id,
@@ -42,7 +45,7 @@ export function CharacterPicker({
     : null;
   const label = selected
     ? `${selected.character.name} · ${selected.character.realm} · ${selected.memberName}`
-    : "搜索邀请角色";
+    : "搜索角色";
 
   function choose(result: CharacterPickerSelection | null) {
     setSelection(result);
@@ -70,7 +73,7 @@ export function CharacterPicker({
             aria-expanded={open}
             className="min-w-0 flex-1 justify-between font-normal cursor-pointer"
           >
-            <span className="truncate">{label}</span>
+            <span className={selected ? "truncate" : "truncate text-muted-foreground"}>{label}</span>
             <ChevronsUpDown className="ml-2 size-4 shrink-0 text-muted-foreground" />
           </Button>
         </PopoverTrigger>
@@ -123,7 +126,7 @@ export function CharacterPicker({
         </PopoverContent>
       </Popover>
       {value ? (
-        <Button type="button" size="icon" variant="ghost" aria-label="清除邀请角色" onClick={() => choose(null)}>
+        <Button type="button" size="icon" variant="ghost" aria-label="清除角色" onClick={() => choose(null)}>
           <X />
         </Button>
       ) : null}

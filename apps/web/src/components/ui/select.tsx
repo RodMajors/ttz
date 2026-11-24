@@ -27,7 +27,10 @@ function Select<T extends object>({
   placeholder,
   required,
   ...props
-}: Omit<SelectProps<T>, "children" | "selectedKey" | "defaultSelectedKey" | "onSelectionChange"> & {
+}: Omit<
+  SelectProps<T>,
+  "children" | "selectedKey" | "defaultSelectedKey" | "onSelectionChange"
+> & {
   children?: React.ReactNode;
   value?: string;
   defaultValue?: string;
@@ -51,11 +54,25 @@ function Select<T extends object>({
   );
 }
 
-function SelectGroup<T extends object>({ className, ...props }: React.ComponentProps<typeof AriaListBoxSection<T>>) {
-  return <AriaListBoxSection data-slot="select-group" className={cn("p-1", className)} {...props} />;
+function SelectGroup<T extends object>({
+  className,
+  ...props
+}: React.ComponentProps<typeof AriaListBoxSection<T>>) {
+  return (
+    <AriaListBoxSection
+      data-slot="select-group"
+      className={cn("p-1", className)}
+      {...props}
+    />
+  );
 }
 
-function SelectValue<T extends object>({ className, children, placeholder, ...props }: SelectValueProps<T> & { placeholder?: string }) {
+function SelectValue<T extends object>({
+  className,
+  children,
+  placeholder,
+  ...props
+}: SelectValueProps<T> & { placeholder?: string }) {
   return (
     <AriaSelectValue
       data-slot="select-value"
@@ -64,7 +81,8 @@ function SelectValue<T extends object>({ className, children, placeholder, ...pr
     >
       {typeof children === "function"
         ? children
-        : ({ defaultChildren, isPlaceholder }) => (isPlaceholder ? placeholder : defaultChildren)}
+        : ({ defaultChildren, isPlaceholder }) =>
+            isPlaceholder ? placeholder : defaultChildren}
     </AriaSelectValue>
   );
 }
@@ -88,7 +106,10 @@ function SelectTrigger({
       {composeRenderProps(children, (renderedChildren) => (
         <>
           {renderedChildren}
-          <ChevronDown aria-hidden="true" className="size-4 text-muted-foreground" />
+          <ChevronDown
+            aria-hidden="true"
+            className="size-4 text-muted-foreground"
+          />
         </>
       ))}
     </AriaButton>
@@ -112,7 +133,7 @@ function SelectContent({
       placement={placement}
       offset={offset}
       className={cn(
-        "z-50 w-(--trigger-width) overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md outline-none ring-1 ring-foreground/10 duration-150 ease-out data-[entering]:animate-in data-[entering]:fade-in-0 data-[entering]:zoom-in-95 data-[entering]:slide-in-from-top-1 data-[exiting]:animate-out data-[exiting]:fade-out-0 data-[exiting]:zoom-out-95 data-[exiting]:slide-out-to-top-1 cursor-pointer",
+        "z-50 w-(--trigger-width) overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md outline-none ring-1 ring-foreground/10 duration-50 ease-out data-entering:animate-in data-entering:fade-in-0 data-entering:zoom-in-95 data-entering:slide-in-from-top-1 data-exiting:animate-out data-exiting:fade-out-0 data-exiting:zoom-out-95 data-exiting:slide-out-to-top-1 cursor-pointer",
         className,
       )}
       {...props}
@@ -139,7 +160,7 @@ function SelectItem({
       id={value ?? props.id}
       textValue={typeof children === "string" ? children : undefined}
       className={cn(
-        "relative flex w-full cursor-default items-center gap-2 rounded-md py-1.5 pr-8 pl-2 text-sm outline-none select-none data-focused:bg-accent data-focused:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 data-selected:bg-accent data-selected:text-accent-foreground cursor-pointer",
+        "relative flex w-full items-center gap-2 rounded-md py-1.5 pr-8 pl-2 text-sm outline-none select-none data-focused:bg-accent data-focused:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 data-selected:bg-accent data-selected:text-accent-foreground cursor-pointer",
         className,
       )}
       {...props}
@@ -156,16 +177,44 @@ function SelectItem({
   );
 }
 
-function SelectLabel({ className, ...props }: React.ComponentProps<typeof AriaHeader>) {
-  return <AriaHeader data-slot="select-label" className={cn("px-2 py-1.5 text-xs text-muted-foreground", className)} {...props} />;
+function SelectLabel({
+  className,
+  ...props
+}: React.ComponentProps<typeof AriaHeader>) {
+  return (
+    <AriaHeader
+      data-slot="select-label"
+      className={cn("px-2 py-1.5 text-xs text-muted-foreground", className)}
+      {...props}
+    />
+  );
 }
 
-function SelectSeparator({ className, ...props }: React.ComponentProps<typeof AriaSeparator>) {
-  return <AriaSeparator data-slot="select-separator" className={cn("my-1 h-px bg-border", className)} {...props} />;
+function SelectSeparator({
+  className,
+  ...props
+}: React.ComponentProps<typeof AriaSeparator>) {
+  return (
+    <AriaSeparator
+      data-slot="select-separator"
+      className={cn("my-1 h-px bg-border", className)}
+      {...props}
+    />
+  );
 }
 
 function SelectList<T extends object>(props: ListBoxProps<T>) {
   return <AriaListBox {...props} />;
 }
 
-export { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectList, SelectSeparator, SelectTrigger, SelectValue };
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectList,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+};

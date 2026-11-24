@@ -52,7 +52,10 @@ export function ActivityCreateForm() {
   const selectedPlan = plans.data?.find((plan) => plan.id === planId);
   const mutation = useMutation({
     mutationFn: (input: z.infer<typeof createActivitySchema>) =>
-      apiRequest("/activities", createdSchema, { method: "POST", body: JSON.stringify(input) }),
+      apiRequest("/activities", createdSchema, {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["activities"] });
       router.push("/dashboard/activities");
@@ -115,36 +118,38 @@ export function ActivityCreateForm() {
       <Card>
         <CardHeader>
           <CardTitle>创建活动</CardTitle>
-          <CardDescription>活动先保存为草稿，发布后成员才可报名。集合时间默认比开始时间提前 20 分钟。</CardDescription>
+          <CardDescription>活动创建后将保存为草稿，发布后成员才可报名。</CardDescription>
         </CardHeader>
         <form onSubmit={submit}>
           <CardContent>
             <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="name">活动名称</FieldLabel>
-                <Input id="name" name="name" required maxLength={64} placeholder="例如：M 团本开荒" />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="type">活动类型</FieldLabel>
-                <Select
-                  name="type"
-                  value={activityType}
-                  onValueChange={(value) => setActivityType(value as ActivityTypeCode)}
-                >
-                  <SelectTrigger id="type" className="cursor-pointer">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="raid_progress">团本开荒</SelectItem>
-                      <SelectItem value="raid_farm">团本 Farm</SelectItem>
-                      <SelectItem value="mythic_plus_push">大秘境冲层</SelectItem>
-                      <SelectItem value="mythic_plus_vault">大秘境低保</SelectItem>
-                      <SelectItem value="casual">休闲活动</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Field>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field>
+                  <FieldLabel htmlFor="name">活动名称</FieldLabel>
+                  <Input id="name" name="name" required maxLength={64} placeholder="例如：M 团本开荒" />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="type">活动类型</FieldLabel>
+                  <Select
+                    name="type"
+                    value={activityType}
+                    onValueChange={(value) => setActivityType(value as ActivityTypeCode)}
+                  >
+                    <SelectTrigger id="type" className="cursor-pointer">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="raid_progress">团本开荒</SelectItem>
+                        <SelectItem value="raid_farm">团本 Farm</SelectItem>
+                        <SelectItem value="mythic_plus_push">大秘境冲层</SelectItem>
+                        <SelectItem value="mythic_plus_vault">大秘境低保</SelectItem>
+                        <SelectItem value="casual">休闲活动</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
               {activityType === "raid_progress" || activityType === "raid_farm" ? (
                 <FieldSet>
                   <FieldLegend>团本进度与战术快照</FieldLegend>
@@ -209,9 +214,9 @@ export function ActivityCreateForm() {
                                   );
                                 }}
                               />
-                              <FieldLabel htmlFor={`boss-${boss.id}`} className="min-w-40 cursor-pointer">
-                                <span className="flex items-center gap-2">
-                                  <GameIcon src={boss.icon} className="size-7 shrink-0 rounded object-contain" />
+                              <FieldLabel htmlFor={`boss-${boss.id}`} className="w-1/2 cursor-pointer font-bold">
+                                <span className="flex items-center gap-2 nowrap">
+                                  <GameIcon src={boss.icon} className="w-20 shrink-0 rounded object-contain" />
                                   {boss.name}
                                 </span>
                               </FieldLabel>

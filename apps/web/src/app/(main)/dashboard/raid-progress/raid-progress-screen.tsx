@@ -591,7 +591,7 @@ function BossProgressRow({ planId, boss }: { planId: string; boss: Plan["bosses"
               onError={(event) => {
                 event.currentTarget.hidden = true;
               }}
-              className="size-8 shrink-0 object-contain"
+              className="w-20 object-contain"
             />
             <span>{boss.name}</span>
           </div>
@@ -664,8 +664,14 @@ function BossProgressRow({ planId, boss }: { planId: string; boss: Plan["bosses"
               ) : chartAttempts?.length ? (
                 <ChartContainer
                   config={{
-                    bossPercent: { label: "Boss 剩余血量", color: "var(--muted-foreground)" },
-                    fightPercent: { label: "整体战斗进度", color: "var(--color-orange-500)" },
+                    bossPercent: {
+                      label: "Boss 剩余血量",
+                      color: "var(--muted-foreground)",
+                    },
+                    fightPercent: {
+                      label: "整体战斗进度",
+                      color: "var(--color-orange-500)",
+                    },
                   }}
                   className="h-56 w-full aspect-auto"
                 >
