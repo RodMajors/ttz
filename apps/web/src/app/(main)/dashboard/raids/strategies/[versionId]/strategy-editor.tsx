@@ -185,7 +185,7 @@ export function StrategyEditor({ versionId }: { versionId: string }) {
   return (
     <div className="flex flex-col gap-5">
       <Button asChild variant="ghost" className="w-fit">
-        <Link href="/dashboard/raid-progress">
+        <Link href="/dashboard/raids">
           <ArrowLeft data-icon="inline-start" />
           返回团本进度
         </Link>

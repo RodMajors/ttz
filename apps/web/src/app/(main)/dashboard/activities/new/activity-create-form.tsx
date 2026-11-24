@@ -50,15 +50,16 @@ export function ActivityCreateForm() {
     queryKey: ["raid-progress", "catalog"],
     queryFn: () => apiRequest("/raid-progress/catalog", raidCatalogSchema),
   });
-  const strategies = useQuery({
-    queryKey: ["raid-progress", "strategies", planId],
-    queryFn: () => apiRequest(`/raid-progress/plans/${planId}/strategies`, publishedRaidStrategySchema),
-    enabled: Boolean(planId),
-  });
   const selectedPlan = plans.data?.find((plan) => plan.id === planId);
   const selectedRaidId = selectedPlan?.raidId ?? raidId;
   const selectedRaid = catalog.data?.find((raid) => raid.id === selectedRaidId);
-  const availableBosses = selectedPlan?.bosses ?? selectedRaid?.bosses ?? [];
+  const availableBosses =
+    selectedPlan?.bosses ?? selectedRaid?.bosses.filter((boss) => !boss.excludeFromProgress) ?? [];
+  const strategies = useQuery({
+    queryKey: ["raid-progress", "strategies", selectedRaidId],
+    queryFn: () => apiRequest(`/raid-progress/raids/${selectedRaidId}/strategies`, publishedRaidStrategySchema),
+    enabled: Boolean(selectedRaidId),
+  });
   const mutation = useMutation({
     mutationFn: (input: z.infer<typeof createActivitySchema>) =>
       apiRequest("/activities", createdSchema, {
@@ -232,9 +233,7 @@ export function ActivityCreateForm() {
                     {selectedRaidId ? (
                       <div className="flex flex-col gap-3">
                         <div className="flex items-center justify-between">
-                          <FieldLabel>
-                            {selectedPlan ? "计划目标 Boss 与战术快照" : "选择本次活动涉及的 Boss"}
-                          </FieldLabel>
+                          <FieldLabel>"选择本次活动的 Boss 与战术快照（可选）"</FieldLabel>
                           <div className="flex gap-2">
                             <Button
                               type="button"
@@ -251,9 +250,7 @@ export function ActivityCreateForm() {
                         </div>
                         {availableBosses.map((boss) => {
                           const checked = selectedBosses.includes(boss.id);
-                          const options = selectedPlan
-                            ? (strategies.data?.filter((strategy) => strategy.bossId === boss.id) ?? [])
-                            : [];
+                          const options = strategies.data?.filter((strategy) => strategy.bossId === boss.id) ?? [];
                           return (
                             <Field key={boss.id} orientation="horizontal">
                               <Checkbox
@@ -274,7 +271,7 @@ export function ActivityCreateForm() {
                                   {boss.name}
                                 </span>
                               </FieldLabel>
-                              {checked && selectedPlan ? (
+                              {checked ? (
                                 <Select
                                   value={strategyByBoss[boss.id] ?? "blank"}
                                   onValueChange={(value) =>

@@ -11,6 +11,11 @@
         <checkbox-group bindchange="selectBosses">
           <label wx:for="{{availableBosses}}" wx:key="id" class="switch-row"><checkbox value="{{item.id}}" checked="{{selectedBosses.indexOf(item.id) >= 0}}" />{{item.name}}</label>
         </checkbox-group>
+        <block wx:for="{{availableBosses}}" wx:key="id">
+          <label wx:if="{{selectedBosses.indexOf(item.id) >= 0}}" class="strategy-picker">{{item.name}} 战术方案（可选）
+            <picker range="{{item.strategyLabels}}" value="{{item.strategyIndex}}" data-boss-id="{{item.id}}" bindchange="selectStrategy"><view class="picker">{{item.strategyLabels[item.strategyIndex]}}</view></picker>
+          </label>
+        </block>
       </view>
     </view>
     <view class="two-column"><label>开始日期<picker mode="date" value="{{beginDate}}" bindchange="selectBeginDate"><view class="picker">{{beginDate}}</view></picker></label><label>开始时间<picker mode="time" value="{{beginTime}}" bindchange="selectBeginTime"><view class="picker">{{beginTime}}</view></picker></label></view>

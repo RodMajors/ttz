@@ -7,7 +7,7 @@ import {
   bossStrategyManagementListSchema,
   bossStrategyUpdateSchema,
   idSchema,
-  raidProgressPlanListSchema,
+  raidCatalogSchema,
   strategyMutationResultSchema,
   strategyStatusResultSchema,
 } from "@ttz/contracts";
@@ -28,7 +28,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -39,15 +39,15 @@ import { apiRequest } from "@/lib/api-client";
 
 const versionCreatedSchema = z.object({ id: idSchema, versionNo: z.number().int() });
 type ManagedStrategy = z.infer<typeof bossStrategyManagementListSchema>[number];
-type Plan = z.infer<typeof raidProgressPlanListSchema>[number];
+type Raid = z.infer<typeof raidCatalogSchema>[number];
 const statusLabel = { DRAFT: "草稿 / 待审核", PUBLISHED: "已发布", ARCHIVED: "版本已归档" } as const;
 
 export function StrategyManagementScreen() {
   const client = useQueryClient();
   const me = useQuery({ queryKey: ["auth", "me"], queryFn: () => apiRequest("/auth/me", authUserSchema) });
-  const plans = useQuery({
-    queryKey: ["raid-progress", "plans"],
-    queryFn: () => apiRequest("/raid-progress/plans", raidProgressPlanListSchema),
+  const catalog = useQuery({
+    queryKey: ["raid-progress", "catalog"],
+    queryFn: () => apiRequest("/raid-progress/catalog", raidCatalogSchema),
   });
   const strategies = useQuery({
     queryKey: ["raid-progress", "strategy-management"],
@@ -57,10 +57,10 @@ export function StrategyManagementScreen() {
   const refresh = async () => {
     await Promise.all([
       client.invalidateQueries({ queryKey: ["raid-progress", "strategy-management"] }),
-      client.invalidateQueries({ queryKey: ["raid-progress", "plans"] }),
+      client.invalidateQueries({ queryKey: ["raid-progress", "catalog"] }),
     ]);
   };
-  const pending = me.isPending || plans.isPending || ((me.data?.privilege ?? 0) >= 1 && strategies.isPending);
+  const pending = me.isPending || catalog.isPending || ((me.data?.privilege ?? 0) >= 1 && strategies.isPending);
   if (pending)
     return (
       <div className="flex flex-col gap-4">
@@ -68,7 +68,7 @@ export function StrategyManagementScreen() {
         <Skeleton className="h-72 w-full" />
       </div>
     );
-  const error = me.error ?? plans.error ?? strategies.error;
+  const error = me.error ?? catalog.error ?? strategies.error;
   if (error)
     return (
       <Alert variant="destructive">
@@ -87,59 +87,58 @@ export function StrategyManagementScreen() {
     );
   const list = strategies.data ?? [];
   const grouped = new Map<string, ManagedStrategy[]>();
-  for (const strategy of list)
-    grouped.set(strategy.progressPlanId, [...(grouped.get(strategy.progressPlanId) ?? []), strategy]);
+  for (const strategy of list) grouped.set(strategy.bossId, [...(grouped.get(strategy.bossId) ?? []), strategy]);
 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <Button asChild variant="ghost" className="mb-2 -ml-3">
-            <Link href="/dashboard/raid-progress">
+            <Link href="/dashboard/raids">
               <ArrowLeft data-icon="inline-start" />
-              返回团本进度
+              返回团本
             </Link>
           </Button>
-          <p className="text-sm text-muted-foreground">模板 · 草稿 · 发布审核 · 版本归档</p>
-          <h1 className="text-3xl font-semibold tracking-tight">战术方案管理</h1>
+          <p className="text-sm text-muted-foreground">按团本与 Boss 管理 · 草稿 · 发布审核 · 版本归档</p>
+          <h1 className="text-3xl font-semibold tracking-tight">团本战术</h1>
         </div>
-        <CreateStrategyDialog plans={plans.data ?? []} onChanged={refresh} />
       </div>
       <Alert>
         <ShieldCheck />
         <AlertTitle>发布权限</AlertTitle>
         <AlertDescription>
-          草稿和版本编辑仅管理员可操作；发布视为审核通过并生成不可变版本。归档保留历史快照，不会硬删除引用中的战术。
+          战术方案归属于 Boss，可跨进度计划复用。发布后活动可按 Boss 选择版本并保存独立快照。
         </AlertDescription>
       </Alert>
       {list.length === 0 ? (
         <Empty className="min-h-64 border">
           <EmptyHeader>
             <EmptyTitle>还没有战术方案</EmptyTitle>
-            <EmptyDescription>
-              选择进度计划与 Boss 创建方案草稿；创建后可从这里继续管理，不会丢失入口。
-            </EmptyDescription>
+            <EmptyDescription>选择团本与 Boss 创建方案草稿；创建后可从这里继续管理。</EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : null}
-      {(plans.data ?? []).map((plan) => (
-        <Card key={plan.id}>
+      {(catalog.data ?? []).map((raid) => (
+        <Card key={raid.id}>
           <CardHeader>
-            <CardTitle>{plan.name}</CardTitle>
-            <CardDescription>
-              {plan.raidName} · {plan.difficulty === "MYTHIC" ? "史诗" : "英雄"} · {plan.season}
-            </CardDescription>
-            <CardAction>
-              <CreateStrategyDialog plans={[plan]} onChanged={refresh} />
-            </CardAction>
+            <CardTitle>{raid.name}</CardTitle>
+            <CardDescription>团本 Boss 与可复用战术方案</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-3">
-            {(grouped.get(plan.id) ?? []).map((strategy) => (
-              <StrategyCard key={strategy.id} strategy={strategy} onChanged={refresh} />
+          <CardContent className="flex flex-col gap-5">
+            {raid.bosses.map((boss) => (
+              <section key={boss.id} className="flex flex-col gap-3 border-t pt-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="font-semibold">{boss.name}</h2>
+                  <CreateStrategyDialog raids={[raid]} initialBossId={boss.id} onChanged={refresh} />
+                </div>
+                {(grouped.get(boss.id) ?? []).map((strategy) => (
+                  <StrategyCard key={strategy.id} strategy={strategy} onChanged={refresh} />
+                ))}
+                {(grouped.get(boss.id) ?? []).length === 0 ? (
+                  <p className="text-sm text-muted-foreground">此 Boss 尚无战术方案。</p>
+                ) : null}
+              </section>
             ))}
-            {(grouped.get(plan.id) ?? []).length === 0 ? (
-              <p className="text-sm text-muted-foreground">此进度计划还没有方案。选择一个 Boss 创建草稿。</p>
-            ) : null}
           </CardContent>
         </Card>
       ))}
@@ -155,7 +154,7 @@ function StrategyCard({ strategy, onChanged }: { strategy: ManagedStrategy; onCh
       apiRequest(`/raid-progress/strategies/${strategy.id}/versions`, versionCreatedSchema, { method: "POST" }),
     onSuccess: async (version) => {
       await onChanged();
-      window.location.assign(`/dashboard/raid-progress/strategies/${version.id}`);
+      window.location.assign(`/dashboard/raids/strategies/${version.id}`);
     },
     onError: (reason) => setError(reason.message),
   });
@@ -193,8 +192,7 @@ function StrategyCard({ strategy, onChanged }: { strategy: ManagedStrategy; onCh
           </div>
           <p className="mt-1 text-sm text-muted-foreground">{strategy.description || ""}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {strategy.difficulty === "MYTHIC" ? "史诗" : "英雄"} ·{" "}
-            {strategy.planStatus === "ACTIVE" ? "当前进度计划" : "历史进度计划"}
+            {strategy.raidName} · {strategy.bossName}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -261,7 +259,7 @@ function StrategyCard({ strategy, onChanged }: { strategy: ManagedStrategy; onCh
                 </span>
               </div>
               <Button asChild size="sm" variant="outline">
-                <Link href={`/dashboard/raid-progress/strategies/${version.id}`}>
+                <Link href={`/dashboard/raids/strategies/${version.id}`}>
                   {version.status === "DRAFT" ? "继续编辑 / 审核发布" : "查看版本"}
                 </Link>
               </Button>
@@ -275,13 +273,21 @@ function StrategyCard({ strategy, onChanged }: { strategy: ManagedStrategy; onCh
   );
 }
 
-function CreateStrategyDialog({ plans, onChanged }: { plans: Plan[]; onChanged: () => Promise<void> }) {
+function CreateStrategyDialog({
+  raids,
+  initialBossId,
+  onChanged,
+}: {
+  raids: Raid[];
+  initialBossId: string;
+  onChanged: () => Promise<void>;
+}) {
   const [open, setOpen] = useState(false);
-  const [planId, setPlanId] = useState(plans[0]?.id ?? "");
-  const [bossId, setBossId] = useState(plans[0]?.bosses[0]?.id ?? "");
+  const [raidId, setRaidId] = useState(raids[0]?.id ?? "");
+  const [bossId, setBossId] = useState(initialBossId);
   const [error, setError] = useState<string>();
   const client = useQueryClient();
-  const currentPlan = plans.find((plan) => plan.id === planId) ?? plans[0];
+  const currentRaid = raids.find((raid) => raid.id === raidId) ?? raids[0];
   const create = useMutation({
     mutationFn: (body: z.infer<typeof bossStrategyCreateSchema>) =>
       apiRequest("/raid-progress/strategies", strategyMutationResultSchema, {
@@ -300,7 +306,6 @@ function CreateStrategyDialog({ plans, onChanged }: { plans: Plan[]; onChanged: 
     setError(undefined);
     const data = new FormData(event.currentTarget);
     const parsed = bossStrategyCreateSchema.safeParse({
-      progressPlanId: planId,
       bossId,
       name: data.get("name"),
       description: data.get("description") || null,
@@ -326,24 +331,24 @@ function CreateStrategyDialog({ plans, onChanged }: { plans: Plan[]; onChanged: 
         </DialogHeader>
         <form onSubmit={submit}>
           <FieldGroup>
-            {plans.length > 1 ? (
+            {raids.length > 1 ? (
               <Field>
-                <FieldLabel>进度计划</FieldLabel>
+                <FieldLabel>团本</FieldLabel>
                 <Select
-                  value={planId}
+                  value={raidId}
                   onValueChange={(value) => {
-                    setPlanId(value);
-                    setBossId(plans.find((plan) => plan.id === value)?.bosses[0]?.id ?? "");
+                    setRaidId(value);
+                    setBossId(raids.find((raid) => raid.id === value)?.bosses[0]?.id ?? "");
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="选择计划" />
+                    <SelectValue placeholder="选择团本" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      {plans.map((plan) => (
-                        <SelectItem key={plan.id} value={plan.id}>
-                          {plan.name} · {plan.difficulty === "MYTHIC" ? "史诗" : "英雄"}
+                      {raids.map((raid) => (
+                        <SelectItem key={raid.id} value={raid.id}>
+                          {raid.name}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -359,7 +364,7 @@ function CreateStrategyDialog({ plans, onChanged }: { plans: Plan[]; onChanged: 
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {currentPlan?.bosses.map((boss) => (
+                    {currentRaid?.bosses.map((boss) => (
                       <SelectItem key={boss.id} value={boss.id}>
                         {boss.name}
                       </SelectItem>

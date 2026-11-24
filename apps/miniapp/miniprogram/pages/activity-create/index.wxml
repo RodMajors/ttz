@@ -3,10 +3,28 @@
   <form class="card form" bindsubmit="submit">
     <label>活动名称<input name="name" maxlength="64" placeholder="例如：M 团本开荒" /></label>
     <label>活动类型<picker range="{{typeLabels}}" value="{{selectedType}}" bindchange="selectType"><view class="picker">{{typeLabels[selectedType]}}</view></picker></label>
+    <view wx:if="{{selectedType < 2}}">
+      <label>进度计划（可选）<picker range="{{planOptions}}" value="{{selectedPlanIndex}}" bindchange="selectPlan"><view class="picker">{{planOptions[selectedPlanIndex]}}</view></picker></label>
+      <label>指定团本（可选）<picker range="{{raidOptions}}" value="{{selectedRaidIndex}}" bindchange="selectRaid" disabled="{{selectedPlanIndex > 0}}"><view class="picker">{{raidOptions[selectedRaidIndex]}}{{selectedPlanIndex > 0 ? '（由计划锁定）' : ''}}</view></picker></label>
+      <view wx:if="{{selectedRaidId}}" class="boss-picker">
+        <view class="switch-row"><view>目标 Boss</view><view>{{selectedBosses.length}} 已选</view></view>
+        <checkbox-group bindchange="selectBosses">
+          <label wx:for="{{availableBosses}}" wx:key="id" class="switch-row"><checkbox value="{{item.id}}" checked="{{selectedBosses.indexOf(item.id) >= 0}}" />{{item.name}}</label>
+        </checkbox-group>
+        <block wx:for="{{availableBosses}}" wx:key="id">
+          <label wx:if="{{selectedBosses.indexOf(item.id) >= 0}}" class="strategy-picker">{{item.name}} 战术方案（可选）
+            <picker range="{{item.strategyLabels}}" value="{{item.strategyIndex}}" data-boss-id="{{item.id}}" bindchange="selectStrategy"><view class="picker">{{item.strategyLabels[item.strategyIndex]}}</view></picker>
+          </label>
+        </block>
+      </view>
+    </view>
     <view class="two-column"><label>开始日期<picker mode="date" value="{{beginDate}}" bindchange="selectBeginDate"><view class="picker">{{beginDate}}</view></picker></label><label>开始时间<picker mode="time" value="{{beginTime}}" bindchange="selectBeginTime"><view class="picker">{{beginTime}}</view></picker></label></view>
-    <view class="two-column"><label>截止日期<picker mode="date" value="{{deadlineDate}}" bindchange="selectDeadlineDate"><view class="picker">{{deadlineDate}}</view></picker></label><label>截止时间<picker mode="time" value="{{deadlineTime}}" bindchange="selectDeadlineTime"><view class="picker">{{deadlineTime}}</view></picker></label></view>
-    <view class="two-column"><label>人数上限<input name="maxPlayers" type="number" value="20" /></label><label>持续分钟<input name="durationMinutes" type="number" value="120" /></label></view>
-    <label>进组暗号 / 语音频道<input name="passphrase" maxlength="255" /></label>
+    <label>持续分钟<input name="durationMinutes" type="number" value="120" /></label>
+    <view class="two-column"><label>报名截止日期<picker mode="date" value="{{deadlineDate}}" bindchange="selectDeadlineDate"><view class="picker">{{deadlineDate}}</view></picker></label><label>报名截止时间<picker mode="time" value="{{deadlineTime}}" bindchange="selectDeadlineTime"><view class="picker">{{deadlineTime}}</view></picker></label></view>
+    <view class="two-column"><label>集合日期<picker mode="date" value="{{teamUpDate}}" bindchange="selectTeamUpDate"><view class="picker">{{teamUpDate}}</view></picker></label><label>集合时间<picker mode="time" value="{{teamUpTime}}" bindchange="selectTeamUpTime"><view class="picker">{{teamUpTime}}</view></picker></label></view>
+    <view class="switch-row"><view>设置建议人数（仅展示，不限制报名）</view><switch checked="{{hasRosterGuidance}}" bindchange="toggleRosterGuidance" /></view>
+    <view wx:if="{{hasRosterGuidance}}" class="two-column"><label>建议人数<input name="maxPlayers" type="number" min="1" /></label><label>坦克<input name="tankSlots" type="number" min="0" /></label><label>治疗<input name="healerSlots" type="number" min="0" /></label><label>近战<input name="meleeSlots" type="number" min="0" /></label><label>远程<input name="rangedSlots" type="number" min="0" /></label></view>
+    <label>进组暗号 / 语音频道<input name="passphrase" value="123" maxlength="255" /></label>
     <label>活动说明<textarea name="description" maxlength="10000" /></label>
     <view class="switch-row"><view>计入团本开荒出勤</view><switch checked="{{attendanceEnabled}}" bindchange="toggleAttendance" /></view>
     <button class="primary-button" form-type="submit" disabled="{{submitting}}">保存草稿</button>

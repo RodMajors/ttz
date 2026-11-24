@@ -3,15 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   authUserSchema,
-  idSchema,
-  publishedRaidStrategySchema,
   raidBossAttemptListSchema,
   raidBossBestPullGraphSchema,
   raidProgressPlanListSchema,
 } from "@ttz/contracts";
-import { CircleAlert, CloudDownload, Plus, ScrollText } from "lucide-react";
+import { CircleAlert, CloudDownload, ScrollText } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CartesianGrid,
   type DotItemDotProps,
@@ -24,22 +22,12 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 import { z } from "zod";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/app-dialog";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/app-select";
 import { EpicProgressTimeline } from "@/components/epic-progress-timeline";
 import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartLegend,
@@ -48,8 +36,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -74,10 +60,6 @@ const syncProgressSchema = z.object({
   fightsRead: z.number().optional(),
 });
 const syncResultSchema = z.object({ followUpJobIds: z.array(z.string()).default([]) }).passthrough();
-const versionCreatedSchema = z.object({
-  id: idSchema,
-  versionNo: z.number().int(),
-});
 type Plan = z.infer<typeof raidProgressPlanListSchema>[number];
 type BossAttempt = z.infer<typeof raidBossAttemptListSchema>[number];
 type BestPullGraph = z.infer<typeof raidBossBestPullGraphSchema>;
@@ -198,9 +180,9 @@ export function RaidProgressScreen() {
           {canAdmin ? (
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline">
-                <Link href="/dashboard/raid-progress/strategies">
+                <Link href="/dashboard/raids">
                   <ScrollText data-icon="inline-start" />
-                  战术方案管理
+                  团本战术
                 </Link>
               </Button>
               <Button variant="outline" disabled={isSyncWorking} onClick={() => sync.mutate()}>
@@ -212,7 +194,7 @@ export function RaidProgressScreen() {
         </div>
         <div className="flex flex-col gap-5">
           {plans.data?.length ? (
-            plans.data.map((plan) => <PlanTable key={plan.id} plan={plan} canAdmin={canAdmin} />)
+            plans.data.map((plan) => <PlanTable key={plan.id} plan={plan} />)
           ) : (
             <Empty className="border">
               <EmptyHeader>
@@ -242,7 +224,7 @@ function formatDateTime(value: string) {
   return `${get("year")}/${get("month")}/${get("day")} - ${get("hour")}:${get("minute")}:${get("second")}`;
 }
 
-function PlanTable({ plan, canAdmin }: { plan: Plan; canAdmin: boolean }) {
+function PlanTable({ plan }: { plan: Plan }) {
   const difficulty = plan.difficulty === "MYTHIC" ? "史诗" : "英雄";
   return (
     <Card>
@@ -270,9 +252,6 @@ function PlanTable({ plan, canAdmin }: { plan: Plan; canAdmin: boolean }) {
           <Badge variant="outline">{plan.season}</Badge>
         </CardTitle>
         <CardDescription>最近同步 {plan.lastSyncedAt ? formatDateTime(plan.lastSyncedAt) : "尚未同步"}</CardDescription>
-        <CardAction>
-          <StrategyDialog plan={plan} canAdmin={canAdmin} />
-        </CardAction>
       </CardHeader>
       <CardContent>
         <PlanPullSummary plan={plan} />
@@ -786,134 +765,4 @@ function attemptProgressPhase(phaseData: BossAttempt["phaseData"], phaseId: numb
   const phase = phaseData?.phases.find((item) => item.id === phaseId);
   if (!phase) return null;
   return phase.isIntermission ? `转场 · ${phase.name}` : `阶段 ${phaseId} · ${phase.name}`;
-}
-
-function StrategyDialog({ plan, canAdmin }: { plan: Plan; canAdmin: boolean }) {
-  const client = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [bossId, setBossId] = useState(plan.bosses[0]?.id ?? "");
-  const [error, setError] = useState<string>();
-  const strategies = useQuery({
-    queryKey: ["raid-progress", "strategies", plan.id],
-    queryFn: () => apiRequest(`/raid-progress/plans/${plan.id}/strategies`, publishedRaidStrategySchema),
-    enabled: open,
-  });
-  const create = useMutation({
-    mutationFn: (body: unknown) =>
-      apiRequest("/raid-progress/strategies", z.object({ id: idSchema, draftVersionId: idSchema.nullable() }), {
-        method: "POST",
-        body: JSON.stringify(body),
-      }),
-    onSuccess: async (data) => {
-      await client.invalidateQueries({
-        queryKey: ["raid-progress", "strategies", plan.id],
-      });
-      if (data.draftVersionId) window.location.assign(`/dashboard/raid-progress/strategies/${data.draftVersionId}`);
-    },
-    onError: (reason) => setError(reason.message),
-  });
-  const createVersion = useMutation({
-    mutationFn: (strategyId: string) =>
-      apiRequest(`/raid-progress/strategies/${strategyId}/versions`, versionCreatedSchema, { method: "POST" }),
-    onSuccess: (data) => window.location.assign(`/dashboard/raid-progress/strategies/${data.id}`),
-    onError: (reason) => setError(reason.message),
-  });
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    create.mutate({
-      progressPlanId: plan.id,
-      bossId,
-      name: data.get("name"),
-      description: data.get("description") || null,
-    });
-  }
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">{canAdmin ? "战术方案" : "查看战术"}</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{plan.name} · 战术方案</DialogTitle>
-          <DialogDescription>创建草稿并由管理员发布；活动只能引用已发布版本。</DialogDescription>
-        </DialogHeader>
-        {canAdmin ? (
-          <form onSubmit={submit}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel>Boss</FieldLabel>
-                <Select value={bossId} onValueChange={setBossId}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {plan.bosses.map((boss) => (
-                        <SelectItem key={boss.id} value={boss.id}>
-                          {boss.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="strategyName">方案名称</FieldLabel>
-                <Input id="strategyName" name="name" placeholder="例如：稳健打法" required />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="strategyDescription">说明</FieldLabel>
-                <Input id="strategyDescription" name="description" />
-              </Field>
-              {error ? (
-                <Alert variant="destructive">
-                  <AlertTitle>创建失败</AlertTitle>
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              ) : null}
-            </FieldGroup>
-            <DialogFooter className="mt-4">
-              <Button disabled={create.isPending}>
-                {create.isPending ? <Spinner data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
-                新建草稿
-              </Button>
-            </DialogFooter>
-          </form>
-        ) : null}
-        <div className="flex flex-col gap-2">
-          {strategies.data?.map((strategy) => (
-            <div key={strategy.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
-              <div>
-                <p className="font-medium">
-                  {strategy.bossName} · {strategy.name}
-                </p>
-                <p className="text-xs text-muted-foreground">已发布 {strategy.versions.length} 个版本</p>
-              </div>
-              <div className="flex items-center gap-2">
-                {strategy.isDefault ? <Badge>默认</Badge> : null}
-                {strategy.versions[0] ? (
-                  <Button asChild variant="outline" size="sm">
-                    <a href={`/dashboard/raid-progress/strategies/${strategy.versions[0].id}`}>
-                      查看 v{strategy.versions[0].versionNo}
-                    </a>
-                  </Button>
-                ) : null}
-                {canAdmin ? (
-                  <Button
-                    size="sm"
-                    disabled={createVersion.isPending}
-                    onClick={() => createVersion.mutate(strategy.id)}
-                  >
-                    {createVersion.isPending ? <Spinner data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
-                    新建草稿
-                  </Button>
-                ) : null}
-              </div>
-            </div>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
 }

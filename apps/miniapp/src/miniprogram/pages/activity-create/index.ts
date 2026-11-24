@@ -1,9 +1,22 @@
 import { apiRequest } from "../../lib/api";
 
 const typeValues = ["raid_progress", "raid_farm", "mythic_plus_push", "mythic_plus_vault", "casual"];
-type RaidBoss = { id: string; name: string; icon: string | null; wclId: number; orderIndex: number };
+type RaidBoss = {
+  id: string;
+  name: string;
+  icon: string | null;
+  wclId: number;
+  orderIndex: number;
+  excludeFromProgress?: boolean;
+};
 type Raid = { id: string; name: string; bosses: RaidBoss[] };
 type ProgressPlan = { id: string; raidId: string; name: string; difficulty: string; bosses: RaidBoss[] };
+type PublishedStrategy = {
+  bossId: string;
+  name: string;
+  versions: { id: string; versionNo: number }[];
+};
+type SelectableBoss = RaidBoss & { strategyLabels: string[]; strategyVersionIds: string[]; strategyIndex: number };
 
 Page({
   data: {
@@ -17,8 +30,9 @@ Page({
     selectedPlanIndex: 0,
     selectedRaidId: "",
     selectedPlanId: "",
-    availableBosses: [] as RaidBoss[],
+    availableBosses: [] as SelectableBoss[],
     selectedBosses: [] as string[],
+    strategyByBoss: {} as Record<string, string | null>,
     beginDate: dateOffset(1),
     beginTime: "21:00",
     deadlineDate: dateOffset(1),
@@ -54,12 +68,13 @@ Page({
       selectedRaidId: "",
       selectedPlanId: "",
       selectedBosses: [],
+      strategyByBoss: {},
       availableBosses: [],
       selectedRaidIndex: 0,
       selectedPlanIndex: 0,
     });
   },
-  selectPlan(event: WechatMiniprogram.PickerChange) {
+  async selectPlan(event: WechatMiniprogram.PickerChange) {
     const index = Number(event.detail.value);
     const plan = index > 0 ? this.data.plans[index - 1] : undefined;
     const raidIndex = plan ? this.data.raids.findIndex((raid) => raid.id === plan.raidId) : -1;
@@ -69,18 +84,69 @@ Page({
       selectedPlanId: plan?.id ?? "",
       selectedRaidIndex: raid ? raidIndex + 1 : 0,
       selectedRaidId: raid?.id ?? "",
-      availableBosses: plan?.bosses ?? [],
+      availableBosses: [],
       selectedBosses: [],
+      strategyByBoss: {},
     });
+    if (raid) await this.loadBosses(raid, plan?.bosses);
   },
-  selectRaid(event: WechatMiniprogram.PickerChange) {
+  async selectRaid(event: WechatMiniprogram.PickerChange) {
     const index = Number(event.detail.value);
     const raid = index > 0 ? this.data.raids[index - 1] : undefined;
     this.setData({
       selectedRaidIndex: index,
       selectedRaidId: raid?.id ?? "",
-      availableBosses: raid?.bosses ?? [],
+      availableBosses: [],
       selectedBosses: [],
+      strategyByBoss: {},
+    });
+    if (raid) await this.loadBosses(raid);
+  },
+  async loadBosses(raid: Raid, includedBosses?: RaidBoss[]) {
+    try {
+      const strategies = await apiRequest<PublishedStrategy[]>(`/raid-progress/raids/${raid.id}/strategies`);
+      const selectableBosses = (includedBosses ?? raid.bosses.filter((boss) => !boss.excludeFromProgress)).map(
+        (boss) => {
+          const options = strategies
+            .filter((strategy) => strategy.bossId === boss.id)
+            .flatMap((strategy) =>
+              strategy.versions.map((version) => ({ label: `${strategy.name} v${version.versionNo}`, id: version.id })),
+            );
+          return {
+            ...boss,
+            strategyLabels: ["空白战术快照", ...options.map((option) => option.label)],
+            strategyVersionIds: options.map((option) => option.id),
+            strategyIndex: 0,
+          };
+        },
+      );
+      this.setData({ availableBosses: selectableBosses, error: "" });
+    } catch (error) {
+      this.setData({
+        availableBosses: (includedBosses ?? raid.bosses.filter((boss) => !boss.excludeFromProgress)).map((boss) => ({
+          ...boss,
+          strategyLabels: ["空白战术快照"],
+          strategyVersionIds: [],
+          strategyIndex: 0,
+        })),
+        error: error instanceof Error ? `战术方案加载失败：${error.message}` : "战术方案加载失败",
+      });
+    }
+  },
+  selectStrategy(event: WechatMiniprogram.CustomEvent) {
+    const bossId = String(event.currentTarget.dataset.bossId);
+    const strategyIndex = Number(event.detail.value);
+    const boss = this.data.availableBosses.find((item) => item.id === bossId);
+    if (!boss) return;
+    const strategyByBoss = {
+      ...this.data.strategyByBoss,
+      [bossId]: strategyIndex > 0 ? (boss.strategyVersionIds[strategyIndex - 1] ?? null) : null,
+    };
+    this.setData({
+      strategyByBoss,
+      availableBosses: this.data.availableBosses.map((item) =>
+        item.id === bossId ? { ...item, strategyIndex } : item,
+      ),
     });
   },
   selectBosses(event: WechatMiniprogram.CheckboxGroupChange) {
@@ -173,7 +239,7 @@ Page({
                   targets: this.data.selectedBosses.map((bossId, orderIndex) => ({
                     bossId,
                     orderIndex,
-                    strategyVersionId: null,
+                    strategyVersionId: this.data.strategyByBoss[bossId] ?? null,
                   })),
                 },
               }

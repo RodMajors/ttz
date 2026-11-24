@@ -748,13 +748,16 @@ export const raidCatalogSchema = z.array(
     name: z.string(),
     wclZoneId: z.number().int().nullable(),
     icon: z.string().nullable(),
+    background: z.string().nullable(),
     bosses: z.array(
       z.object({
         id: idSchema,
+        raidId: idSchema,
         wclId: z.number().int(),
         name: z.string(),
         icon: z.string().nullable(),
         orderIndex: z.number().int(),
+        excludeFromProgress: z.boolean(),
       }),
     ),
   }),
@@ -1266,7 +1269,6 @@ export const activityStrategyAssignmentsSchema = z
 export type ActivityStrategyAssignmentsInput = z.infer<typeof activityStrategyAssignmentsSchema>;
 
 export const bossStrategyCreateSchema = z.object({
-  progressPlanId: idSchema,
   bossId: idSchema,
   name: z.string().trim().min(2).max(128),
   description: z.string().trim().max(500).nullable().optional(),
@@ -1278,12 +1280,10 @@ export const bossStrategyUpdateSchema = z.object({
 export const bossStrategyManagementListSchema = z.array(
   z.object({
     id: idSchema,
-    progressPlanId: idSchema,
-    planName: z.string(),
-    difficulty: z.enum(["HEROIC", "MYTHIC"]),
-    planStatus: z.string(),
     bossId: idSchema,
     bossName: z.string(),
+    raidId: idSchema,
+    raidName: z.string(),
     name: z.string(),
     description: z.string().nullable(),
     status: z.enum(["ACTIVE", "ARCHIVED"]),

@@ -1,8 +1,5 @@
-import type { Metadata } from "next";
-import { StrategyManagementScreen } from "./strategy-management-screen";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "战术方案管理 | TTZ 公会站" };
-
-export default function StrategyManagementPage() {
-  return <StrategyManagementScreen />;
+export default function LegacyStrategyManagementPage() {
+  redirect("/dashboard/raids");
 }

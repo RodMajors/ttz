@@ -54,8 +54,8 @@ export const sidebarItems: NavGroup[] = [
       { id: "raid-progress", title: "团本进度", url: "/dashboard/raid-progress", icon: ClipboardCheck },
       {
         id: "raid-strategy-management",
-        title: "战术方案",
-        url: "/dashboard/raid-progress/strategies",
+        title: "团本战术",
+        url: "/dashboard/raids",
         icon: ScrollText,
         minPrivilege: 1,
       },
