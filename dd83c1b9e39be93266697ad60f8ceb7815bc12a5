@@ -1,0 +1,33 @@
+apps/web/src/config/app-config.ts
+  h_1dc22111645538 6
+apps/web/src/app/(main)/dashboard/_components/sidebar/app-sidebar.tsx
+  h_1dc22111645538 51
+apps/web/src/app/(main)/dashboard/_components/feature-preview.tsx
+  h_1dc22111645538 19-21
+  s_91209f3f10bb14::t_94fc95604bbcf4 22-24
+apps/web/src/app/(main)/dashboard/attendance/page.tsx
+  h_1dc22111645538 1,9
+apps/web/src/app/(main)/dashboard/default/dashboard-overview.tsx
+  h_1dc22111645538 74,76,153-170,172-175,179,260-266
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dd83c1b9e39be93266697ad60f8ceb7815bc12a5",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_91209f3f10bb14": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ce5e-3ad5-7553-9333-b05a2d9c46fd",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}

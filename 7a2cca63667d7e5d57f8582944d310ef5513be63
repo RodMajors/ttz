@@ -1,0 +1,35 @@
+apps/web/src/app/(main)/dashboard/raid-progress/raid-progress-screen.tsx
+  h_1dc22111645538 14,25,58-75,86-88,100-118,120-169,206-207
+  h_1dc22111645538 205,391
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/[versionId]/strategy-editor.tsx
+  h_1dc22111645538 331-332,341
+apps/web/src/app/(main)/dashboard/raid-progress/strategies/strategy-management-screen.tsx
+  h_1dc22111645538 177,194
+apps/web/src/app/(main)/dashboard/activities/new/activity-create-form.tsx
+  h_1dc22111645538 219
+apps/web/src/app/(external)/public-home.tsx
+  s_d0b0c16abfe273::t_6b6373f526b945 4,45-46,70,72-73
+apps/web/src/components/ui/select.tsx
+  s_d0b0c16abfe273::t_0807f9b10a4324 115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7a2cca63667d7e5d57f8582944d310ef5513be63",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_d0b0c16abfe273": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f796-5bec-7292-ac04-125fbae10083",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}

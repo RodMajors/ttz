@@ -1,0 +1,37 @@
+apps/web/src/components/epic-progress-timeline.tsx
+  h_1dc22111645538 1-113
+apps/web/src/app/(main)/dashboard/raid-progress/raid-progress-screen.tsx
+  h_1dc22111645538 8,55,61,63,76,79-87,89-92,94-95,102,106-107,112-124,131-139,141-143,150-152,154,163-164,166,168,185-186,190,195-202,205-225,227-237,240-287,308-310,378-379
+  h_1dc22111645538 11,13,15,20,40-43,48-51,144-149,173,182,184,187,191-194,226,238-239
+apps/web/src/app/(external)/public-home.tsx
+  s_d0b0c16abfe273::t_180aa1713128fc 7,54
+apps/web/src/app/(main)/dashboard/default/dashboard-overview.tsx
+  s_d0b0c16abfe273::t_c6add487e75f43 8,79
+.vscode/settings.json
+  h_1dc22111645538 2-3
+apps/web/src/app/(main)/dashboard/_components/member-setup-banner.tsx
+  h_1dc22111645538 7,24,32-34,40
+packages/contracts/src/index.ts
+  h_1dc22111645538 677-685,692-693,708,710,721
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7fdfbb13040213d5fc8948a5f4b41f4d18b64598",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_d0b0c16abfe273": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f796-5bec-7292-ac04-125fbae10083",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
