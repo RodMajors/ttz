@@ -137,7 +137,8 @@ function RaidStrategySnapshot({ activity, onChanged }: { activity: ActivityDetai
       <CardHeader>
         <CardTitle>本场战术快照</CardTitle>
         <CardDescription>
-          {raid.raidName} · {raid.difficulty === "MYTHIC" ? "史诗" : "英雄"} ·{" "}
+          {raid.raidName} ·{" "}
+          {raid.difficulty === "MYTHIC" ? "史诗" : raid.difficulty === "HEROIC" ? "英雄" : "未指定难度"} ·{" "}
           {raid.mode === "PROGRESSION" ? "开荒" : "Farm"}
         </CardDescription>
       </CardHeader>

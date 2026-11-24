@@ -1,11 +1,24 @@
 import { apiRequest } from "../../lib/api";
 
 const typeValues = ["raid_progress", "raid_farm", "mythic_plus_push", "mythic_plus_vault", "casual"];
+type RaidBoss = { id: string; name: string; icon: string | null; wclId: number; orderIndex: number };
+type Raid = { id: string; name: string; bosses: RaidBoss[] };
+type ProgressPlan = { id: string; raidId: string; name: string; difficulty: string; bosses: RaidBoss[] };
 
 Page({
   data: {
     typeLabels: ["团本开荒", "团本 Farm", "大秘境冲层", "大秘境低保", "休闲活动"],
     selectedType: 0,
+    raids: [] as Raid[],
+    plans: [] as ProgressPlan[],
+    raidOptions: ["请选择团本"],
+    planOptions: ["不使用进度计划"],
+    selectedRaidIndex: 0,
+    selectedPlanIndex: 0,
+    selectedRaidId: "",
+    selectedPlanId: "",
+    availableBosses: [] as RaidBoss[],
+    selectedBosses: [] as string[],
     beginDate: dateOffset(1),
     beginTime: "21:00",
     deadlineDate: dateOffset(1),
@@ -19,8 +32,59 @@ Page({
     submitting: false,
     error: "",
   },
+  async onLoad() {
+    try {
+      const [raids, plans] = await Promise.all([
+        apiRequest<Raid[]>("/raid-progress/catalog"),
+        apiRequest<ProgressPlan[]>("/raid-progress/plans"),
+      ]);
+      this.setData({
+        raids,
+        plans,
+        raidOptions: ["请选择团本", ...raids.map((raid) => raid.name)],
+        planOptions: ["不使用进度计划", ...plans.map((plan) => plan.name)],
+      });
+    } catch (error) {
+      this.setData({ error: error instanceof Error ? error.message : "团本目录加载失败" });
+    }
+  },
   selectType(event: WechatMiniprogram.PickerChange) {
-    this.setData({ selectedType: Number(event.detail.value) });
+    this.setData({
+      selectedType: Number(event.detail.value),
+      selectedRaidId: "",
+      selectedPlanId: "",
+      selectedBosses: [],
+      availableBosses: [],
+      selectedRaidIndex: 0,
+      selectedPlanIndex: 0,
+    });
+  },
+  selectPlan(event: WechatMiniprogram.PickerChange) {
+    const index = Number(event.detail.value);
+    const plan = index > 0 ? this.data.plans[index - 1] : undefined;
+    const raidIndex = plan ? this.data.raids.findIndex((raid) => raid.id === plan.raidId) : -1;
+    const raid = raidIndex >= 0 ? this.data.raids[raidIndex] : undefined;
+    this.setData({
+      selectedPlanIndex: index,
+      selectedPlanId: plan?.id ?? "",
+      selectedRaidIndex: raid ? raidIndex + 1 : 0,
+      selectedRaidId: raid?.id ?? "",
+      availableBosses: plan?.bosses ?? [],
+      selectedBosses: [],
+    });
+  },
+  selectRaid(event: WechatMiniprogram.PickerChange) {
+    const index = Number(event.detail.value);
+    const raid = index > 0 ? this.data.raids[index - 1] : undefined;
+    this.setData({
+      selectedRaidIndex: index,
+      selectedRaidId: raid?.id ?? "",
+      availableBosses: raid?.bosses ?? [],
+      selectedBosses: [],
+    });
+  },
+  selectBosses(event: WechatMiniprogram.CheckboxGroupChange) {
+    this.setData({ selectedBosses: event.detail.value.map(String) });
   },
   selectBeginDate(event: WechatMiniprogram.PickerChange) {
     const beginDate = String(event.detail.value);
@@ -101,6 +165,19 @@ Page({
           meleeSlots: this.data.hasRosterGuidance ? optionalNumber(value.meleeSlots) : null,
           rangedSlots: this.data.hasRosterGuidance ? optionalNumber(value.rangedSlots) : null,
           attendanceEnabled: this.data.attendanceEnabled,
+          ...(this.data.selectedType < 2
+            ? {
+                raid: {
+                  raidId: this.data.selectedRaidId || undefined,
+                  progressPlanId: this.data.selectedPlanId || undefined,
+                  targets: this.data.selectedBosses.map((bossId, orderIndex) => ({
+                    bossId,
+                    orderIndex,
+                    strategyVersionId: null,
+                  })),
+                },
+              }
+            : {}),
         },
       });
       wx.showToast({ title: "草稿已创建", icon: "success" });

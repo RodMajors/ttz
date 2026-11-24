@@ -3,6 +3,16 @@
   <form class="card form" bindsubmit="submit">
     <label>活动名称<input name="name" maxlength="64" placeholder="例如：M 团本开荒" /></label>
     <label>活动类型<picker range="{{typeLabels}}" value="{{selectedType}}" bindchange="selectType"><view class="picker">{{typeLabels[selectedType]}}</view></picker></label>
+    <view wx:if="{{selectedType < 2}}">
+      <label>进度计划（可选）<picker range="{{planOptions}}" value="{{selectedPlanIndex}}" bindchange="selectPlan"><view class="picker">{{planOptions[selectedPlanIndex]}}</view></picker></label>
+      <label>指定团本（可选）<picker range="{{raidOptions}}" value="{{selectedRaidIndex}}" bindchange="selectRaid" disabled="{{selectedPlanIndex > 0}}"><view class="picker">{{raidOptions[selectedRaidIndex]}}{{selectedPlanIndex > 0 ? '（由计划锁定）' : ''}}</view></picker></label>
+      <view wx:if="{{selectedRaidId}}" class="boss-picker">
+        <view class="switch-row"><view>目标 Boss</view><view>{{selectedBosses.length}} 已选</view></view>
+        <checkbox-group bindchange="selectBosses">
+          <label wx:for="{{availableBosses}}" wx:key="id" class="switch-row"><checkbox value="{{item.id}}" checked="{{selectedBosses.indexOf(item.id) >= 0}}" />{{item.name}}</label>
+        </checkbox-group>
+      </view>
+    </view>
     <view class="two-column"><label>开始日期<picker mode="date" value="{{beginDate}}" bindchange="selectBeginDate"><view class="picker">{{beginDate}}</view></picker></label><label>开始时间<picker mode="time" value="{{beginTime}}" bindchange="selectBeginTime"><view class="picker">{{beginTime}}</view></picker></label></view>
     <label>持续分钟<input name="durationMinutes" type="number" value="120" /></label>
     <view class="two-column"><label>报名截止日期<picker mode="date" value="{{deadlineDate}}" bindchange="selectDeadlineDate"><view class="picker">{{deadlineDate}}</view></picker></label><label>报名截止时间<picker mode="time" value="{{deadlineTime}}" bindchange="selectDeadlineTime"><view class="picker">{{deadlineTime}}</view></picker></label></view>

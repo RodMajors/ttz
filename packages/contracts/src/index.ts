@@ -284,8 +284,8 @@ const activityFieldsSchema = z.object({
   attendanceEnabled: z.boolean().optional(),
   raid: z
     .object({
-      progressPlanId: idSchema,
-      mode: z.enum(["PROGRESSION", "FARM"]),
+      raidId: idSchema.optional(),
+      progressPlanId: idSchema.nullable().optional(),
       targets: z
         .array(
           z.object({
@@ -304,10 +304,13 @@ const activityFieldsSchema = z.object({
 export const createActivitySchema = activityFieldsSchema.superRefine((value, context) => {
   const isRaid = value.type === "raid_progress" || value.type === "raid_farm";
   if (isRaid && !value.raid)
-    context.addIssue({ code: "custom", path: ["raid"], message: "团本活动必须选择进度计划和目标 Boss" });
+    context.addIssue({ code: "custom", path: ["raid"], message: "团本活动必须选择指定团本或进度计划以及目标 Boss" });
   if (!isRaid && value.raid)
     context.addIssue({ code: "custom", path: ["raid"], message: "只有团本活动可以配置 Boss 目标" });
   if (value.raid) {
+    if (!value.raid.raidId && !value.raid.progressPlanId) {
+      context.addIssue({ code: "custom", path: ["raid", "raidId"], message: "请选择进度计划或指定团本" });
+    }
     const bossIds = value.raid.targets.map((target) => target.bossId);
     if (new Set(bossIds).size !== bossIds.length) {
       context.addIssue({ code: "custom", path: ["raid", "targets"], message: "同一活动不能重复选择 Boss" });
@@ -327,9 +330,10 @@ export const updateActivitySchema = activityFieldsSchema.partial().extend({ vers
 export type UpdateActivityInput = z.infer<typeof updateActivitySchema>;
 
 export const raidActivityDetailSchema = z.object({
-  progressPlanId: idSchema,
+  raidId: idSchema,
+  progressPlanId: idSchema.nullable(),
   raidName: z.string(),
-  difficulty: z.enum(["HEROIC", "MYTHIC"]),
+  difficulty: z.enum(["HEROIC", "MYTHIC", "UNSPECIFIED"]),
   mode: z.enum(["PROGRESSION", "FARM"]),
   targets: z.array(
     z.object({
@@ -743,7 +747,16 @@ export const raidCatalogSchema = z.array(
     id: idSchema,
     name: z.string(),
     wclZoneId: z.number().int().nullable(),
-    bosses: z.array(z.object({ id: idSchema, wclId: z.number().int(), name: z.string() })),
+    icon: z.string().nullable(),
+    bosses: z.array(
+      z.object({
+        id: idSchema,
+        wclId: z.number().int(),
+        name: z.string(),
+        icon: z.string().nullable(),
+        orderIndex: z.number().int(),
+      }),
+    ),
   }),
 );
 const raidBossPhaseDataSchema = z.object({
@@ -791,6 +804,7 @@ export const raidBossBestPullGraphSchema = z.object({
   ),
 });
 export const raidDifficultySchema = z.enum(["HEROIC", "MYTHIC"]);
+
 export const gameSpellInputSchema = z.object({
   spellId: z.number().int().positive().nullable().optional(),
   name: z.string().trim().min(1).max(128),
