@@ -15,6 +15,7 @@ import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTi
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { UserIdentity } from "@/components/user-identity";
 import { apiRequest } from "@/lib/api-client";
 
 const labels: Record<ActivityStatus, string> = {
@@ -190,7 +191,9 @@ export function ActivitiesScreen() {
                   <TableCell>
                     {activity.confirmedCount} 已确认 / {activity.signupCount} 已报名
                   </TableCell>
-                  <TableCell>{activity.creatorName}</TableCell>
+                  <TableCell>
+                    <UserIdentity user={activity.creator} />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

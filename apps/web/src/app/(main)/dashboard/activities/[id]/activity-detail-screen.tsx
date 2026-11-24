@@ -63,6 +63,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { UserIdentity } from "@/components/user-identity";
 import { apiRequest } from "@/lib/api-client";
 import { ActivityRosterGuidance } from "../../_components/activity-roster-guidance";
 import { ActivityScheduleFields } from "../../_components/activity-schedule-fields";
@@ -336,7 +337,7 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
           {activity.rosterLockedAt ? <Badge variant="outline">名单已锁定</Badge> : null}
         </CardTitle>
         <CardDescription>
-          {activity.type} · 负责人 {activity.creator.name}
+          {activity.type} · 负责人 <UserIdentity user={activity.creator} />
         </CardDescription>
         {activity.canManage ? (
           <CardAction className="flex flex-wrap justify-end gap-2">

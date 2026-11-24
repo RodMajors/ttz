@@ -3,10 +3,9 @@ import type { ReactNode } from "react";
 import type { z } from "zod";
 import { ClassAccent } from "@/components/class-accent";
 import { GameIcon } from "@/components/game-icon";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getInitials } from "@/lib/utils";
+import { UserIdentity } from "@/components/user-identity";
 
 export type MemberListItem = z.infer<typeof memberListSchema>["items"][number];
 
@@ -36,12 +35,15 @@ export function MemberTable({
             <TableRow key={member.id}>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  <Avatar className="size-8">
-                    <AvatarImage src={member.avatar ?? undefined} alt="" />
-                    <AvatarFallback>{getInitials(member.name ?? member.guildNickname ?? "TTZ")}</AvatarFallback>
-                  </Avatar>
                   <div className="min-w-0">
-                    <p className="truncate font-medium">{member.name ?? member.guildNickname ?? "未设置昵称"}</p>
+                    <UserIdentity
+                      user={{
+                        id: member.id,
+                        name: member.name ?? member.guildNickname ?? "未设置昵称",
+                        avatar: member.avatar,
+                        mainCharacter: member.characters.find((character) => character.isMain) ?? null,
+                      }}
+                    />
                     <p className="truncate text-xs text-muted-foreground">{member.wxNickname ?? "未设置微信名"}</p>
                   </div>
                 </div>
