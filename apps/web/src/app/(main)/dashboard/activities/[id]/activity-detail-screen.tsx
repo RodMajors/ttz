@@ -328,7 +328,7 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex flex-wrap items-center gap-2">
+        <CardTitle className="flex flex-wrap items-center gap-2 text-4xl">
           {activity.name}
           <Badge variant={activity.status === "PUBLISHED" ? "default" : "secondary"}>
             {activityStatusLabels[activity.status]}
@@ -369,7 +369,7 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
         ) : null}
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <Info label="集合时间" value={formatDate(activity.teamUpAt)} />
           <Info label="开始时间" value={formatDate(activity.beginAt)} />
           <Info label="报名截止" value={activity.signupDeadline ? formatDate(activity.signupDeadline) : "未设置"} />
@@ -1076,7 +1076,7 @@ function ActionButton({
 }
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border p-3">
+    <div className="p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 font-medium">{value}</p>
     </div>

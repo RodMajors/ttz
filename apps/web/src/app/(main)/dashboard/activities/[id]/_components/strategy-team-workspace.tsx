@@ -126,8 +126,8 @@ export function StrategyTeamWorkspace({
         </CardTitle>
         <CardDescription>
           {canEdit
-            ? "这份 8×5 团队框架由本场活动所有 Boss 共享。可拖动成员，或先点击成员再点击目标席位。"
-            : "团队分组是活动级必选配置；当前为只读模式，锁定后使用锁定时保存的人员信息。"}
+            ? "这份团队框架由本场活动所有 Boss 共享。可拖动成员，或先点击成员再点击目标席位。"
+            : "这份团队框架由本场活动所有 Boss 共享"}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -173,7 +173,7 @@ export function StrategyTeamWorkspace({
                   draggable={canEdit}
                   disabled={!canEdit}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-md border bg-background px-2 py-1.5 text-left text-sm",
+                    "flex items-center gap-1.5 border bg-background px-2 py-1.5 text-left text-sm",
                     canEdit ? "cursor-grab hover:border-primary/50" : "opacity-70",
                     selectedId === signup.id && "border-primary bg-primary/10 ring-2 ring-primary/20",
                   )}
@@ -196,17 +196,13 @@ export function StrategyTeamWorkspace({
             )}
           </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-1 sm:grid-cols-2 xl:grid-cols-6">
           {Array.from({ length: layout.groupCount }, (_, groupIndex) => {
             const groupNo = groupIndex + 1;
-            const groupAssignments = assignments.filter((entry) => entry.groupNo === groupNo);
             return (
-              <div key={groupNo} className="flex flex-col gap-2 rounded-lg border p-3">
+              <div key={groupNo} className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <p className="font-medium">第 {groupNo} 组</p>
-                  <span className="text-xs text-muted-foreground">
-                    {groupAssignments.length}/{layout.seatsPerGroup}
-                  </span>
                 </div>
                 {Array.from({ length: layout.seatsPerGroup }, (_, index) => {
                   const positionNo = index + 1;
@@ -221,7 +217,7 @@ export function StrategyTeamWorkspace({
                       type="button"
                       disabled={!canEdit}
                       className={cn(
-                        "flex min-h-12 w-full items-center gap-2 rounded-md border px-2 py-1.5 text-left",
+                        "flex min-h-12 w-full items-center gap-2 border px-2 py-1.5 text-left",
                         canEdit && "cursor-pointer hover:border-primary/50",
                         selectedId && !signup && "border-primary/50 bg-primary/5",
                         draggedId && !signup && "border-dashed border-primary bg-primary/5",

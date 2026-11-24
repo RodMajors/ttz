@@ -25,6 +25,7 @@ import {
   DialogTrigger,
 } from "@/components/app-dialog";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/app-select";
+import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,14 +38,24 @@ import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/api-client";
 
-const versionCreatedSchema = z.object({ id: idSchema, versionNo: z.number().int() });
+const versionCreatedSchema = z.object({
+  id: idSchema,
+  versionNo: z.number().int(),
+});
 type ManagedStrategy = z.infer<typeof bossStrategyManagementListSchema>[number];
 type Raid = z.infer<typeof raidCatalogSchema>[number];
-const statusLabel = { DRAFT: "草稿 / 待审核", PUBLISHED: "已发布", ARCHIVED: "版本已归档" } as const;
+const statusLabel = {
+  DRAFT: "草稿 / 待审核",
+  PUBLISHED: "已发布",
+  ARCHIVED: "版本已归档",
+} as const;
 
 export function StrategyManagementScreen() {
   const client = useQueryClient();
-  const me = useQuery({ queryKey: ["auth", "me"], queryFn: () => apiRequest("/auth/me", authUserSchema) });
+  const me = useQuery({
+    queryKey: ["auth", "me"],
+    queryFn: () => apiRequest("/auth/me", authUserSchema),
+  });
   const catalog = useQuery({
     queryKey: ["raid-progress", "catalog"],
     queryFn: () => apiRequest("/raid-progress/catalog", raidCatalogSchema),
@@ -56,7 +67,9 @@ export function StrategyManagementScreen() {
   });
   const refresh = async () => {
     await Promise.all([
-      client.invalidateQueries({ queryKey: ["raid-progress", "strategy-management"] }),
+      client.invalidateQueries({
+        queryKey: ["raid-progress", "strategy-management"],
+      }),
       client.invalidateQueries({ queryKey: ["raid-progress", "catalog"] }),
     ]);
   };
@@ -121,6 +134,13 @@ export function StrategyManagementScreen() {
       {(catalog.data ?? []).map((raid) => (
         <Card key={raid.id}>
           <CardHeader>
+            <GameIcon
+              src={raid.background}
+              onError={(event) => {
+                event.currentTarget.hidden = true;
+              }}
+              className="w-22 object-contain"
+            ></GameIcon>
             <CardTitle>{raid.name}</CardTitle>
             <CardDescription>团本 Boss 与可复用战术方案</CardDescription>
           </CardHeader>
@@ -128,15 +148,28 @@ export function StrategyManagementScreen() {
             {raid.bosses.map((boss) => (
               <section key={boss.id} className="flex flex-col gap-3 border-t pt-4">
                 <div className="flex items-center justify-between gap-3">
-                  <h2 className="font-semibold">{boss.name}</h2>
+                  <div className="flex items-center gap-2">
+                    <GameIcon
+                      src={boss.icon}
+                      onError={(event) => {
+                        event.currentTarget.hidden = true;
+                      }}
+                      className="w-22 object-contain"
+                    ></GameIcon>
+                    <div className="flex flex-col">
+                      <h2 className="font-semibold text-lg">{boss.name}</h2>
+                      {(grouped.get(boss.id) ?? []).length === 0 ? (
+                        <p className="text-sm text-muted-foreground">此 Boss 尚无战术方案。</p>
+                      ) : (
+                        <p> 此 Boss 存在 {grouped.get(boss.id)?.length} 个战术方案。 </p>
+                      )}
+                    </div>
+                  </div>
                   <CreateStrategyDialog raids={[raid]} initialBossId={boss.id} onChanged={refresh} />
                 </div>
                 {(grouped.get(boss.id) ?? []).map((strategy) => (
                   <StrategyCard key={strategy.id} strategy={strategy} onChanged={refresh} />
                 ))}
-                {(grouped.get(boss.id) ?? []).length === 0 ? (
-                  <p className="text-sm text-muted-foreground">此 Boss 尚无战术方案。</p>
-                ) : null}
               </section>
             ))}
           </CardContent>
@@ -173,7 +206,7 @@ function StrategyCard({ strategy, onChanged }: { strategy: ManagedStrategy; onCh
     onError: (reason) => setError(reason.message),
   });
   return (
-    <div className="flex flex-col gap-3 rounded border p-4">
+    <div className="flex flex-col gap-3 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -396,7 +429,8 @@ function CreateStrategyDialog({
           </FieldGroup>
           <DialogFooter className="mt-4">
             <Button type="submit" disabled={create.isPending}>
-              {create.isPending ? <Spinner data-icon="inline-start" /> : <Plus data-icon="inline-start" />}创建草稿
+              {create.isPending ? <Spinner data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
+              创建草稿
             </Button>
           </DialogFooter>
         </form>
@@ -476,7 +510,8 @@ function EditStrategyDialog({ strategy, onChanged }: { strategy: ManagedStrategy
           </FieldGroup>
           <DialogFooter className="mt-4">
             <Button type="submit" disabled={update.isPending}>
-              {update.isPending ? <Spinner data-icon="inline-start" /> : <Pencil data-icon="inline-start" />}保存
+              {update.isPending ? <Spinner data-icon="inline-start" /> : <Pencil data-icon="inline-start" />}
+              保存
             </Button>
           </DialogFooter>
         </form>

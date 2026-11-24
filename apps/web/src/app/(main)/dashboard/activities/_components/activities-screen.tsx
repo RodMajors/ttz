@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { type ActivityStatus, activityListSchema } from "@ttz/contracts";
 import { AlertCircle, CalendarDays, Plus, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type ReactNode, useState } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/app-select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -27,6 +28,7 @@ export function ActivitiesScreen() {
   const [status, setStatus] = useState("");
   const [type, setType] = useState("");
   const [mine, setMine] = useState("");
+  const router = useRouter();
   const hasFilter = Boolean(status || type || mine);
 
   const query = useQuery({
@@ -168,11 +170,15 @@ export function ActivitiesScreen() {
             </TableHeader>
             <TableBody>
               {visible.map((activity) => (
-                <TableRow key={activity.id}>
+                <TableRow
+                  key={activity.id}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    router.push(`/dashboard/activities/${activity.id}`);
+                  }}
+                >
                   <TableCell>
-                    <Link className="font-medium hover:underline" href={`/dashboard/activities/${activity.id}`}>
-                      {activity.name}
-                    </Link>
+                    {activity.name}
                     <p className="text-xs text-muted-foreground">{activity.type}</p>
                   </TableCell>
                   <TableCell>{formatDate(activity.beginAt)}</TableCell>
@@ -183,7 +189,6 @@ export function ActivitiesScreen() {
                   </TableCell>
                   <TableCell>
                     {activity.confirmedCount} 已确认 / {activity.signupCount} 已报名
-                    {activity.maxPlayers == null ? " · 不限人数" : ` · 建议 ${activity.maxPlayers} 人`}
                   </TableCell>
                   <TableCell>{activity.creatorName}</TableCell>
                 </TableRow>
@@ -209,7 +214,7 @@ function FilterField({ label, id, children }: { label: string; id: string; child
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
-    month: "numeric",
+    month: "short",
     day: "numeric",
     weekday: "short",
     hour: "2-digit",

@@ -267,7 +267,7 @@ export function ActivityCreateForm() {
                               />
                               <FieldLabel htmlFor={`boss-${boss.id}`} className="w-1/2 cursor-pointer font-bold">
                                 <span className="flex items-center gap-2 nowrap">
-                                  <GameIcon src={boss.icon} className="size-10 shrink-0 rounded object-contain" />
+                                  <GameIcon src={boss.icon} className="w-20 shrink-0 rounded object-contain" />
                                   {boss.name}
                                 </span>
                               </FieldLabel>
