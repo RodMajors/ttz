@@ -1,0 +1,34 @@
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/activity-tactics.tsx
+  s_d0b0c16abfe273::t_5c5024feb4449f 40-41,46-47,79-83,161-166,176-177,276,385-430
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/positioning-board.tsx
+  s_d0b0c16abfe273::t_3913aa7502b8b1 47-48,53-54,57,112-116,213
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  s_d0b0c16abfe273::t_2e07b6537063d0 20,23,27-28,31,34,38,102-105,153-157,160-167,169-191,199-201,203-235,240-373,376,380-381,384-405,409-410,412-417,425,429,432,435,1119,1121-1142
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  s_d0b0c16abfe273::t_77a66915b229a2 78-80
+apps/web/src/app/(main)/dashboard/layout.tsx
+  s_d0b0c16abfe273::t_87c667c3f22e7e 70
+packages/contracts/src/index.ts
+  s_d0b0c16abfe273::t_e1c148c5690b69 402,1119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ff6e9b466604b66a043c1406001109fdfd4e096b",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_d0b0c16abfe273": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f796-5bec-7292-ac04-125fbae10083",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
