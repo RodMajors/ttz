@@ -37,10 +37,14 @@ const peopleFields = [
 export function ActivityTactics({
   activity,
   target,
+  focusTaskId,
+  focusNoteId,
   onChanged,
 }: {
   activity: ActivityDetail;
   target: Target;
+  focusTaskId?: string;
+  focusNoteId?: string;
   onChanged: () => Promise<void>;
 }) {
   const snapshot = target.snapshot;
@@ -72,7 +76,11 @@ export function ActivityTactics({
     },
     onError: (reason) => setError(reason.message),
   });
-  const notes = target.blocks.filter((block) => block.type === "NOTES");
+  const notes = target.blocks.filter((block) => block.type === "NOTES" && (!focusNoteId || block.id === focusNoteId));
+  const tasks = target.tasks.filter((task) => !focusTaskId || task.id === focusTaskId);
+  const focusedTitle =
+    target.tasks.find((task) => task.id === focusTaskId)?.label ??
+    target.blocks.find((block) => block.id === focusNoteId)?.title;
   const confirmed = activity.signups.filter((signup) => signup.status === "CONFIRMED");
   const reserves = activity.signups.filter((signup) => signup.status === "BENCH");
   const defaultType =
@@ -150,8 +158,12 @@ export function ActivityTactics({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>本场任务与笔记</CardTitle>
-        <CardDescription>顺序和时序任务直接分配给本场确认成员，替补可担任后备。修改只影响本场 Boss。</CardDescription>
+        <CardTitle>{focusedTitle ?? "本场任务与笔记"}</CardTitle>
+        <CardDescription>
+          {focusedTitle
+            ? "本场执行安排；人员分配仅影响当前活动。"
+            : "顺序和时序任务直接分配给本场确认成员，替补可担任后备。修改只影响本场 Boss。"}
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {canEdit && !draft ? (
@@ -161,10 +173,8 @@ export function ActivityTactics({
         ) : null}
         {!draft || !canEdit ? (
           <>
-            {!target.tasks.length && !notes.length ? (
-              <p className="text-sm text-muted-foreground">暂无任务或笔记。</p>
-            ) : null}
-            {[...target.tasks]
+            {!tasks.length && !notes.length ? <p className="text-sm text-muted-foreground">暂无任务或笔记。</p> : null}
+            {[...tasks]
               .sort(
                 (a, b) =>
                   a.kind.localeCompare(b.kind) ||
@@ -263,7 +273,7 @@ export function ActivityTactics({
                 添加笔记
               </Button>
             </div>
-            {taskOrder(draft.tasks).map((task, index) => {
+            {taskOrder(draft.tasks.filter((task) => !focusTaskId || task.key === focusTaskId)).map((task, index) => {
               const update = (patch: Partial<Task>) =>
                 setDraft({
                   ...draft,
@@ -372,50 +382,52 @@ export function ActivityTactics({
                 </Card>
               );
             })}
-            {draft.notes.map((note) => {
-              const update = (patch: Partial<typeof note>) =>
-                setDraft({
-                  ...draft,
-                  notes: draft.notes.map((item) => (item.key === note.key ? { ...item, ...patch } : item)),
-                });
-              return (
-                <Card key={note.key}>
-                  <CardContent>
-                    <FieldGroup>
-                      <Field>
-                        <FieldLabel htmlFor={`${note.key}-title`}>笔记标题</FieldLabel>
-                        <Input
-                          id={`${note.key}-title`}
-                          maxLength={128}
-                          value={note.title}
-                          onChange={(event) => update({ title: event.target.value })}
-                        />
-                      </Field>
-                      <Field>
-                        <FieldLabel htmlFor={`${note.key}-body`}>战术笔记正文（Markdown）</FieldLabel>
-                        <Textarea
-                          id={`${note.key}-body`}
-                          maxLength={200000}
-                          value={note.markdown}
-                          onChange={(event) => update({ markdown: event.target.value })}
-                        />
-                      </Field>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="w-fit"
-                        onClick={() =>
-                          setDraft({ ...draft, notes: draft.notes.filter((item) => item.key !== note.key) })
-                        }
-                      >
-                        <Trash2 data-icon="inline-start" />
-                        移除笔记
-                      </Button>
-                    </FieldGroup>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {draft.notes
+              .filter((note) => !focusNoteId || note.key === focusNoteId)
+              .map((note) => {
+                const update = (patch: Partial<typeof note>) =>
+                  setDraft({
+                    ...draft,
+                    notes: draft.notes.map((item) => (item.key === note.key ? { ...item, ...patch } : item)),
+                  });
+                return (
+                  <Card key={note.key}>
+                    <CardContent>
+                      <FieldGroup>
+                        <Field>
+                          <FieldLabel htmlFor={`${note.key}-title`}>笔记标题</FieldLabel>
+                          <Input
+                            id={`${note.key}-title`}
+                            maxLength={128}
+                            value={note.title}
+                            onChange={(event) => update({ title: event.target.value })}
+                          />
+                        </Field>
+                        <Field>
+                          <FieldLabel htmlFor={`${note.key}-body`}>战术笔记正文（Markdown）</FieldLabel>
+                          <Textarea
+                            id={`${note.key}-body`}
+                            maxLength={200000}
+                            value={note.markdown}
+                            onChange={(event) => update({ markdown: event.target.value })}
+                          />
+                        </Field>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="w-fit"
+                          onClick={() =>
+                            setDraft({ ...draft, notes: draft.notes.filter((item) => item.key !== note.key) })
+                          }
+                        >
+                          <Trash2 data-icon="inline-start" />
+                          移除笔记
+                        </Button>
+                      </FieldGroup>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             {error ? (
               <p role="alert" className="text-sm text-destructive">
                 {error}

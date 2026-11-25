@@ -75,7 +75,9 @@ export function ActivitiesScreen() {
     queryFn: () => {
       if (!queryParameters) throw new Error("日期范围无效");
       const params = new URLSearchParams();
-      for (const [key, value] of Object.entries(queryParameters)) params.set(key, String(value));
+      for (const [key, value] of Object.entries(queryParameters)) {
+        if (value !== undefined && value !== null) params.set(key, String(value));
+      }
       return apiRequest(`/activities?${params}`, activityListSchema);
     },
   });

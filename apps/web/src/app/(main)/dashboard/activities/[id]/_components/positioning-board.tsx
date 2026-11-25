@@ -44,13 +44,17 @@ const emptyCanvas: PositioningCanvas = {
 export function PositioningBoard({
   activity,
   target,
+  blockId,
+  title,
   onChanged,
 }: {
   activity: Activity;
   target: Target;
+  blockId?: string | null;
+  title?: string;
   onChanged: () => Promise<void>;
 }) {
-  const block = target.blocks.find((entry) => entry.type === "POSITIONING");
+  const block = target.blocks.find((entry) => entry.type === "POSITIONING" && (blockId ? entry.id === blockId : true));
   const initialCanvas = positioningCanvasSchema.safeParse(block?.config);
   const [canvas, setCanvas] = useState<PositioningCanvas>(initialCanvas.success ? initialCanvas.data : emptyCanvas);
   const [selectedId, setSelectedId] = useState<string>();
@@ -105,7 +109,11 @@ export function PositioningBoard({
 
   const save = useMutation({
     mutationFn: () => {
-      const body = activityStrategyPositioningSaveSchema.parse({ revision: currentRevision, canvas });
+      const body = activityStrategyPositioningSaveSchema.parse({
+        revision: currentRevision,
+        blockId: block?.id,
+        canvas,
+      });
       return apiRequest(
         `/raid-progress/activities/${activity.id}/snapshots/${target.snapshot?.id}/positioning`,
         saveResultSchema,
@@ -202,7 +210,7 @@ export function PositioningBoard({
     <Card>
       <CardHeader>
         <CardTitle className="flex flex-wrap items-center gap-2 text-base">
-          站位画板
+          {title ?? block?.title ?? "站位画板"}
           <Badge variant={target.snapshot?.status === "LOCKED" ? "default" : "outline"}>
             {target.snapshot?.status === "LOCKED" ? "已锁定" : "编辑中"}
           </Badge>

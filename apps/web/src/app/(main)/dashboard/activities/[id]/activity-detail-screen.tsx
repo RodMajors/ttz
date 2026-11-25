@@ -17,19 +17,25 @@ import {
   CalendarClock,
   Check,
   CircleAlert,
+  ClipboardList,
   Clock3,
   Copy,
+  FileText,
   ListOrdered,
   Lock,
   LockOpen,
+  MapPinned,
+  NotebookPen,
   Pencil,
   Send,
+  Swords,
   UserRoundPlus,
   Users,
+  UsersRound,
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { z } from "zod";
 import {
   AlertDialog,
@@ -93,6 +99,10 @@ const activityTypeLabels: Record<ActivityDetail["type"], string> = {
   mythic_plus_vault: "大秘境低保",
   casual: "休闲活动",
 };
+type ActivityRaidTarget = NonNullable<NonNullable<ActivityDetail["raid"]>["targets"][number]>;
+type RaidStrategyTabItem =
+  | { key: string; label: string; kind: "block"; blockId: string | undefined; orderIndex: number }
+  | { key: string; label: string; kind: "task"; taskId: string; orderIndex: number };
 
 export function ActivityDetailScreen({ activityId }: { activityId: string }) {
   const client = useQueryClient();
@@ -140,120 +150,289 @@ export function ActivityDetailScreen({ activityId }: { activityId: string }) {
 
 function ActivityDetailTabs({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
   const [finalRosterOnly, setFinalRosterOnly] = useState(false);
+  const targets = activity.raid?.targets ?? [];
+  const bosses = targets.reduce<ActivityRaidTarget[]>((groups, target) => {
+    if (!groups.some((entry) => entry.bossId === target.bossId)) groups.push(target);
+    return groups;
+  }, []);
   return (
     <Tabs defaultValue="roster" className="min-w-0">
-      <TabsList className="h-auto max-w-full flex-wrap justify-start">
-        <TabsTrigger value="roster">报名与最终名单</TabsTrigger>
-        {activity.raid?.targets.map((target) => (
-          <TabsTrigger key={target.id} value={target.id}>
-            {target.bossName} - {target.strategyName}
+      <div className="sticky top-0 z-40 -mx-4 w-[calc(100%+2rem)] overflow-x-auto border-b bg-background/90 px-4 py-2 shadow-sm backdrop-blur-md md:-mx-6 md:w-[calc(100%+3rem)] md:px-6 [html[data-navbar-style=sticky]_&]:top-12">
+        <TabsList className="mx-auto flex h-auto w-max min-w-full justify-center gap-2 rounded-none bg-transparent p-0">
+          <TabsTrigger
+            value="roster"
+            className="h-10 flex-none gap-2 rounded-lg border border-transparent px-4 text-sm shadow-none aria-selected:border-primary/30 aria-selected:bg-primary aria-selected:text-primary-foreground aria-selected:shadow-sm"
+          >
+            <ClipboardList data-icon="inline-start" />
+            报名列表
           </TabsTrigger>
-        ))}
-      </TabsList>
-      <TabsContent value="roster" className="flex min-w-0 flex-col gap-5">
+          {activity.raid ? (
+            <TabsTrigger
+              value="team-layout"
+              className="h-10 flex-none gap-2 rounded-lg border border-transparent px-4 text-sm shadow-none aria-selected:border-primary/30 aria-selected:bg-primary aria-selected:text-primary-foreground aria-selected:shadow-sm"
+            >
+              <UsersRound data-icon="inline-start" />
+              团队分组
+            </TabsTrigger>
+          ) : null}
+          {bosses.map((boss) => (
+            <TabsTrigger
+              key={boss.bossId}
+              value={`boss-${boss.bossId}`}
+              className="h-10 flex-none gap-2 rounded-lg border border-transparent px-3 text-sm shadow-none aria-selected:border-primary/30 aria-selected:bg-primary aria-selected:text-primary-foreground aria-selected:shadow-sm"
+            >
+              <GameIcon src={boss.bossIcon} className="size-6 rounded-sm object-cover" />
+              <span>{boss.bossName}</span>
+              <Swords className="size-3.5 opacity-45" aria-hidden="true" />
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
+      <TabsContent value="roster" className="min-w-0">
         <SignupRoster
           activity={activity}
           onChanged={onChanged}
           finalRosterOnly={finalRosterOnly}
           onFinalRosterOnlyChange={setFinalRosterOnly}
         />
-        <StrategyTeamWorkspace activity={activity} onChanged={onChanged} />
       </TabsContent>
-      {activity.raid?.targets.map((target) => (
-        <TabsContent key={target.id} value={target.id} className="min-w-0">
-          <RaidStrategyTarget activity={activity} target={target} onChanged={onChanged} />
+      {activity.raid ? (
+        <TabsContent value="team-layout" className="min-w-0">
+          <StrategyTeamWorkspace activity={activity} onChanged={onChanged} />
         </TabsContent>
-      ))}
+      ) : null}
+      {bosses.map((boss) => {
+        const bossTargets = targets.filter((target) => target.bossId === boss.bossId);
+        const items = bossTargets.flatMap(raidStrategyTabItems);
+        return (
+          <TabsContent key={boss.bossId} value={`boss-${boss.bossId}`} className="min-w-0">
+            {items.length ? (
+              <BossStrategyTabs
+                bossName={boss.bossName}
+                items={items}
+                renderContent={(item) => {
+                  const target = bossTargets.find(
+                    (entry) => item.key.startsWith(`block-${entry.id}-`) || item.key.startsWith(`task-${entry.id}-`),
+                  );
+                  return target ? (
+                    <RaidStrategyItem activity={activity} target={target} item={item} onChanged={onChanged} />
+                  ) : null;
+                }}
+              />
+            ) : (
+              <Empty className="min-h-48 border">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <Users />
+                  </EmptyMedia>
+                  <EmptyTitle>{boss.bossName} 暂无战术内容</EmptyTitle>
+                  <EmptyDescription>该 Boss 尚未关联已发布的战术预设内容。</EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            )}
+          </TabsContent>
+        );
+      })}
     </Tabs>
   );
 }
 
-function RaidStrategyTarget({
+function BossStrategyTabs({
+  bossName,
+  items,
+  renderContent,
+}: {
+  bossName: string;
+  items: RaidStrategyTabItem[];
+  renderContent: (item: RaidStrategyTabItem) => ReactNode;
+}) {
+  const id = useId();
+  const [activeKey, setActiveKey] = useState(items[0]?.key ?? "");
+  const triggerRefs = useRef(new Map<string, HTMLButtonElement>());
+  const activeItem = items.find((item) => item.key === activeKey) ?? items[0];
+  if (!activeItem) return null;
+
+  function selectItem(item: RaidStrategyTabItem, moveFocus = false) {
+    setActiveKey(item.key);
+    if (moveFocus) triggerRefs.current.get(item.key)?.focus();
+  }
+
+  return (
+    <section className="flex min-w-0 flex-col gap-4" aria-label={`${bossName} 战术内容`}>
+      <div className="flex flex-wrap items-end justify-between gap-2 border-b pb-3">
+        <div>
+          <p className="text-xs font-medium tracking-[0.16em] text-muted-foreground uppercase">Encounter playbook</p>
+          <h2 className="mt-1 text-lg font-semibold tracking-tight">战术内容</h2>
+        </div>
+        <Badge variant="secondary">{items.length} 项</Badge>
+      </div>
+      <div className="min-w-0 overflow-x-auto px-0.5 pt-0.5 pb-3">
+        <div
+          role="tablist"
+          aria-label={`${bossName} 战术内容`}
+          className="mx-auto flex w-max min-w-full justify-center gap-2"
+        >
+          {items.map((item, index) => {
+            const selected = item.key === activeItem.key;
+            const Icon = strategyItemIcon(item);
+            const triggerId = `${id}-trigger-${index}`;
+            return (
+              <button
+                key={item.key}
+                ref={(element) => {
+                  if (element) triggerRefs.current.set(item.key, element);
+                  else triggerRefs.current.delete(item.key);
+                }}
+                id={triggerId}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                aria-controls={`${id}-panel`}
+                tabIndex={selected ? 0 : -1}
+                onClick={() => selectItem(item)}
+                onKeyDown={(event) => {
+                  const currentIndex = items.findIndex((entry) => entry.key === item.key);
+                  const nextIndex =
+                    event.key === "ArrowRight"
+                      ? (currentIndex + 1) % items.length
+                      : event.key === "ArrowLeft"
+                        ? (currentIndex - 1 + items.length) % items.length
+                        : event.key === "Home"
+                          ? 0
+                          : event.key === "End"
+                            ? items.length - 1
+                            : -1;
+                  if (nextIndex >= 0) {
+                    event.preventDefault();
+                    const nextItem = items[nextIndex];
+                    if (nextItem) selectItem(nextItem, true);
+                  }
+                }}
+                className="group relative inline-flex h-[4.5rem] min-w-40 shrink-0 items-center gap-3 overflow-hidden rounded-xl border bg-card px-3 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none aria-selected:border-primary aria-selected:bg-primary/5 aria-selected:shadow-md"
+              >
+                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground transition-colors group-aria-selected:bg-primary group-aria-selected:text-primary-foreground">
+                  <Icon className="size-5" aria-hidden="true" />
+                </span>
+                <span className="flex min-w-0 flex-col gap-1">
+                  <span className="truncate text-sm font-semibold">{item.label}</span>
+                  <span className="text-xs text-muted-foreground group-aria-selected:text-primary">
+                    {strategyItemKind(item)}
+                  </span>
+                </span>
+                <span className="absolute inset-x-3 bottom-0 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform group-aria-selected:scale-x-100" />
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <div
+        id={`${id}-panel`}
+        role="tabpanel"
+        aria-labelledby={`${id}-trigger-${items.findIndex((item) => item.key === activeItem.key)}`}
+        tabIndex={-1}
+        className="min-w-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      >
+        {renderContent(activeItem)}
+      </div>
+    </section>
+  );
+}
+
+function strategyItemIcon(item: RaidStrategyTabItem) {
+  if (item.kind === "task") return ListOrdered;
+  if (item.label.toLocaleLowerCase().includes("站位")) return MapPinned;
+  if (item.label.toLocaleLowerCase().includes("笔记")) return NotebookPen;
+  return FileText;
+}
+
+function strategyItemKind(item: RaidStrategyTabItem) {
+  if (item.kind === "task") return "本场任务安排";
+  if (item.label.toLocaleLowerCase().includes("站位")) return "站位预设";
+  if (item.label.toLocaleLowerCase().includes("笔记")) return "战术笔记";
+  return "战术预设内容";
+}
+
+function raidStrategyTabItems(target: ActivityRaidTarget): RaidStrategyTabItem[] {
+  const blocks: RaidStrategyTabItem[] = target.blocks.map((block) => ({
+    key: `block-${target.id}-${block.id ?? block.orderIndex}`,
+    label: block.title,
+    kind: "block",
+    blockId: block.id,
+    orderIndex: block.orderIndex,
+  }));
+  const tasks: RaidStrategyTabItem[] = target.tasks.map((task) => ({
+    key: `task-${target.id}-${task.id}`,
+    label: task.label,
+    kind: "task",
+    taskId: task.id,
+    orderIndex: task.orderIndex,
+  }));
+  return [...blocks, ...tasks].sort((left, right) => left.orderIndex - right.orderIndex);
+}
+
+function RaidStrategyItem({
   activity,
   target,
+  item,
   onChanged,
 }: {
   activity: ActivityDetail;
-  target: NonNullable<NonNullable<ActivityDetail["raid"]>["targets"][number]>;
+  target: ActivityRaidTarget;
+  item: RaidStrategyTabItem;
   onChanged: () => Promise<void>;
 }) {
-  const raid = activity.raid;
-  if (!raid) return null;
+  if (item.kind === "task") {
+    return target.snapshot?.assignmentMode === "DIRECT" ? (
+      <ActivityTactics activity={activity} target={target} focusTaskId={item.taskId} onChanged={onChanged} />
+    ) : (
+      <ActivityTaskPlan activity={activity} target={target} taskId={item.taskId} />
+    );
+  }
+  const block = target.blocks.find((entry) => entry.id === item.blockId);
+  if (block?.type === "POSITIONING") {
+    return (
+      <PositioningBoardLoader
+        activity={activity}
+        target={target}
+        blockId={block.id}
+        title={block.title}
+        onChanged={onChanged}
+      />
+    );
+  }
+  if (target.snapshot?.assignmentMode === "DIRECT" && block?.type === "NOTES") {
+    return <ActivityTactics activity={activity} target={target} focusNoteId={block.id} onChanged={onChanged} />;
+  }
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          {target.bossName} - {target.strategyName}
-        </CardTitle>
-        <CardDescription>
-          {raid.raidName} ·{" "}
-          {raid.difficulty === "MYTHIC" ? "史诗" : raid.difficulty === "HEROIC" ? "英雄" : "未指定难度"} ·{" "}
-          {raid.mode === "PROGRESSION" ? "开荒" : "Farm"}
-        </CardDescription>
+        <CardTitle>{item.label}</CardTitle>
+        <CardDescription>{target.bossName}</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <StrategyTeamWorkspace activity={activity} onChanged={onChanged} readOnly />
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {target.bossName}
-              <Badge variant="outline">{target.strategyName}</Badge>
-              {target.strategyVersionNo ? <Badge variant="secondary">v{target.strategyVersionNo}</Badge> : null}
-            </CardTitle>
-            <CardDescription>
-              {target.blocks.length + target.tasks.length
-                ? `包含 ${target.blocks.length + target.tasks.length} 个战术内容项`
-                : "空白战术快照"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3">
-            {target.snapshot?.assignmentMode === "DIRECT" ? (
-              <ActivityTactics activity={activity} target={target} onChanged={onChanged} />
-            ) : (
-              <ActivityTaskPlan activity={activity} target={target} />
-            )}
-            <PositioningBoardLoader activity={activity} target={target} onChanged={onChanged} />
-          </CardContent>
-          {target.blocks.length ? (
-            <CardContent className="flex flex-col gap-3">
-              {target.blocks
-                .filter((block) => target.snapshot?.assignmentMode !== "DIRECT" || block.type !== "NOTES")
-                .map((block) => (
-                  <div key={block.id ?? block.type + block.orderIndex} className="rounded-lg border p-4">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">{strategyBlockLabel(block.type)}</Badge>
-                      <p className="font-medium">{block.title}</p>
-                    </div>
-                    {block.markdown ? (
-                      <pre className="mt-3 whitespace-pre-wrap font-sans text-sm leading-6">{block.markdown}</pre>
-                    ) : null}
-                    {!block.markdown && block.config && Object.keys(block.config).length ? (
-                      <pre className="mt-3 overflow-x-auto rounded-lg bg-muted p-3 text-xs">
-                        {JSON.stringify(block.config, null, 2)}
-                      </pre>
-                    ) : null}
-                  </div>
-                ))}
-            </CardContent>
-          ) : null}
-        </Card>
+      <CardContent>
+        {block?.markdown ? (
+          <pre className="whitespace-pre-wrap font-sans text-sm leading-6">{block.markdown}</pre>
+        ) : (
+          <p className="text-sm text-muted-foreground">暂无内容。</p>
+        )}
       </CardContent>
     </Card>
   );
 }
-
 function ActivityTaskPlan({
   activity,
   target,
+  taskId,
 }: {
   activity: ActivityDetail;
   target: NonNullable<NonNullable<ActivityDetail["raid"]>["targets"][number]>;
+  taskId?: string;
 }) {
   const sequence = target.tasks
-    .filter((task) => task.kind === "SEQUENCE")
+    .filter((task) => task.kind === "SEQUENCE" && (!taskId || task.id === taskId))
     .sort((left, right) => left.orderIndex - right.orderIndex);
   const timeline = target.tasks
-    .filter((task) => task.kind === "TIMELINE")
+    .filter((task) => task.kind === "TIMELINE" && (!taskId || task.id === taskId))
     .sort((left, right) => (left.offsetMs ?? 0) - (right.offsetMs ?? 0));
   if (!sequence.length && !timeline.length) return null;
   const slots = target.snapshot?.slots ?? [];
@@ -355,14 +534,6 @@ function ActivityTaskPlan({
 function formatTaskOffset(offsetMs: number) {
   const seconds = Math.floor(offsetMs / 1000);
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
-}
-
-function strategyBlockLabel(type: string) {
-  return (
-    { POSITIONING: "站位", RAID_GROUPS: "团队分组", SEQUENCE: "顺序任务", TIMELINE: "时序任务", NOTES: "战术笔记" }[
-      type
-    ] ?? type
-  );
 }
 
 function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
@@ -945,31 +1116,32 @@ function SignupRoster({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>报名与最终名单</CardTitle>
+        <CardTitle>报名列表</CardTitle>
         <CardDescription>按待确认、已确认、替补、已拒绝排序；最终名单仅显示已确认成员。</CardDescription>
-        {activity.canManage && activity.status !== "FINISHED" && activity.status !== "CANCELLED" ? (
-          <CardAction className="flex flex-wrap gap-2">
-            {!finalRosterOnly ? <BulkConfirmDialog activity={activity} onChanged={onChanged} /> : null}
-            <Button
-              variant="outline"
-              onClick={() => mutation.mutate(activity.rosterLockedAt ? "unlock" : "lock")}
-              disabled={mutation.isPending}
-            >
-              {activity.rosterLockedAt ? <LockOpen data-icon="inline-start" /> : <Lock data-icon="inline-start" />}
-              {activity.rosterLockedAt ? "解锁名单" : "锁定名单"}
-            </Button>
-          </CardAction>
-        ) : null}
+        <CardAction className="flex flex-wrap gap-2">
+          <Button
+            variant={finalRosterOnly ? "default" : "outline"}
+            onClick={() => onFinalRosterOnlyChange(!finalRosterOnly)}
+            aria-pressed={finalRosterOnly}
+          >
+            {finalRosterOnly ? "显示全部报名" : "切换最终名单"}
+          </Button>
+          {activity.canManage && activity.status !== "FINISHED" && activity.status !== "CANCELLED" ? (
+            <>
+              {!finalRosterOnly ? <BulkConfirmDialog activity={activity} onChanged={onChanged} /> : null}
+              <Button
+                variant="outline"
+                onClick={() => mutation.mutate(activity.rosterLockedAt ? "unlock" : "lock")}
+                disabled={mutation.isPending}
+              >
+                {activity.rosterLockedAt ? <LockOpen data-icon="inline-start" /> : <Lock data-icon="inline-start" />}
+                {activity.rosterLockedAt ? "解锁名单" : "锁定名单"}
+              </Button>
+            </>
+          ) : null}
+        </CardAction>
       </CardHeader>
       <CardContent>
-        <Button
-          className="mb-4"
-          variant={finalRosterOnly ? "default" : "outline"}
-          onClick={() => onFinalRosterOnlyChange(!finalRosterOnly)}
-          aria-pressed={finalRosterOnly}
-        >
-          {finalRosterOnly ? "显示全部报名" : "切换最终名单"}
-        </Button>
         <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg bg-muted/40 p-3">
           <Badge variant="outline">总人数 {visible.length}</Badge>
           {(["TANK", "HEALER", "MELEE", "RANGED"] as const).map((role) => (
