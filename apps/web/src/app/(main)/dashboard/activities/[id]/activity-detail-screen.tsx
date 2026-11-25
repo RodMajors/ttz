@@ -28,7 +28,6 @@ import {
   NotebookPen,
   Pencil,
   Send,
-  Swords,
   UserRoundPlus,
   Users,
   UsersRound,
@@ -90,8 +89,18 @@ const statusLabels = {
   CANCELLED: "已取消",
   REJECTED: "已拒绝",
 } as const;
-const activityStatusLabels = { DRAFT: "草稿", PUBLISHED: "已发布", FINISHED: "已结束", CANCELLED: "已取消" } as const;
-const roleLabels: Record<Role, string> = { TANK: "坦克", HEALER: "治疗", MELEE: "近战", RANGED: "远程" };
+const activityStatusLabels = {
+  DRAFT: "草稿",
+  PUBLISHED: "已发布",
+  FINISHED: "已结束",
+  CANCELLED: "已取消",
+} as const;
+const roleLabels: Record<Role, string> = {
+  TANK: "坦克",
+  HEALER: "治疗",
+  MELEE: "近战",
+  RANGED: "远程",
+};
 const activityTypeLabels: Record<ActivityDetail["type"], string> = {
   raid_progress: "团本开荒",
   raid_farm: "团本 Farm",
@@ -101,8 +110,20 @@ const activityTypeLabels: Record<ActivityDetail["type"], string> = {
 };
 type ActivityRaidTarget = NonNullable<NonNullable<ActivityDetail["raid"]>["targets"][number]>;
 type RaidStrategyTabItem =
-  | { key: string; label: string; kind: "block"; blockId: string | undefined; orderIndex: number }
-  | { key: string; label: string; kind: "task"; taskId: string; orderIndex: number };
+  | {
+      key: string;
+      label: string;
+      kind: "block";
+      blockId: string | undefined;
+      orderIndex: number;
+    }
+  | {
+      key: string;
+      label: string;
+      kind: "task";
+      taskId: string;
+      orderIndex: number;
+    };
 
 export function ActivityDetailScreen({ activityId }: { activityId: string }) {
   const client = useQueryClient();
@@ -157,13 +178,13 @@ function ActivityDetailTabs({ activity, onChanged }: { activity: ActivityDetail;
   }, []);
   return (
     <Tabs defaultValue="roster" className="min-w-0">
-      <div className="sticky top-0 z-40 -mx-4 w-[calc(100%+2rem)] overflow-x-auto border-b bg-background/90 px-4 py-2 shadow-sm backdrop-blur-md md:-mx-6 md:w-[calc(100%+3rem)] md:px-6 [html[data-navbar-style=sticky]_&]:top-12">
+      <div className="sticky top-0 z-40 -mx-4 w-[calc(100%+2rem)] overflow-x-auto border-b bg-background/90 px-4 py-4 shadow-sm backdrop-blur-md md:-mx-6 md:w-[calc(100%+3rem)] md:px-6 [html[data-navbar-style=sticky]_&]:top-12">
         <TabsList className="mx-auto flex h-auto w-max min-w-full justify-center gap-2 rounded-none bg-transparent p-0">
           <TabsTrigger
             value="roster"
             className="h-10 flex-none gap-2 rounded-lg border border-transparent px-4 text-sm shadow-none aria-selected:border-primary/30 aria-selected:bg-primary aria-selected:text-primary-foreground aria-selected:shadow-sm"
           >
-            <ClipboardList data-icon="inline-start" />
+            <ClipboardList data-icon="inline-start w-20" />
             报名列表
           </TabsTrigger>
           {activity.raid ? (
@@ -171,7 +192,7 @@ function ActivityDetailTabs({ activity, onChanged }: { activity: ActivityDetail;
               value="team-layout"
               className="h-10 flex-none gap-2 rounded-lg border border-transparent px-4 text-sm shadow-none aria-selected:border-primary/30 aria-selected:bg-primary aria-selected:text-primary-foreground aria-selected:shadow-sm"
             >
-              <UsersRound data-icon="inline-start" />
+              <UsersRound data-icon="inline-start w-20" />
               团队分组
             </TabsTrigger>
           ) : null}
@@ -181,9 +202,8 @@ function ActivityDetailTabs({ activity, onChanged }: { activity: ActivityDetail;
               value={`boss-${boss.bossId}`}
               className="h-10 flex-none gap-2 rounded-lg border border-transparent px-3 text-sm shadow-none aria-selected:border-primary/30 aria-selected:bg-primary aria-selected:text-primary-foreground aria-selected:shadow-sm"
             >
-              <GameIcon src={boss.bossIcon} className="size-6 rounded-sm object-cover" />
-              <span>{boss.bossName}</span>
-              <Swords className="size-3.5 opacity-45" aria-hidden="true" />
+              <GameIcon src={boss.bossIcon} className="w-20 rounded-sm object-cover" />
+              <span>{boss.bossName}战术</span>
             </TabsTrigger>
           ))}
         </TabsList>
@@ -259,10 +279,10 @@ function BossStrategyTabs({
 
   return (
     <section className="flex min-w-0 flex-col gap-4" aria-label={`${bossName} 战术内容`}>
-      <div className="flex flex-wrap items-end justify-between gap-2 border-b pb-3">
+      <div className="flex flex-wrap items-end justify-between gap-2 pb-3">
         <div>
           <p className="text-xs font-medium tracking-[0.16em] text-muted-foreground uppercase">Encounter playbook</p>
-          <h2 className="mt-1 text-lg font-semibold tracking-tight">战术内容</h2>
+          <h2 className="mt-1 text-lg font-semibold tracking-tight">{`${bossName} 战术板`}</h2>
         </div>
         <Badge variant="secondary">{items.length} 项</Badge>
       </div>
@@ -308,7 +328,7 @@ function BossStrategyTabs({
                     if (nextItem) selectItem(nextItem, true);
                   }
                 }}
-                className="group relative inline-flex h-[4.5rem] min-w-40 shrink-0 items-center gap-3 overflow-hidden rounded-xl border bg-card px-3 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none aria-selected:border-primary aria-selected:bg-primary/5 aria-selected:shadow-md"
+                className="group relative inline-flex h-15 min-w-40 shrink-0 items-center gap-3 overflow-hidden rounded border bg-card px-3 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none aria-selected:border-primary aria-selected:bg-primary/5 aria-selected:shadow-md"
               >
                 <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground transition-colors group-aria-selected:bg-primary group-aria-selected:text-primary-foreground">
                   <Icon className="size-5" aria-hidden="true" />
@@ -541,22 +561,25 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
   const [copiedInvite, setCopiedInvite] = useState(false);
   const action = useMutation({
     mutationFn: async (path: string) =>
-      apiRequest(`/activities/${activity.id}/${path}`, idResultSchema, { method: "POST" }),
+      apiRequest(`/activities/${activity.id}/${path}`, idResultSchema, {
+        method: "POST",
+      }),
     onSuccess: onChanged,
     onError: (reason) => setError(reason.message),
   });
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex flex-wrap items-center gap-2 text-4xl">
+        <CardTitle className="flex flex-wrap gap-2 text-4xl">
           {activity.name}
           <Badge variant={activity.status === "PUBLISHED" ? "default" : "secondary"}>
             {activityStatusLabels[activity.status]}
           </Badge>
           {activity.rosterLockedAt ? <Badge variant="outline">名单已锁定</Badge> : null}
         </CardTitle>
-        <CardDescription>
-          {activity.typeName || activityTypeLabels[activity.type]} · 负责人 <UserIdentity user={activity.creator} />
+        <CardDescription className="flex items-center gap-2 ">
+          {activity.typeName || activityTypeLabels[activity.type]} {"//"} 负责人{": "}
+          <UserIdentity user={activity.creator} />
         </CardDescription>
         {activity.canManage ? (
           <CardAction className="flex flex-wrap justify-end gap-2">
@@ -623,20 +646,13 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
         {activity.description ? <p className="whitespace-pre-wrap text-sm leading-6">{activity.description}</p> : null}
         {activity.passphrase ? (
           <Alert>
-            <AlertTitle>游戏内私信邀请</AlertTitle>
+            <AlertTitle>游戏内私信进组</AlertTitle>
             {activity.inviter ? (
               <>
                 <AlertDescription>复制后可直接粘贴到游戏聊天框发送。</AlertDescription>
                 <div className="flex flex-wrap items-center gap-2">
                   <pre className="min-w-0 flex-1 overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-sm">
-                    <code>
-                      {"/w " +
-                        activity.inviter.name +
-                        "-" +
-                        activity.inviter.realm +
-                        " 进组暗号：" +
-                        activity.passphrase}
-                    </code>
+                    <code>{`/w ${activity.inviter.name}-${activity.inviter.realm} ${activity.passphrase}`}</code>
                   </pre>
                   <Button
                     size="sm"
@@ -693,7 +709,10 @@ function ActivityEditDialog({ activity, onChanged }: { activity: ActivityDetail;
   );
   const mutation = useMutation({
     mutationFn: (body: z.infer<typeof updateActivitySchema>) =>
-      apiRequest(`/activities/${activity.id}`, activityDetailSchema, { method: "PATCH", body: JSON.stringify(body) }),
+      apiRequest(`/activities/${activity.id}`, activityDetailSchema, {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      }),
     onSuccess: async () => {
       setOpen(false);
       await onChanged();
@@ -808,7 +827,8 @@ function ActivityEditDialog({ activity, onChanged }: { activity: ActivityDetail;
           </FieldGroup>
           <DialogFooter className="mt-4">
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? <Spinner data-icon="inline-start" /> : <Pencil data-icon="inline-start" />}保存修改
+              {mutation.isPending ? <Spinner data-icon="inline-start" /> : <Pencil data-icon="inline-start" />}
+              保存修改
             </Button>
           </DialogFooter>
         </form>
@@ -883,7 +903,10 @@ function SignupDialog({
   });
   const mutation = useMutation({
     mutationFn: (body: z.infer<typeof signupSchema>) =>
-      apiRequest(`/activities/${activity.id}/signups`, idResultSchema, { method: "POST", body: JSON.stringify(body) }),
+      apiRequest(`/activities/${activity.id}/signups`, idResultSchema, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
     onSuccess: async () => {
       setOpen(false);
       await onChanged();
@@ -1000,7 +1023,12 @@ function SignupDialog({
                       </FieldLabel>
                       <Select
                         value={choiceSpecs[character.id] ?? "none"}
-                        onValueChange={(value) => setChoiceSpecs((current) => ({ ...current, [character.id]: value }))}
+                        onValueChange={(value) =>
+                          setChoiceSpecs((current) => ({
+                            ...current,
+                            [character.id]: value,
+                          }))
+                        }
                       >
                         <SelectTrigger id={`choice-${activity.id}-${character.id}`}>
                           <SelectValue />
@@ -1044,7 +1072,8 @@ function SignupDialog({
           </FieldGroup>
           <DialogFooter className="mt-4">
             <Button type="submit" disabled={mutation.isPending || !characters.data?.length || !preferredSpecId}>
-              {mutation.isPending ? <Spinner data-icon="inline-start" /> : <Check data-icon="inline-start" />}提交报名
+              {mutation.isPending ? <Spinner data-icon="inline-start" /> : <Check data-icon="inline-start" />}
+              提交报名
             </Button>
           </DialogFooter>
         </form>
@@ -1055,7 +1084,10 @@ function SignupDialog({
 
 function CancelSignup({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
   const mutation = useMutation({
-    mutationFn: () => apiRequest(`/activities/${activity.id}/signups/me`, cancelledSchema, { method: "DELETE" }),
+    mutationFn: () =>
+      apiRequest(`/activities/${activity.id}/signups/me`, cancelledSchema, {
+        method: "DELETE",
+      }),
     onSuccess: onChanged,
   });
   return (
@@ -1102,7 +1134,13 @@ function SignupRoster({
   const allRows = activity.signups
     .filter((signup) => signup.status !== "CANCELLED")
     .sort((left, right) => {
-      const order = { PENDING: 0, CONFIRMED: 1, BENCH: 2, REJECTED: 3, CANCELLED: 4 } as const;
+      const order = {
+        PENDING: 0,
+        CONFIRMED: 1,
+        BENCH: 2,
+        REJECTED: 3,
+        CANCELLED: 4,
+      } as const;
       return order[left.status] - order[right.status] || left.signedUpAt.localeCompare(right.signedUpAt);
     });
   const visible = finalRosterOnly ? allRows.filter((signup) => signup.status === "CONFIRMED") : allRows;
@@ -1114,7 +1152,7 @@ function SignupRoster({
     { TANK: 0, HEALER: 0, MELEE: 0, RANGED: 0 },
   );
   return (
-    <Card>
+    <Card className="ring-0">
       <CardHeader>
         <CardTitle>报名列表</CardTitle>
         <CardDescription>按待确认、已确认、替补、已拒绝排序；最终名单仅显示已确认成员。</CardDescription>
@@ -1423,7 +1461,8 @@ function DecisionDialog({
           </FieldGroup>
           <DialogFooter className="mt-4">
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? <Spinner data-icon="inline-start" /> : <Check data-icon="inline-start" />}保存结果
+              {mutation.isPending ? <Spinner data-icon="inline-start" /> : <Check data-icon="inline-start" />}
+              保存结果
             </Button>
           </DialogFooter>
         </form>
@@ -1469,9 +1508,11 @@ function Info({ label, value }: { label: string; value: string }) {
   );
 }
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "short", hour12: false }).format(
-    new Date(value),
-  );
+  return new Intl.DateTimeFormat("zh-CN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    hour12: false,
+  }).format(new Date(value));
 }
 function optionalNumber(value: FormDataEntryValue | null) {
   return value === null || value === "" ? null : Number(value);

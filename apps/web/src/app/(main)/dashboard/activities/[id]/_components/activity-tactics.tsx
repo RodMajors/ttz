@@ -156,7 +156,7 @@ export function ActivityTactics({
       : "原分配已失效，请重新选择";
   }
   return (
-    <Card>
+    <Card className="ring-0">
       <CardHeader>
         <CardTitle>{focusedTitle ?? "本场任务与笔记"}</CardTitle>
         <CardDescription>

@@ -56,8 +56,8 @@ function ProfileContent({ profile }: { profile: PublicMemberProfile }) {
         </Link>
       </Button>
       <Card>
-        <CardContent className="flex flex-wrap items-center gap-4 pt-6">
-          <Avatar size="lg" className="size-16">
+        <CardContent className="flex flex-wrap items-center gap-4">
+          <Avatar size="lg" className="size-16!">
             <AvatarImage src={profile.avatar ?? undefined} alt="" />
             <AvatarFallback>{getInitials(profile.name)}</AvatarFallback>
           </Avatar>
@@ -68,18 +68,18 @@ function ProfileContent({ profile }: { profile: PublicMemberProfile }) {
           </div>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="ring-0">
         <CardHeader>
           <div className="flex items-center gap-2">
             <UserRound />
             <CardTitle>角色列表</CardTitle>
           </div>
-          <CardDescription>公开展示该成员当前启用的角色资料。</CardDescription>
+          <CardDescription>该成员当前启用的角色资料。</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           {profile.characters.length ? (
             profile.characters.map((character) => (
-              <div key={character.id} className="flex flex-wrap items-center gap-3 rounded-lg border p-3">
+              <div key={character.id} className="flex flex-wrap items-center gap-3 border-b p-3">
                 <GameIcon src={character.classIconUrl} alt="" className="size-10 rounded" />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">

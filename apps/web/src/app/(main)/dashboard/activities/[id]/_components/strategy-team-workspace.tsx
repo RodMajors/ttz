@@ -4,16 +4,21 @@ import { useMutation } from "@tanstack/react-query";
 import type { ActivityDetail } from "@ttz/contracts";
 import { activityTeamLayoutSaveSchema } from "@ttz/contracts";
 import { cn } from "cn";
-import { Check, GripVertical, Lock, RotateCcw, Save, UserPlus, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Check, Lock, RotateCcw, Save, UserPlus, X } from "lucide-react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
+import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiRequest } from "@/lib/api-client";
 
-const saveResponseSchema = z.object({ layoutId: z.string(), revision: z.number().int(), updated: z.boolean() });
+const saveResponseSchema = z.object({
+  layoutId: z.string(),
+  revision: z.number().int(),
+  updated: z.boolean(),
+});
 type Assignment = { groupNo: number; positionNo: number; signupId: string };
 
 export function StrategyTeamWorkspace({
@@ -44,7 +49,13 @@ export function StrategyTeamWorkspace({
     setAssignments(
       layout.seats.flatMap((seat) =>
         seat.signupId && confirmedIds.has(seat.signupId)
-          ? [{ groupNo: seat.groupNo, positionNo: seat.positionNo, signupId: seat.signupId }]
+          ? [
+              {
+                groupNo: seat.groupNo,
+                positionNo: seat.positionNo,
+                signupId: seat.signupId,
+              },
+            ]
           : [],
       ),
     );
@@ -55,7 +66,10 @@ export function StrategyTeamWorkspace({
   const save = useMutation({
     mutationFn: async () => {
       if (!layout) throw new Error("活动团队框架不存在");
-      const body = activityTeamLayoutSaveSchema.parse({ revision: layout.revision, assignments: visibleAssignments });
+      const body = activityTeamLayoutSaveSchema.parse({
+        revision: layout.revision,
+        assignments: visibleAssignments,
+      });
       return apiRequest(`/activities/${activity.id}/team-layout`, saveResponseSchema, {
         method: "PUT",
         body: JSON.stringify(body),
@@ -71,7 +85,7 @@ export function StrategyTeamWorkspace({
 
   if (!layout) {
     return (
-      <Card className="border-destructive/30">
+      <Card className="ring-0">
         <CardHeader>
           <CardTitle className="text-base">团队分组</CardTitle>
           <CardDescription>活动团队框架尚未初始化，无法进行团队分组。</CardDescription>
@@ -89,20 +103,11 @@ export function StrategyTeamWorkspace({
     layout.status === "EDITING";
   const assignedIds = new Set(visibleAssignments.map(({ signupId }) => signupId));
   const unassigned = eligible.filter((signup) => !assignedIds.has(signup.id));
-  const ownCharacterIds = new Set(
-    activity.signups.filter((signup) => signup.userId === activity.mySignup?.userId).map((signup) => signup.id),
-  );
-  const classColorFor = (signupId: string | undefined, fallbackClassId: number | null) =>
-    signupId
-      ? eligible.find((signup) => signup.id === signupId)?.character.classColor
-      : activity.signups.find((signup) => signup.character.classId === fallbackClassId)?.character.classColor;
   const currentAssignment = (groupNo: number, positionNo: number) =>
     visibleAssignments.find((entry) => entry.groupNo === groupNo && entry.positionNo === positionNo);
-  const currentSeat = (groupNo: number, positionNo: number) => {
-    const seat = layout.seats.find((entry) => entry.groupNo === groupNo && entry.positionNo === positionNo);
-    if (seat?.signupId && !eligible.some((signup) => signup.id === seat.signupId)) return undefined;
-    return seat;
-  };
+  // Live signups come from the draft assignments, not from the original seat.
+  const historicalSeat = (groupNo: number, positionNo: number) =>
+    layout.seats.find((entry) => entry.groupNo === groupNo && entry.positionNo === positionNo && !entry.signupId);
 
   const place = (groupNo: number, positionNo: number, signupId: string) => {
     setSaved(false);
@@ -123,7 +128,15 @@ export function StrategyTeamWorkspace({
   const reset = () => {
     setAssignments(
       layout.seats.flatMap((seat) =>
-        seat.signupId ? [{ groupNo: seat.groupNo, positionNo: seat.positionNo, signupId: seat.signupId }] : [],
+        seat.signupId && eligible.some((signup) => signup.id === seat.signupId)
+          ? [
+              {
+                groupNo: seat.groupNo,
+                positionNo: seat.positionNo,
+                signupId: seat.signupId,
+              },
+            ]
+          : [],
       ),
     );
     setSelectedId(null);
@@ -132,7 +145,7 @@ export function StrategyTeamWorkspace({
   };
 
   return (
-    <Card className="border-dashed">
+    <Card className="ring-0">
       <CardHeader>
         <CardTitle className="flex flex-wrap items-center gap-2 text-base">
           团队分组
@@ -169,11 +182,11 @@ export function StrategyTeamWorkspace({
         {saved ? (
           <p className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm">团队分组已保存。</p>
         ) : null}
-        <div className="flex flex-col gap-2 rounded-lg border bg-muted/30 p-3">
+        <div className="flex flex-col gap-2 rounded border bg-muted/30 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
+            <div className="flex items-center gap-2">
               <p className="font-medium">未分配池</p>
-              <p className="text-xs text-muted-foreground">{unassigned.length} 名确认成员未占团队席位</p>
+              <p className="text-xs text-muted-foreground">{unassigned.length} 名确认成员未分配团队分组</p>
             </div>
             {selectedId ? (
               <Button type="button" variant="ghost" size="sm" onClick={() => setSelectedId(null)}>
@@ -191,17 +204,12 @@ export function StrategyTeamWorkspace({
                   draggable={canEdit}
                   disabled={!canEdit}
                   className={cn(
-                    "flex items-center gap-1.5 border bg-background px-2 py-1.5 text-left text-sm",
-                    canEdit ? "cursor-grab hover:border-primary/50" : "opacity-70",
-                    selectedId === signup.id && "border-primary bg-primary/10 ring-2 ring-primary/20",
-                    ownCharacterIds.has(signup.id) && "ring-2 ring-primary",
+                    "flex items-center gap-1.5 border px-2 py-1.5 text-left text-sm",
+                    signup.character.classColor ? "text-background" : "bg-background",
+                    canEdit && "cursor-grab hover:border-primary/50",
+                    selectedId === signup.id && "border-primary ring-2 ring-primary/20",
                   )}
-                  data-class-accent-surface={Boolean(signup.character.classColor)}
-                  style={
-                    signup.character.classColor
-                      ? { ["--class-color" as string]: signup.character.classColor }
-                      : undefined
-                  }
+                  {...classBackground(signup.character.classColor)}
                   onClick={() => setSelectedId((current) => (current === signup.id ? null : signup.id))}
                   onDragStart={(event) => {
                     event.dataTransfer.setData("text/plain", signup.id);
@@ -210,14 +218,11 @@ export function StrategyTeamWorkspace({
                   onDragEnd={() => setDraggedId(null)}
                   aria-pressed={selectedId === signup.id}
                 >
-                  <GripVertical className="size-3.5 text-muted-foreground" aria-hidden="true" />
-                  <span
-                    data-class-accent
-                    style={{ ["--class-color" as string]: signup.character.classColor ?? "currentColor" }}
-                  >
+                  <span className="flex items-center gap-2">
+                    <GameIcon src={signup.character.classIconUrl} className="size-6" />
                     {signup.character.name}
                   </span>
-                  {selectedId === signup.id ? <Check className="size-3.5 text-primary" aria-hidden="true" /> : null}
+                  {selectedId === signup.id ? <Check className="size-3.5" aria-hidden="true" /> : null}
                 </button>
               ))
             ) : (
@@ -237,11 +242,12 @@ export function StrategyTeamWorkspace({
                   const positionNo = index + 1;
                   const assignment = currentAssignment(groupNo, positionNo);
                   const signup = assignment ? eligible.find((entry) => entry.id === assignment.signupId) : undefined;
-                  const seat = currentSeat(groupNo, positionNo);
+                  const seat = signup ? undefined : historicalSeat(groupNo, positionNo);
                   const name = signup?.character.name ?? seat?.characterName ?? "空席";
-                  const isOwn = Boolean(assignment?.signupId && ownCharacterIds.has(assignment.signupId));
-                  const classColor =
-                    signup?.character.classColor ?? classColorFor(assignment?.signupId, seat?.classId ?? null);
+                  const isOwn = Boolean(signup && signup.userId === activity.mySignup?.userId);
+                  const classColor = signup
+                    ? signup.character.classColor
+                    : activity.signups.find((entry) => entry.character.classId === seat?.classId)?.character.classColor;
                   return (
                     <button
                       key={positionNo}
@@ -249,14 +255,16 @@ export function StrategyTeamWorkspace({
                       disabled={!canEdit}
                       className={cn(
                         "flex min-h-12 w-full items-center gap-2 border px-2 py-1.5 text-left",
-                        isOwn && "ring-2 ring-primary",
-                        canEdit && "cursor-pointer hover:border-primary/50",
-                        selectedId && !signup && "border-primary/50 bg-primary/5",
-                        draggedId && !signup && "border-dashed border-primary bg-primary/5",
-                        !signup && !seat?.userName && "text-muted-foreground",
+                        classColor && "text-background",
+                        isOwn && "border-amber-500 inset-ring-1 inset-ring-amber-500",
+                        canEdit && "cursor-pointer",
+                        canEdit && !isOwn && "hover:border-primary/50",
+                        selectedId && !signup && "border-primary/50",
+                        draggedId && !signup && "border-dashed border-primary",
+                        (selectedId || draggedId) && !signup && !classColor && "bg-primary/5",
+                        !classColor && !signup && !seat?.characterName && "text-muted-foreground",
                       )}
-                      data-class-accent-surface={Boolean(classColor)}
-                      style={classColor ? { ["--class-color" as string]: classColor } : undefined}
+                      {...classBackground(classColor)}
                       onClick={() => {
                         if (!canEdit) return;
                         if (selectedId) place(groupNo, positionNo, selectedId);
@@ -278,24 +286,16 @@ export function StrategyTeamWorkspace({
                       }}
                       onDragEnd={() => setDraggedId(null)}
                       draggable={Boolean(signup && canEdit)}
-                      aria-label={`第${groupNo}组 ${positionNo}号位，${name}`}
+                      aria-label={`第${groupNo}组 ${positionNo}号位，${name}${isOwn ? "（我的角色）" : ""}`}
                     >
-                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs">
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground">
                         {positionNo}
                       </span>
-                      <span className="min-w-0 flex-1">
-                        <span
-                          className="block truncate text-sm font-medium"
-                          data-class-accent
-                          style={{ ["--class-color" as string]: classColor ?? "currentColor" }}
-                        >
-                          {name}
-                        </span>
-                      </span>
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">{name}</span>
                       {signup ? (
-                        <UserPlus className="size-3.5 text-muted-foreground" aria-hidden="true" />
+                        <UserPlus className="size-3.5 opacity-70" aria-hidden="true" />
                       ) : seat?.userName ? (
-                        <Lock className="size-3.5 text-muted-foreground" aria-hidden="true" />
+                        <Lock className="size-3.5 opacity-70" aria-hidden="true" />
                       ) : null}
                     </button>
                   );
@@ -319,4 +319,8 @@ export function StrategyTeamWorkspace({
       </CardContent>
     </Card>
   );
+}
+
+function classBackground(color: string | null | undefined) {
+  return color ? { "data-class-accent-bg": "", style: { "--class-color": color } as CSSProperties } : {};
 }
