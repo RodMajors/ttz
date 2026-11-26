@@ -1,5 +1,7 @@
 "use client";
 
+import healerRoleIcon from "@media/roles/healer-modern.png";
+import tankRoleIcon from "@media/roles/tank-modern.png";
 import { useMutation } from "@tanstack/react-query";
 import type { ActivityDetail } from "@ttz/contracts";
 import { activityTeamLayoutSaveSchema } from "@ttz/contracts";
@@ -12,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { apiRequest } from "@/lib/api-client";
 
 const saveResponseSchema = z.object({
@@ -20,6 +23,7 @@ const saveResponseSchema = z.object({
   updated: z.boolean(),
 });
 type Assignment = { groupNo: number; positionNo: number; signupId: string };
+const roleLabels = { TANK: "坦克", HEALER: "治疗", MELEE: "近战", RANGED: "远程" } as const;
 
 export function StrategyTeamWorkspace({
   activity,
@@ -99,6 +103,7 @@ export function StrategyTeamWorkspace({
     activity.canManage &&
     activity.status !== "FINISHED" &&
     activity.status !== "CANCELLED" &&
+    activity.lifecycleStatus !== "COMPLETED" &&
     !activity.rosterLockedAt &&
     layout.status === "EDITING";
   const assignedIds = new Set(visibleAssignments.map(({ signupId }) => signupId));
@@ -198,36 +203,41 @@ export function StrategyTeamWorkspace({
           <div className="flex flex-wrap gap-2">
             {unassigned.length ? (
               unassigned.map((signup) => (
-                <button
-                  key={signup.id}
-                  type="button"
-                  draggable={canEdit}
-                  disabled={!canEdit}
-                  className={cn(
-                    "flex items-center gap-1.5 border px-2 py-1.5 text-left text-sm rounded",
-                    signup.character.classColor ? "text-background" : "bg-background",
-                    canEdit && "cursor-grab hover:border-primary/50",
-                    selectedId === signup.id && "border-primary ring-2 ring-primary/20",
-                  )}
-                  {...classBackground(signup.character.classColor)}
-                  onClick={() => setSelectedId((current) => (current === signup.id ? null : signup.id))}
-                  onDragStart={(event) => {
-                    event.dataTransfer.setData("text/plain", signup.id);
-                    setDraggedId(signup.id);
-                  }}
-                  onDragEnd={() => setDraggedId(null)}
-                  aria-pressed={selectedId === signup.id}
-                >
-                  <span className="flex items-center gap-2">
-                    <GameIcon src={signup.character.classIconUrl} className="size-6" />
-                    {signup.character.name}
-                  </span>
-                  {selectedId === signup.id ? (
-                    <Check className="size-3.5" aria-hidden="true" />
-                  ) : (
-                    <div className="size-3.5" />
-                  )}
-                </button>
+                <HoverCard key={signup.id}>
+                  <HoverCardTrigger asChild>
+                    <button
+                      key={signup.id}
+                      type="button"
+                      draggable={canEdit}
+                      disabled={!canEdit}
+                      className={cn(
+                        "flex max-w-64 items-center gap-1.5 rounded border px-2 py-1.5 text-left text-sm",
+                        signup.character.classColor ? "text-background" : "bg-background",
+                        canEdit && "cursor-grab hover:border-primary/50",
+                        selectedId === signup.id && "border-primary ring-2 ring-primary/20",
+                      )}
+                      {...classBackground(signup.character.classColor)}
+                      onClick={() => setSelectedId((current) => (current === signup.id ? null : signup.id))}
+                      onDragStart={(event) => {
+                        event.dataTransfer.setData("text/plain", signup.id);
+                        setDraggedId(signup.id);
+                      }}
+                      onDragEnd={() => setDraggedId(null)}
+                      aria-pressed={selectedId === signup.id}
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <GameIcon src={signup.character.classIconUrl} className="size-6" />
+                        <span className="truncate">{signup.character.name}</span>
+                      </span>
+                      {selectedId === signup.id ? (
+                        <Check className="size-3.5" aria-hidden="true" />
+                      ) : (
+                        <div className="size-3.5" />
+                      )}
+                    </button>
+                  </HoverCardTrigger>
+                  <SignupCharacterHoverCard signup={signup} />
+                </HoverCard>
               ))
             ) : (
               <p className="text-sm text-muted-foreground">没有未分配的确认/替补成员。</p>
@@ -252,13 +262,14 @@ export function StrategyTeamWorkspace({
                   const classColor = signup
                     ? signup.character.classColor
                     : activity.signups.find((entry) => entry.character.classId === seat?.classId)?.character.classColor;
-                  return (
+                  const seatButton = (
                     <button
                       key={positionNo}
                       type="button"
                       disabled={!canEdit}
                       className={cn(
-                        "flex min-h-12 w-full items-center gap-2 border px-2 py-1.5 text-left",
+                        "relative flex min-h-12 w-full items-center gap-2 border px-2 py-1.5 text-left",
+                        (signup?.preferredRole === "TANK" || signup?.preferredRole === "HEALER") && "pr-6",
                         classColor && "text-background",
                         isOwn && "border-amber-500 inset-ring-2 inset-ring-amber-500",
                         canEdit && "cursor-pointer",
@@ -296,12 +307,25 @@ export function StrategyTeamWorkspace({
                         {positionNo}
                       </span>
                       <span className="min-w-0 flex-1 truncate text-base text-center">{name}</span>
+                      {signup?.preferredRole === "TANK" ? (
+                        <GameIcon src={tankRoleIcon.src} alt="坦克" className="absolute right-1 top-1 size-3.5" />
+                      ) : signup?.preferredRole === "HEALER" ? (
+                        <GameIcon src={healerRoleIcon.src} alt="治疗" className="absolute right-1 top-1 size-3.5" />
+                      ) : null}
                       {signup ? null : seat?.userName ? (
                         <Lock className="size-3.5 opacity-70" aria-hidden="true" />
                       ) : (
                         <div className="size-3.5" />
                       )}
                     </button>
+                  );
+                  return signup ? (
+                    <HoverCard key={`card-${positionNo}`}>
+                      <HoverCardTrigger asChild>{seatButton}</HoverCardTrigger>
+                      <SignupCharacterHoverCard signup={signup} />
+                    </HoverCard>
+                  ) : (
+                    seatButton
                   );
                 })}
               </div>
@@ -332,4 +356,33 @@ function classBackground(color: string | null | undefined) {
         style: { "--class-color": color } as CSSProperties,
       }
     : {};
+}
+
+function SignupCharacterHoverCard({ signup }: { signup: ActivityDetail["signups"][number] }) {
+  const spec = signup.character.availableSpecs.find((entry) => entry.id === signup.preferredSpecId);
+  return (
+    <HoverCardContent className="w-72">
+      <div className="flex items-start gap-3">
+        <GameIcon src={signup.character.classIconUrl} alt="" className="size-10 rounded" />
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-semibold">{signup.character.name}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {signup.memberName} · {signup.character.realm}
+          </p>
+          <div className="mt-2 flex items-center gap-2 text-sm">
+            {spec?.iconUrl ? <GameIcon src={spec.iconUrl} alt="" className="size-5 rounded" /> : null}
+            <span>{spec?.name ?? signup.character.activeSpecName ?? "未指定专精"}</span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {spec?.role
+              ? roleLabels[spec.role]
+              : signup.preferredRole
+                ? roleLabels[signup.preferredRole]
+                : "职责未指定"}
+            {signup.character.averageItemLevel != null ? ` · 装等 ${signup.character.averageItemLevel}` : ""}
+          </p>
+        </div>
+      </div>
+    </HoverCardContent>
+  );
 }

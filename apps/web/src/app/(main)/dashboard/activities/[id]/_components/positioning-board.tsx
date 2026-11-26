@@ -79,7 +79,12 @@ export function PositioningBoard({
     ],
     [activity.teamLayout, target.snapshot?.slots],
   );
-  const canEdit = activity.canManage && !activity.rosterLockedAt && target.snapshot?.status === "EDITING" && !viewMode;
+  const canEdit =
+    activity.canManage &&
+    !activity.rosterLockedAt &&
+    activity.lifecycleStatus !== "COMPLETED" &&
+    target.snapshot?.status === "EDITING" &&
+    !viewMode;
 
   useEffect(() => {
     const parsed = positioningCanvasSchema.safeParse(block?.config);

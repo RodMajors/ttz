@@ -53,6 +53,7 @@ export function ActivityTactics({
     activity.canManage &&
     !locked &&
     snapshot?.status === "EDITING" &&
+    activity.lifecycleStatus !== "COMPLETED" &&
     activity.status !== "FINISHED" &&
     activity.status !== "CANCELLED";
   const [draft, setDraft] = useState<Draft>();

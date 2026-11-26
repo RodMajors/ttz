@@ -16,18 +16,21 @@ import {
 import { SelectPortalContext } from "./select-portal-context";
 
 type BaseSelectContentProps = React.ComponentProps<typeof BaseSelectContent>;
+type SelectContentProps = BaseSelectContentProps & { isNonModal?: boolean };
+const NonModalSelectContent = BaseSelectContent as React.ComponentType<SelectContentProps>;
 
 /**
  * Keep an opened react-aria popover inside the active Radix Dialog. A portal
  * under document.body falls outside Dialog's focus and pointer interaction
  * boundary, which makes the menu appear but prevents selecting an item.
  */
-function SelectContent({ UNSTABLE_portalContainer, ...props }: BaseSelectContentProps) {
+function SelectContent({ UNSTABLE_portalContainer, isNonModal = true, ...props }: SelectContentProps) {
   const dialogPortalContainer = useContext(SelectPortalContext);
 
   return (
-    <BaseSelectContent
+    <NonModalSelectContent
       {...props}
+      isNonModal={isNonModal}
       UNSTABLE_portalContainer={UNSTABLE_portalContainer ?? dialogPortalContainer ?? undefined}
     />
   );

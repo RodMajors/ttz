@@ -1,8 +1,12 @@
 "use client";
 
+import dpsRoleIcon from "@media/roles/dps-modern.png";
+import healerRoleIcon from "@media/roles/healer-modern.png";
+import tankRoleIcon from "@media/roles/tank-modern.png";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   type ActivityDetail,
+  type ActivityLifecycleStatus,
   type ActivitySignup,
   activityBulkConfirmResultSchema,
   activityDetailSchema,
@@ -35,6 +39,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, type ReactNode, useEffect, useId, useRef, useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import {
   AlertDialog,
@@ -89,17 +94,36 @@ const statusLabels = {
   CANCELLED: "已取消",
   REJECTED: "已拒绝",
 } as const;
-const activityStatusLabels = {
+const activityLifecycleLabels: Record<ActivityLifecycleStatus, string> = {
   DRAFT: "草稿",
-  PUBLISHED: "已发布",
-  FINISHED: "已结束",
+  SIGNUP_OPEN: "报名中",
+  PREPARATION: "战前准备中",
+  GATHERING: "集合中",
+  IN_PROGRESS: "进行中",
+  COMPLETED: "已结束",
   CANCELLED: "已取消",
-} as const;
+};
+const activityLifecycleColors: Record<ActivityLifecycleStatus, string> = {
+  DRAFT: "border-muted-foreground/30 bg-muted text-muted-foreground",
+  SIGNUP_OPEN: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  PREPARATION: "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
+  GATHERING: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  IN_PROGRESS: "border-primary/30 bg-primary/10 text-primary",
+  COMPLETED: "border-muted-foreground/30 bg-muted text-muted-foreground",
+  CANCELLED: "border-destructive/30 bg-destructive/10 text-destructive",
+};
 const roleLabels: Record<Role, string> = {
   TANK: "坦克",
   HEALER: "治疗",
   MELEE: "近战",
   RANGED: "远程",
+};
+const signupStatusColors: Record<ActivitySignup["status"], string> = {
+  PENDING: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  CONFIRMED: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  BENCH: "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
+  CANCELLED: "border-muted-foreground/30 bg-muted text-muted-foreground",
+  REJECTED: "border-destructive/30 bg-destructive/10 text-destructive",
 };
 const activityTypeLabels: Record<ActivityDetail["type"], string> = {
   raid_progress: "团本开荒",
@@ -556,24 +580,51 @@ function formatTaskOffset(offsetMs: number) {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
+function RoleIcon({ role }: { role: Role }) {
+  const image = role === "TANK" ? tankRoleIcon : role === "HEALER" ? healerRoleIcon : dpsRoleIcon;
+  return <GameIcon src={image.src} alt={roleLabels[role]} className="size-5 shrink-0" />;
+}
+
 function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
   const [error, setError] = useState<string>();
   const [copiedInvite, setCopiedInvite] = useState(false);
+  const canContinue = activity.lifecycleStatus !== "COMPLETED" && activity.lifecycleStatus !== "CANCELLED";
   const action = useMutation({
     mutationFn: async (path: string) =>
       apiRequest(`/activities/${activity.id}/${path}`, idResultSchema, {
         method: "POST",
       }),
-    onSuccess: onChanged,
-    onError: (reason) => setError(reason.message),
+    onSuccess: async (_result, path) => {
+      await onChanged();
+      const messages: Record<string, string> = {
+        publish: "活动已发布",
+        "close-signup": "报名已关闭",
+        finish: "活动已结束",
+        cancel: "活动已取消",
+      };
+      toast.success(messages[path] ?? "活动状态已更新");
+    },
+    onError: (reason) => {
+      toast.error("活动操作失败", { description: reason.message });
+      setError(reason.message);
+    },
   });
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="relative isolate overflow-hidden">
+        {activity.raid?.raidBackground ? (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-2/3 bg-cover bg-right opacity-15"
+            style={{
+              backgroundImage: `linear-gradient(to left, transparent, var(--card)), url("${activity.raid.raidBackground}")`,
+            }}
+          />
+        ) : null}
         <CardTitle className="flex flex-wrap gap-2 text-4xl">
           {activity.name}
-          <Badge variant={activity.status === "PUBLISHED" ? "default" : "secondary"}>
-            {activityStatusLabels[activity.status]}
+          <Badge className={activityLifecycleColors[activity.lifecycleStatus]}>
+            {activityLifecycleLabels[activity.lifecycleStatus]}
           </Badge>
           {activity.rosterLockedAt ? <Badge variant="outline">名单已锁定</Badge> : null}
         </CardTitle>
@@ -583,27 +634,39 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
         </CardDescription>
         {activity.canManage ? (
           <CardAction className="flex flex-wrap justify-end gap-2">
-            {activity.status === "DRAFT" || activity.status === "PUBLISHED" ? (
+            {(activity.status === "DRAFT" || activity.status === "PUBLISHED") && canContinue ? (
               <ActivityEditDialog activity={activity} onChanged={onChanged} />
             ) : null}
             {activity.status === "DRAFT" ? (
-              <ActionButton
+              <ActionConfirmButton
                 label="发布活动"
                 icon="send"
+                confirmDescription="发布后成员可以查看活动并报名。"
                 onClick={() => action.mutate("publish")}
                 pending={action.isPending}
               />
             ) : null}
-            {activity.status === "PUBLISHED" ? (
-              <ActionButton label="关闭报名" onClick={() => action.mutate("close-signup")} pending={action.isPending} />
+            {activity.status === "PUBLISHED" && activity.lifecycleStatus === "SIGNUP_OPEN" ? (
+              <ActionConfirmButton
+                label="关闭报名"
+                confirmDescription="关闭后成员将不能再提交或修改报名。"
+                onClick={() => action.mutate("close-signup")}
+                pending={action.isPending}
+              />
             ) : null}
             {activity.status === "PUBLISHED" ? (
-              <ActionButton label="结束活动" onClick={() => action.mutate("finish")} pending={action.isPending} />
+              <ActionConfirmButton
+                label="结束活动"
+                confirmDescription="结束活动会锁定本场名单和战术内容，此操作不可撤销。"
+                onClick={() => action.mutate("finish")}
+                pending={action.isPending}
+              />
             ) : null}
-            {activity.status === "DRAFT" || activity.status === "PUBLISHED" ? (
-              <ActionButton
+            {(activity.status === "DRAFT" || activity.status === "PUBLISHED") && canContinue ? (
+              <ActionConfirmButton
                 label="取消活动"
                 destructive
+                confirmDescription="取消后活动将无法恢复，也不能继续报名或进行名单安排。"
                 onClick={() => action.mutate("cancel")}
                 pending={action.isPending}
               />
@@ -617,7 +680,7 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
           <Info label="开始时间" value={formatDate(activity.beginAt)} />
           <Info label="报名截止" value={activity.signupDeadline ? formatDate(activity.signupDeadline) : "未设置"} />
           <Info label="建议人数" value={activity.maxPlayers == null ? "不限" : `${activity.maxPlayers} 人`} />
-          {activity.raid ? <Info label="团本" value={activity.raid.raidName} /> : null}
+          {activity.raid ? <Info label="团本" value={activity.raid.raidName} icon={activity.raid.raidIcon} /> : null}
         </div>
         {[
           ["坦克", activity.tankSlots],
@@ -865,9 +928,9 @@ function SignupPanel({ activity, onChanged }: { activity: ActivityDetail; onChan
               ) : null}
               {activity.canChangeMySignup ? (
                 <CancelSignup activity={activity} onChanged={onChanged} />
-              ) : (
+              ) : signup.status === "CONFIRMED" ? (
                 <Badge variant="outline">已确认，需联系负责人调整</Badge>
-              )}
+              ) : null}
             </div>
           </div>
         ) : activity.canSignup ? (
@@ -1144,6 +1207,12 @@ function SignupRoster({
       return order[left.status] - order[right.status] || left.signedUpAt.localeCompare(right.signedUpAt);
     });
   const visible = finalRosterOnly ? allRows.filter((signup) => signup.status === "CONFIRMED") : allRows;
+  const canManageRoster =
+    activity.canManage &&
+    activity.status !== "FINISHED" &&
+    activity.status !== "CANCELLED" &&
+    activity.lifecycleStatus !== "COMPLETED" &&
+    activity.lifecycleStatus !== "CANCELLED";
   const roleCounts = visible.reduce<Record<Role, number>>(
     (counts, signup) => {
       if (signup.preferredRole) counts[signup.preferredRole] += 1;
@@ -1164,7 +1233,7 @@ function SignupRoster({
           >
             {finalRosterOnly ? "显示全部报名" : "切换最终名单"}
           </Button>
-          {activity.canManage && activity.status !== "FINISHED" && activity.status !== "CANCELLED" ? (
+          {canManageRoster ? (
             <>
               {!finalRosterOnly ? <BulkConfirmDialog activity={activity} onChanged={onChanged} /> : null}
               <Button
@@ -1215,7 +1284,7 @@ function SignupRoster({
                 <TableHead>状态</TableHead>
                 <TableHead>分组</TableHead>
                 <TableHead>备注</TableHead>
-                {activity.canManage ? <TableHead className="text-right">处理</TableHead> : null}
+                {canManageRoster ? <TableHead className="text-right">处理</TableHead> : null}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1247,11 +1316,18 @@ function SignupRoster({
                       );
                     })()}
                   </TableCell>
-                  <TableCell>{signup.preferredRole ? roleLabels[signup.preferredRole] : "未指定"}</TableCell>
                   <TableCell>
-                    <Badge variant={signup.status === "CONFIRMED" ? "default" : "secondary"}>
-                      {statusLabels[signup.status]}
-                    </Badge>
+                    {signup.preferredRole ? (
+                      <span className="flex items-center gap-2">
+                        <RoleIcon role={signup.preferredRole} />
+                        {roleLabels[signup.preferredRole]}
+                      </span>
+                    ) : (
+                      "未指定"
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={signupStatusColors[signup.status]}>{statusLabels[signup.status]}</Badge>
                   </TableCell>
                   <TableCell>{signup.groupNo ? `${signup.groupNo} 组` : "—"}</TableCell>
                   <TableCell className="max-w-56">
@@ -1271,7 +1347,7 @@ function SignupRoster({
                       "—"
                     )}
                   </TableCell>
-                  {activity.canManage ? (
+                  {canManageRoster ? (
                     <TableCell className="text-right">
                       <DecisionDialog activity={activity} signup={signup} onChanged={onChanged} />
                     </TableCell>
@@ -1471,39 +1547,60 @@ function DecisionDialog({
   );
 }
 
-function ActionButton({
+function ActionConfirmButton({
   label,
   icon,
   destructive,
+  confirmDescription,
   pending,
   onClick,
 }: {
   label: string;
   icon?: "send";
   destructive?: boolean;
+  confirmDescription: string;
   pending: boolean;
   onClick: () => void;
 }) {
   return (
-    <Button size="sm" variant={destructive ? "destructive" : "outline"} disabled={pending} onClick={onClick}>
-      {pending ? (
-        <Spinner data-icon="inline-start" />
-      ) : icon === "send" ? (
-        <Send data-icon="inline-start" />
-      ) : destructive ? (
-        <X data-icon="inline-start" />
-      ) : (
-        <CalendarClock data-icon="inline-start" />
-      )}
-      {label}
-    </Button>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size="sm" variant={destructive ? "destructive" : "outline"} disabled={pending}>
+          {pending ? (
+            <Spinner data-icon="inline-start" />
+          ) : icon === "send" ? (
+            <Send data-icon="inline-start" />
+          ) : destructive ? (
+            <X data-icon="inline-start" />
+          ) : (
+            <CalendarClock data-icon="inline-start" />
+          )}
+          {label}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>确认{label}？</AlertDialogTitle>
+          <AlertDialogDescription>{confirmDescription}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>返回</AlertDialogCancel>
+          <AlertDialogAction variant={destructive ? "destructive" : "default"} onClick={onClick}>
+            确认{label}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
-function Info({ label, value }: { label: string; value: string }) {
+function Info({ label, value, icon }: { label: string; value: string; icon?: string | null }) {
   return (
     <div className="p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 font-medium">{value}</p>
+      <p className="mt-1 flex items-center gap-2 font-medium">
+        {icon ? <GameIcon src={icon} alt="" className="size-7 rounded object-contain" /> : null}
+        {value}
+      </p>
     </div>
   );
 }

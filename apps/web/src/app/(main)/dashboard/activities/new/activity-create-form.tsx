@@ -51,6 +51,7 @@ export function ActivityCreateForm() {
     queryFn: () => apiRequest("/raid-progress/catalog", raidCatalogSchema),
   });
   const selectedPlan = plans.data?.find((plan) => plan.id === planId);
+  const [difficulty, setDifficulty] = useState<"HEROIC" | "MYTHIC" | "UNSPECIFIED">("MYTHIC");
   const selectedRaidId = selectedPlan?.raidId ?? raidId;
   const selectedRaid = catalog.data?.find((raid) => raid.id === selectedRaidId);
   const availableBosses =
@@ -100,6 +101,7 @@ export function ActivityCreateForm() {
             raid: {
               raidId: selectedRaidId || undefined,
               progressPlanId: planId || undefined,
+              difficulty: selectedPlan?.difficulty ?? difficulty,
               targets: selectedBosses.map((bossId, orderIndex) => ({
                 bossId,
                 orderIndex,
@@ -225,6 +227,25 @@ export function ActivityCreateForm() {
                                   {raid.name}
                                 </SelectItem>
                               ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                      <Field>
+                        <FieldLabel>团本难度</FieldLabel>
+                        <Select
+                          value={selectedPlan?.difficulty ?? difficulty}
+                          isDisabled={Boolean(selectedPlan)}
+                          onValueChange={(value) => setDifficulty(value as "HEROIC" | "MYTHIC" | "UNSPECIFIED")}
+                        >
+                          <SelectTrigger className="cursor-pointer">
+                            <SelectValue placeholder="选择难度" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="MYTHIC">史诗</SelectItem>
+                              <SelectItem value="HEROIC">英雄</SelectItem>
+                              <SelectItem value="UNSPECIFIED">不指定</SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
