@@ -1,0 +1,38 @@
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  h_1dc22111645538 158,1211,1213
+apps/web/src/app/(main)/dashboard/raids/strategy-management-screen.tsx
+  h_1dc22111645538 124,126
+  s_d0b0c16abfe273::t_8072449d902324 14,32,130,132-135
+apps/web/src/app/(main)/dashboard/raid-progress/raid-progress-screen.tsx
+  h_1dc22111645538 48,238
+  s_d0b0c16abfe273::t_84ea1bee839b27 45-47,151-154,246,249-257
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/strategy-team-workspace.tsx
+  h_1dc22111645538 207,228-229
+  s_d0b0c16abfe273::t_1dded1aee618d9 7,225-227,263,295,298-299,301-303,329-334
+apps/miniapp/src/miniprogram/pages/activity-create/index.ts
+  h_1dc22111645538 16-17
+  s_d0b0c16abfe273::t_43df52ed43067d 13-15,18-19,25-29,72-74,125-128,132,143,201-204,207-210,213-216,219-222,277-283,285-287
+apps/web/src/app/(main)/dashboard/activities/new/activity-create-form.tsx
+  s_d0b0c16abfe273::t_6106c9adeba4d9 236,290
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "660be760b2cc96131c5b18b165e9b6bdd99663d5",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_d0b0c16abfe273": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f796-5bec-7292-ac04-125fbae10083",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
