@@ -233,7 +233,7 @@ export function ActivityCreateForm() {
                     {selectedRaidId ? (
                       <div className="flex flex-col gap-3">
                         <div className="flex items-center justify-between">
-                          <FieldLabel>"选择本次活动的 Boss 与战术快照（可选）"</FieldLabel>
+                          <FieldLabel>选择本次活动的 Boss 与战术快照（可选）</FieldLabel>
                           <div className="flex gap-2">
                             <Button
                               type="button"
@@ -287,7 +287,7 @@ export function ActivityCreateForm() {
                                   </SelectTrigger>
                                   <SelectContent>
                                     <SelectGroup>
-                                      <SelectItem value="blank">空白战术快照</SelectItem>
+                                      <SelectItem value="blank">无需战术</SelectItem>
                                       {options.flatMap((strategy) =>
                                         strategy.versions.map((version) => (
                                           <SelectItem key={version.id} value={version.id}>

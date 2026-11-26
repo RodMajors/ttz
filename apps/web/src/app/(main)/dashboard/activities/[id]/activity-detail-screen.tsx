@@ -155,7 +155,7 @@ export function ActivityDetailScreen({ activityId }: { activityId: string }) {
   }
   const activity = query.data;
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 min-h-300">
       <Button asChild variant="ghost" className="w-fit">
         <Link href="/dashboard/activities">
           <ArrowLeft data-icon="inline-start" />
@@ -1208,9 +1208,9 @@ function SignupRoster({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>成员</TableHead>
+                <TableHead>报名成员</TableHead>
                 <TableHead>报名角色</TableHead>
-                <TableHead>职业 / 专精</TableHead>
+                <TableHead>出战专精</TableHead>
                 <TableHead>职责</TableHead>
                 <TableHead>状态</TableHead>
                 <TableHead>分组</TableHead>

@@ -11,7 +11,7 @@ import {
   strategyMutationResultSchema,
   strategyStatusResultSchema,
 } from "@ttz/contracts";
-import { Archive, ArrowLeft, Check, CircleAlert, FilePlus2, Pencil, Plus, RotateCcw, ShieldCheck } from "lucide-react";
+import { Archive, Check, CircleAlert, FilePlus2, Pencil, Plus, RotateCcw, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
@@ -29,7 +29,7 @@ import { GameIcon } from "@/components/game-icon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -104,18 +104,6 @@ export function StrategyManagementScreen() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <Button asChild variant="ghost" className="mb-2 -ml-3">
-            <Link href="/dashboard/raids">
-              <ArrowLeft data-icon="inline-start" />
-              返回团本
-            </Link>
-          </Button>
-          <p className="text-sm text-muted-foreground">按团本与 Boss 管理 · 草稿 · 发布审核 · 版本归档</p>
-          <h1 className="text-3xl font-semibold tracking-tight">团本战术</h1>
-        </div>
-      </div>
       <Alert>
         <ShieldCheck />
         <AlertTitle>发布权限</AlertTitle>
@@ -133,16 +121,18 @@ export function StrategyManagementScreen() {
       ) : null}
       {(catalog.data ?? []).map((raid) => (
         <Card key={raid.id}>
-          <CardHeader>
+          <CardHeader className="flex items-center gap-4 justify-center">
             <GameIcon
-              src={raid.background}
+              src={raid.icon}
               onError={(event) => {
                 event.currentTarget.hidden = true;
               }}
-              className="w-22 object-contain"
+              className="size-20 object-contain"
             ></GameIcon>
-            <CardTitle>{raid.name}</CardTitle>
-            <CardDescription>团本 Boss 与可复用战术方案</CardDescription>
+            <div className="font-bold text-3xl text-shadow-lg">
+              {raid.name}
+              <CardDescription>团本 Boss 与可复用战术方案</CardDescription>
+            </div>
           </CardHeader>
           <CardContent className="flex flex-col gap-5">
             {raid.bosses.map((boss) => (

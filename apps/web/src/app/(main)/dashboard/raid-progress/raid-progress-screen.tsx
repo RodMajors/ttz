@@ -42,7 +42,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { apiRequest } from "@/lib/api-client";
 
-const queuedSchema = z.object({ jobId: z.string(), followUpJobIds: z.array(z.string()).default([]) });
+const queuedSchema = z.object({
+  jobId: z.string(),
+  followUpJobIds: z.array(z.string()).default([]),
+});
 const syncStatusSchema = z.object({
   jobId: z.string(),
   state: z.string(),
@@ -145,7 +148,10 @@ export function RaidProgressScreen() {
           : `同步任务已排队，正在准备读取 WCL 报告${syncJobIds.length > 1 ? ` · 队列任务 1/${syncJobIds.length}` : ""}。`;
       toast.loading("正在同步 WCL 公会报告", { id: toastId, description });
     } else if (visibleSyncError) {
-      toast.error("WCL 同步未完成", { id: toastId, description: visibleSyncError });
+      toast.error("WCL 同步未完成", {
+        id: toastId,
+        description: visibleSyncError,
+      });
     } else if (syncCompleted) {
       toast.success("WCL 同步完成", { id: toastId });
     }
@@ -229,15 +235,7 @@ function PlanTable({ plan }: { plan: Plan }) {
   return (
     <Card>
       <CardHeader className="relative isolate overflow-hidden">
-        {plan.raidBackground ? (
-          <img
-            src={plan.raidBackground ?? undefined}
-            alt=""
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-0 -z-10 h-full w-64 object-cover opacity-10"
-          />
-        ) : null}
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 justify-center">
           {plan.raidIcon ? (
             <img
               src={plan.raidIcon ?? undefined}
@@ -245,13 +243,19 @@ function PlanTable({ plan }: { plan: Plan }) {
               onError={(event) => {
                 event.currentTarget.hidden = true;
               }}
-              className="size-9 object-contain"
+              className="size-12 object-contain"
             />
           ) : null}
-          {difficulty}-{plan.raidName}
-          <Badge variant="outline">{plan.season}</Badge>
+          <div>
+            <div className="flex items-center gap-2">
+              {difficulty}-{plan.raidName}
+              <Badge variant="outline">{plan.season}</Badge>
+            </div>
+            <CardDescription>
+              最近同步 {plan.lastSyncedAt ? formatDateTime(plan.lastSyncedAt) : "尚未同步"}
+            </CardDescription>
+          </div>
         </CardTitle>
-        <CardDescription>最近同步 {plan.lastSyncedAt ? formatDateTime(plan.lastSyncedAt) : "尚未同步"}</CardDescription>
       </CardHeader>
       <CardContent>
         <PlanPullSummary plan={plan} />

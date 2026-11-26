@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import type { ActivityDetail } from "@ttz/contracts";
 import { activityTeamLayoutSaveSchema } from "@ttz/contracts";
 import { cn } from "cn";
-import { Check, Lock, RotateCcw, Save, UserPlus, X } from "lucide-react";
+import { Check, Lock, RotateCcw, Save, X } from "lucide-react";
 import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { GameIcon } from "@/components/game-icon";
@@ -204,7 +204,7 @@ export function StrategyTeamWorkspace({
                   draggable={canEdit}
                   disabled={!canEdit}
                   className={cn(
-                    "flex items-center gap-1.5 border px-2 py-1.5 text-left text-sm",
+                    "flex items-center gap-1.5 border px-2 py-1.5 text-left text-sm rounded",
                     signup.character.classColor ? "text-background" : "bg-background",
                     canEdit && "cursor-grab hover:border-primary/50",
                     selectedId === signup.id && "border-primary ring-2 ring-primary/20",
@@ -222,7 +222,11 @@ export function StrategyTeamWorkspace({
                     <GameIcon src={signup.character.classIconUrl} className="size-6" />
                     {signup.character.name}
                   </span>
-                  {selectedId === signup.id ? <Check className="size-3.5" aria-hidden="true" /> : null}
+                  {selectedId === signup.id ? (
+                    <Check className="size-3.5" aria-hidden="true" />
+                  ) : (
+                    <div className="size-3.5" />
+                  )}
                 </button>
               ))
             ) : (
@@ -256,7 +260,7 @@ export function StrategyTeamWorkspace({
                       className={cn(
                         "flex min-h-12 w-full items-center gap-2 border px-2 py-1.5 text-left",
                         classColor && "text-background",
-                        isOwn && "border-amber-500 inset-ring-1 inset-ring-amber-500",
+                        isOwn && "border-amber-500 inset-ring-2 inset-ring-amber-500",
                         canEdit && "cursor-pointer",
                         canEdit && !isOwn && "hover:border-primary/50",
                         selectedId && !signup && "border-primary/50",
@@ -288,15 +292,15 @@ export function StrategyTeamWorkspace({
                       draggable={Boolean(signup && canEdit)}
                       aria-label={`第${groupNo}组 ${positionNo}号位，${name}${isOwn ? "（我的角色）" : ""}`}
                     >
-                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground">
+                      <span className="flex size-3.5 shrink-0 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground">
                         {positionNo}
                       </span>
-                      <span className="min-w-0 flex-1 truncate text-sm font-medium">{name}</span>
-                      {signup ? (
-                        <UserPlus className="size-3.5 opacity-70" aria-hidden="true" />
-                      ) : seat?.userName ? (
+                      <span className="min-w-0 flex-1 truncate text-base text-center">{name}</span>
+                      {signup ? null : seat?.userName ? (
                         <Lock className="size-3.5 opacity-70" aria-hidden="true" />
-                      ) : null}
+                      ) : (
+                        <div className="size-3.5" />
+                      )}
                     </button>
                   );
                 })}
@@ -322,5 +326,10 @@ export function StrategyTeamWorkspace({
 }
 
 function classBackground(color: string | null | undefined) {
-  return color ? { "data-class-accent-bg": "", style: { "--class-color": color } as CSSProperties } : {};
+  return color
+    ? {
+        "data-class-accent-bg": "",
+        style: { "--class-color": color } as CSSProperties,
+      }
+    : {};
 }

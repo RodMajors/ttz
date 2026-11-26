@@ -10,13 +10,23 @@ type RaidBoss = {
   excludeFromProgress?: boolean;
 };
 type Raid = { id: string; name: string; bosses: RaidBoss[] };
-type ProgressPlan = { id: string; raidId: string; name: string; difficulty: string; bosses: RaidBoss[] };
+type ProgressPlan = {
+  id: string;
+  raidId: string;
+  name: string;
+  difficulty: string;
+  bosses: RaidBoss[];
+};
 type PublishedStrategy = {
   bossId: string;
   name: string;
   versions: { id: string; versionNo: number }[];
 };
-type SelectableBoss = RaidBoss & { strategyLabels: string[]; strategyVersionIds: string[]; strategyIndex: number };
+type SelectableBoss = RaidBoss & {
+  strategyLabels: string[];
+  strategyVersionIds: string[];
+  strategyIndex: number;
+};
 
 Page({
   data: {
@@ -59,7 +69,9 @@ Page({
         planOptions: ["不使用进度计划", ...plans.map((plan) => plan.name)],
       });
     } catch (error) {
-      this.setData({ error: error instanceof Error ? error.message : "团本目录加载失败" });
+      this.setData({
+        error: error instanceof Error ? error.message : "团本目录加载失败",
+      });
     }
   },
   selectType(event: WechatMiniprogram.PickerChange) {
@@ -110,11 +122,14 @@ Page({
           const options = strategies
             .filter((strategy) => strategy.bossId === boss.id)
             .flatMap((strategy) =>
-              strategy.versions.map((version) => ({ label: `${strategy.name} v${version.versionNo}`, id: version.id })),
+              strategy.versions.map((version) => ({
+                label: `${strategy.name} v${version.versionNo}`,
+                id: version.id,
+              })),
             );
           return {
             ...boss,
-            strategyLabels: ["空白战术快照", ...options.map((option) => option.label)],
+            strategyLabels: ["无需战术", ...options.map((option) => option.label)],
             strategyVersionIds: options.map((option) => option.id),
             strategyIndex: 0,
           };
@@ -125,7 +140,7 @@ Page({
       this.setData({
         availableBosses: (includedBosses ?? raid.bosses.filter((boss) => !boss.excludeFromProgress)).map((boss) => ({
           ...boss,
-          strategyLabels: ["空白战术快照"],
+          strategyLabels: ["无需战术"],
           strategyVersionIds: [],
           strategyIndex: 0,
         })),
@@ -183,16 +198,28 @@ Page({
     this.setData(changes);
   },
   selectDeadlineDate(event: WechatMiniprogram.PickerChange) {
-    this.setData({ deadlineDate: String(event.detail.value), followsBeginDeadline: false });
+    this.setData({
+      deadlineDate: String(event.detail.value),
+      followsBeginDeadline: false,
+    });
   },
   selectDeadlineTime(event: WechatMiniprogram.PickerChange) {
-    this.setData({ deadlineTime: String(event.detail.value), followsBeginDeadline: false });
+    this.setData({
+      deadlineTime: String(event.detail.value),
+      followsBeginDeadline: false,
+    });
   },
   selectTeamUpDate(event: WechatMiniprogram.PickerChange) {
-    this.setData({ teamUpDate: String(event.detail.value), followsBeginTeamUp: false });
+    this.setData({
+      teamUpDate: String(event.detail.value),
+      followsBeginTeamUp: false,
+    });
   },
   selectTeamUpTime(event: WechatMiniprogram.PickerChange) {
-    this.setData({ teamUpTime: String(event.detail.value), followsBeginTeamUp: false });
+    this.setData({
+      teamUpTime: String(event.detail.value),
+      followsBeginTeamUp: false,
+    });
   },
   toggleAttendance(event: WechatMiniprogram.SwitchChange) {
     this.setData({ attendanceEnabled: event.detail.value });
@@ -247,9 +274,17 @@ Page({
         },
       });
       wx.showToast({ title: "草稿已创建", icon: "success" });
-      setTimeout(() => wx.redirectTo({ url: `/pages/activity-detail/index?id=${activity.id}` }), 600);
+      setTimeout(
+        () =>
+          wx.redirectTo({
+            url: `/pages/activity-detail/index?id=${activity.id}`,
+          }),
+        600,
+      );
     } catch (error) {
-      this.setData({ error: error instanceof Error ? error.message : "创建活动失败" });
+      this.setData({
+        error: error instanceof Error ? error.message : "创建活动失败",
+      });
     } finally {
       this.setData({ submitting: false });
     }
