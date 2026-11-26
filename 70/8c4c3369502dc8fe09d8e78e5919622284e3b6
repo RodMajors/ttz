@@ -1,0 +1,58 @@
+apps/web/src/app/(main)/dashboard/activities/new/activity-create-form.tsx
+  h_1dc22111645538 168,172-181
+  h_1dc22111645538 170-171,182,207
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  h_1dc22111645538 626-637,642-673,679-686,688,690-711,713-718,720-756,758-759
+  h_1dc22111645538 585,613-614,618,620-622,638-641,674-678,689,712,757,760-763
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  h_1dc22111645538 145,150-154,161,168-169,363
+  s_d0b0c16abfe273::t_fc3562ded9a075 346,349,351-354,356-360,362,364-374,376-378,392-395
+apps/web/src/app/(main)/dashboard/members/_components/members-screen.tsx
+  h_1dc22111645538 126,136
+apps/web/src/app/(main)/dashboard/_components/member-table.tsx
+  h_1dc22111645538 54-60
+  h_1dc22111645538 7,53,61-63,69
+apps/web/src/components/user-identity.tsx
+  h_1dc22111645538 27-28,68,75,99
+  s_d0b0c16abfe273::t_6fb5c7c559064f 100-102
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/strategy-team-workspace.tsx
+  h_1dc22111645538 30
+  h_1dc22111645538 18,27-29,31-32,212,326,367,369,371-372,374,376-378
+apps/miniapp/miniprogram/app.wxss
+  s_91209f3f10bb14::t_104d157779c1e6 20
+apps/miniapp/miniprogram/pages/activity-detail/index.wxml
+  s_91209f3f10bb14::t_cf11ce367381c2 4,14-15
+apps/web/src/app/(main)/dashboard/_components/activity-schedule-fields.tsx
+  s_d0b0c16abfe273::t_d212f29362c9e7 4,121,149-166
+apps/web/src/components/app-select.tsx
+  s_d0b0c16abfe273::t_f0738e0f56064b 3-4,6,18,21-148,152-158,163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "708c4c3369502dc8fe09d8e78e5919622284e3b6",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_91209f3f10bb14": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ce5e-3ad5-7553-9333-b05a2d9c46fd",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    },
+    "s_d0b0c16abfe273": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f796-5bec-7292-ac04-125fbae10083",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
