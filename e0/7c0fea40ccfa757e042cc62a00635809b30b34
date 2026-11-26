@@ -1,0 +1,42 @@
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/strategy-team-workspace.tsx
+  h_1dc22111645538 215-219,265
+  s_d0b0c16abfe273::t_aa48ee41b1951d 3-4,17,26,106,206-214,220-240,271-272,310-314,322-329,360-388
+apps/web/src/app/(main)/dashboard/activities/_components/activities-screen.tsx
+  h_1dc22111645538 400,404
+  s_d0b0c16abfe273::t_f86963d99ec3b0 4-12,17,19,23,36,42,44-48,51-59,142-219,284-293,296-297,379-399,401-403,405-449,451,462
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/activity-tactics.tsx
+  s_d0b0c16abfe273::t_30caff8d52fd90 56
+apps/web/src/app/(main)/dashboard/activities/[id]/_components/positioning-board.tsx
+  s_d0b0c16abfe273::t_1c3d349e4b51d7 82-87
+apps/web/src/app/(main)/dashboard/activities/new/activity-create-form.tsx
+  s_d0b0c16abfe273::t_44554ca229eb8e 54,104,234-252
+apps/web/src/components/app-select.tsx
+  s_d0b0c16abfe273::t_457985b673d4e8 19-20,27,31,33
+apps/web/tsconfig.json
+  s_d0b0c16abfe273::t_21f0543501ccf6 23-24
+packages/contracts/src/index.ts
+  s_d0b0c16abfe273::t_907c967dd3fc39 70-79,105,147,155,163,170,222-224,320,367,405-408,419-420,472,852-854
+apps/web/src/app/(main)/dashboard/activities/[id]/activity-detail-screen.tsx
+  h_1dc22111645538 3-5,9,42,97,99-103,105-114,121-127,583-587,591,597-610,614-623,626-627,637,641,644,649-655,658-663,665-666,669,683,931,933,1210-1215,1236,1287,1320-1330,1350,1550,1554,1561,1566-1593,1596,1600-1603
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e07c0fea40ccfa757e042cc62a00635809b30b34",
+  "prompts": {},
+  "humans": {
+    "h_1dc22111645538": {
+      "author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  },
+  "sessions": {
+    "s_d0b0c16abfe273": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1f796-5bec-7292-ac04-125fbae10083",
+        "model": "unknown"
+      },
+      "human_author": "rodmajors <liangzerui@eccom.com.cn>"
+    }
+  }
+}
