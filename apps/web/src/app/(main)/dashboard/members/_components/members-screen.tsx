@@ -123,7 +123,7 @@ export function MembersScreen() {
           <CardDescription>身份组只用于展示和统计，权限由审核状态与管理员决定。</CardDescription>
           <CardAction className="flex gap-2">
             <Input
-              className="w-52"
+              className="w-70"
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);
@@ -133,6 +133,7 @@ export function MembersScreen() {
               aria-label="搜索成员或角色"
             />
             <Select
+              className="w-50"
               value={groupId || "all"}
               onValueChange={(value) => {
                 setGroupId(value === "all" ? "" : value);

@@ -24,8 +24,8 @@ export function UserIdentity({ user, className }: { user: PublicMemberSummary; c
 
   return (
     <HoverCard
-      openDelay={350}
-      closeDelay={150}
+      openDelay={50}
+      closeDelay={50}
       onOpenChange={(open) => {
         if (open && !profile.data && !profile.isFetching) void profile.refetch();
       }}
@@ -65,14 +65,14 @@ function MemberPreview({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <Avatar size="lg">
+        <Avatar className="w-16 h-16 size-16">
           <AvatarImage src={profile?.avatar ?? user.avatar ?? undefined} alt="" />
           <AvatarFallback>{getInitials(profile?.name ?? user.name)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0">
           <p className="truncate font-semibold">{profile?.name ?? user.name}</p>
-          <p className="truncate text-xs text-muted-foreground">TTZ 群昵称：{profile?.guildNickname ?? "加载中…"}</p>
           <p className="truncate text-xs text-muted-foreground">微信名：{profile?.wxNickname ?? "加载中…"}</p>
+          <p className="truncate text-xs text-muted-foreground">群昵称：{profile?.guildNickname ?? "加载中…"}</p>
         </div>
       </div>
       {isLoading && !profile ? <Skeleton className="h-16 w-full" /> : null}
@@ -96,7 +96,10 @@ function MemberPreview({
       ) : (
         <p className="text-xs text-muted-foreground">尚未设置主角色</p>
       )}
-      <Link href={`/dashboard/members/${encodeURIComponent(user.id)}`} className="text-xs text-primary hover:underline">
+      <Link
+        href={`/dashboard/members/${encodeURIComponent(user.id)}`}
+        className="text-xs text-primary hover:underline text-right"
+      >
         查看成员主页
       </Link>
     </div>

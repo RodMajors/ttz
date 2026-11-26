@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { UserIdentity } from "@/components/user-identity";
 import { apiRequest } from "@/lib/api-client";
 
 const saveResponseSchema = z.object({
@@ -23,7 +24,12 @@ const saveResponseSchema = z.object({
   updated: z.boolean(),
 });
 type Assignment = { groupNo: number; positionNo: number; signupId: string };
-const roleLabels = { TANK: "坦克", HEALER: "治疗", MELEE: "近战", RANGED: "远程" } as const;
+const roleLabels = {
+  TANK: "坦克",
+  HEALER: "治疗",
+  MELEE: "近战",
+  RANGED: "远程",
+} as const;
 
 export function StrategyTeamWorkspace({
   activity,
@@ -203,7 +209,7 @@ export function StrategyTeamWorkspace({
           <div className="flex flex-wrap gap-2">
             {unassigned.length ? (
               unassigned.map((signup) => (
-                <HoverCard key={signup.id}>
+                <HoverCard key={signup.id} openDelay={100} closeDelay={100}>
                   <HoverCardTrigger asChild>
                     <button
                       key={signup.id}
@@ -311,16 +317,13 @@ export function StrategyTeamWorkspace({
                         <GameIcon src={tankRoleIcon.src} alt="坦克" className="absolute right-1 top-1 size-3.5" />
                       ) : signup?.preferredRole === "HEALER" ? (
                         <GameIcon src={healerRoleIcon.src} alt="治疗" className="absolute right-1 top-1 size-3.5" />
-                      ) : null}
-                      {signup ? null : seat?.userName ? (
-                        <Lock className="size-3.5 opacity-70" aria-hidden="true" />
                       ) : (
                         <div className="size-3.5" />
                       )}
                     </button>
                   );
                   return signup ? (
-                    <HoverCard key={`card-${positionNo}`}>
+                    <HoverCard key={`card-${positionNo}`} openDelay={100} closeDelay={100}>
                       <HoverCardTrigger asChild>{seatButton}</HoverCardTrigger>
                       <SignupCharacterHoverCard signup={signup} />
                     </HoverCard>
@@ -361,17 +364,18 @@ function classBackground(color: string | null | undefined) {
 function SignupCharacterHoverCard({ signup }: { signup: ActivityDetail["signups"][number] }) {
   const spec = signup.character.availableSpecs.find((entry) => entry.id === signup.preferredSpecId);
   return (
-    <HoverCardContent className="w-72">
+    <HoverCardContent className="w-50">
       <div className="flex items-start gap-3">
-        <GameIcon src={signup.character.classIconUrl} alt="" className="size-10 rounded" />
+        {spec?.iconUrl ? <GameIcon src={spec.iconUrl} alt="" className="size-10 rounded" /> : null}
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold">{signup.character.name}</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {signup.memberName} · {signup.character.realm}
+          <p className="font-semibold">
+            {signup.character.name} - {signup.character.realm}
           </p>
+          <p className="text-xs text-muted-foreground text-nowrap">{signup.memberName}</p>
           <div className="mt-2 flex items-center gap-2 text-sm">
-            {spec?.iconUrl ? <GameIcon src={spec.iconUrl} alt="" className="size-5 rounded" /> : null}
-            <span>{spec?.name ?? signup.character.activeSpecName ?? "未指定专精"}</span>
+            <span>
+              {signup.character.className} · {spec?.name ?? signup.character.activeSpecName ?? "未指定专精"}
+            </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
             {spec?.role

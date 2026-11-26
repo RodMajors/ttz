@@ -165,9 +165,21 @@ export function ActivityCreateForm() {
               {activityType === "raid_progress" || activityType === "raid_farm" ? (
                 <FieldSet>
                   <FieldGroup>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 sm:grid-cols-3">
                       <Field>
-                        <FieldLabel>进度计划（可选）</FieldLabel>
+                        <FieldLabel>
+                          进度计划（可选）
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger type="button" aria-label="团本已锁定" className="cursor-help">
+                                <Info className="size-4" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                选择进度计划后，团本及其难度由计划自动确定；清除计划后可手动选择。
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </FieldLabel>
                         <Select
                           value={planId || "none"}
                           onValueChange={(value) => {
@@ -192,21 +204,7 @@ export function ActivityCreateForm() {
                         </Select>
                       </Field>
                       <Field>
-                        <FieldLabel className="flex items-center gap-2">
-                          指定团本（可选）
-                          {selectedPlan ? (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger type="button" aria-label="团本已锁定" className="cursor-help">
-                                  <Info className="size-4" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  选择进度计划后，团本由计划自动确定；清除计划后可手动选择。
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          ) : null}
-                        </FieldLabel>
+                        <FieldLabel className="flex items-center gap-2">指定团本（可选）</FieldLabel>
                         <Select
                           value={selectedRaidId || "none"}
                           isDisabled={Boolean(selectedPlan)}

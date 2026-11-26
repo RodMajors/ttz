@@ -1,7 +1,7 @@
 "use client";
 
 import { zhCN } from "date-fns/locale";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Clock3 } from "lucide-react";
 import { useState } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/app-select";
 import { Button } from "@/components/ui/button";
@@ -118,7 +118,7 @@ function DateTimePicker({
     : "选择日期";
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_8rem] gap-2">
+    <div className="grid grid-cols-[minmax(0,1fr)_10rem] gap-2">
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -146,17 +146,24 @@ function DateTimePicker({
           />
         </PopoverContent>
       </Popover>
-      <Input
-        aria-label={`${label}时间`}
-        type="time"
-        step={60}
-        value={selectedDate ? timePart : ""}
-        disabled={!selectedDate}
-        onChange={(event) => {
-          if (!selectedDate || !event.target.value) return;
-          onChange(`${datePart}T${event.target.value}`);
-        }}
-      />
+      <div className="relative">
+        <Clock3
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+        />
+        <Input
+          aria-label={`${label}时间`}
+          type="time"
+          step={60}
+          value={selectedDate ? timePart : ""}
+          disabled={!selectedDate}
+          onChange={(event) => {
+            if (!selectedDate || !event.target.value) return;
+            onChange(`${datePart}T${event.target.value}`);
+          }}
+          className="h-9 cursor-pointer pl-9 text-sm tabular-nums"
+        />
+      </div>
     </div>
   );
 }

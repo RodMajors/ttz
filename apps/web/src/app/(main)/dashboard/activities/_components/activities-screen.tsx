@@ -22,14 +22,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@/components/ui/combobox";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -150,28 +142,31 @@ export function ActivitiesScreen() {
                 placeholder="搜索活动名称"
               />
             </FilterField>
-            <FilterField label="团本" id="filter-raid">
+            <FilterField label="团本" id="filter-raid" className="w-72 shrink-0">
               <SearchableSelect
                 id="filter-raid"
                 value={raidId}
                 placeholder="全部团本"
-                options={(catalog.data ?? []).map((raid) => ({ value: raid.id, label: raid.name }))}
+                options={(catalog.data ?? []).map((raid) => ({
+                  value: raid.id,
+                  label: raid.name,
+                  icon: raid.icon,
+                }))}
                 onValueChange={(value) => {
                   updateFilter(setRaidId, value);
                   setBossId("");
                 }}
               />
             </FilterField>
-            <FilterField label="Boss" id="filter-boss">
+            <FilterField label="Boss" id="filter-boss" className="w-72 shrink-0">
               <SearchableSelect
                 id="filter-boss"
                 value={bossId}
                 placeholder="全部 Boss"
                 options={bosses.map((boss) => ({
                   value: boss.id,
-                  label: selectedRaid
-                    ? boss.name
-                    : `${boss.name} · ${catalog.data?.find((raid) => raid.id === boss.raidId)?.name ?? ""}`,
+                  label: boss.name,
+                  icon: boss.icon,
                 }))}
                 onValueChange={(value) => updateFilter(setBossId, value)}
               />
@@ -348,31 +343,39 @@ function SearchableSelect({
   id: string;
   value: string;
   placeholder: string;
-  options: Array<{ value: string; label: string }>;
+  options: Array<{ value: string; label: string; icon?: string | null }>;
   onValueChange: (value: string) => void;
 }) {
-  const items = [{ value: "", label: placeholder }, ...options];
-  const labelForValue = (item: string) => items.find((option) => option.value === item)?.label ?? "";
+  const items = [{ value: "", label: placeholder, icon: null }, ...options];
   return (
-    <Combobox
-      items={items.map((item) => item.value)}
-      value={value}
-      onValueChange={(next) => onValueChange(next ?? "")}
-      itemToStringLabel={labelForValue}
-      itemToStringValue={(item) => item}
+    <Select
+      aria-label={placeholder}
+      value={value || "all"}
+      onValueChange={(next) => onValueChange(next === "all" ? "" : next)}
     >
-      <ComboboxInput id={id} className="w-48" placeholder={placeholder} showClear />
-      <ComboboxContent>
-        <ComboboxList>
+      <SelectTrigger id={id} className="w-full cursor-pointer">
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
           {items.map((item) => (
-            <ComboboxItem key={item.value || "all"} value={item.value}>
-              {item.label}
-            </ComboboxItem>
+            <SelectItem
+              key={item.value || "all"}
+              value={item.value || "all"}
+              textValue={item.label}
+              className="cursor-pointer"
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                {item.icon ? (
+                  <GameIcon src={item.icon} alt="" className="w-10 max-h-6 shrink-0 rounded-sm object-contain" />
+                ) : null}
+                <span className="truncate">{item.label}</span>
+              </span>
+            </SelectItem>
           ))}
-          <ComboboxEmpty>没有匹配结果</ComboboxEmpty>
-        </ComboboxList>
-      </ComboboxContent>
-    </Combobox>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -386,7 +389,10 @@ function ActivityDateRangePicker({
   onChange: (start: string, end: string) => void;
 }) {
   const selected: DateRange | undefined = startDate
-    ? { from: parseLocalDate(startDate), to: endDate ? parseLocalDate(endDate) : undefined }
+    ? {
+        from: parseLocalDate(startDate),
+        to: endDate ? parseLocalDate(endDate) : undefined,
+      }
     : undefined;
   const label = selected?.from
     ? selected.to

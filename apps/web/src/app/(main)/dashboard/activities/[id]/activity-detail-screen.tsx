@@ -582,7 +582,7 @@ function formatTaskOffset(offsetMs: number) {
 
 function RoleIcon({ role }: { role: Role }) {
   const image = role === "TANK" ? tankRoleIcon : role === "HEALER" ? healerRoleIcon : dpsRoleIcon;
-  return <GameIcon src={image.src} alt={roleLabels[role]} className="size-5 shrink-0" />;
+  return <GameIcon src={image.src} alt={roleLabels[role]} className="size-5 shrink-0 rounded" />;
 }
 
 function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; onChanged: () => Promise<void> }) {
@@ -610,148 +610,157 @@ function ActivityOverview({ activity, onChanged }: { activity: ActivityDetail; o
     },
   });
   return (
-    <Card>
-      <CardHeader className="relative isolate overflow-hidden">
+    <div className="relative p-0 rounded-xl">
+      <Card className="bg-transparent relative">
         {activity.raid?.raidBackground ? (
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-2/3 bg-cover bg-right opacity-15"
+            className="pointer-events-none absolute inset-0 rounded-xl bg-cover bg-right opacity-50"
             style={{
-              backgroundImage: `linear-gradient(to left, transparent, var(--card)), url("${activity.raid.raidBackground}")`,
+              backgroundImage: `url("${activity.raid.raidBackground}")`,
+              maskImage: "linear-gradient(to left, black 0%, transparent 70%)",
+              WebkitMaskImage: "linear-gradient(to left, black 0%, transparent 70%)",
             }}
           />
         ) : null}
-        <CardTitle className="flex flex-wrap gap-2 text-4xl">
-          {activity.name}
-          <Badge className={activityLifecycleColors[activity.lifecycleStatus]}>
-            {activityLifecycleLabels[activity.lifecycleStatus]}
-          </Badge>
-          {activity.rosterLockedAt ? <Badge variant="outline">名单已锁定</Badge> : null}
-        </CardTitle>
-        <CardDescription className="flex items-center gap-2 ">
-          {activity.typeName || activityTypeLabels[activity.type]} {"//"} 负责人{": "}
-          <UserIdentity user={activity.creator} />
-        </CardDescription>
-        {activity.canManage ? (
-          <CardAction className="flex flex-wrap justify-end gap-2">
-            {(activity.status === "DRAFT" || activity.status === "PUBLISHED") && canContinue ? (
-              <ActivityEditDialog activity={activity} onChanged={onChanged} />
-            ) : null}
-            {activity.status === "DRAFT" ? (
-              <ActionConfirmButton
-                label="发布活动"
-                icon="send"
-                confirmDescription="发布后成员可以查看活动并报名。"
-                onClick={() => action.mutate("publish")}
-                pending={action.isPending}
-              />
-            ) : null}
-            {activity.status === "PUBLISHED" && activity.lifecycleStatus === "SIGNUP_OPEN" ? (
-              <ActionConfirmButton
-                label="关闭报名"
-                confirmDescription="关闭后成员将不能再提交或修改报名。"
-                onClick={() => action.mutate("close-signup")}
-                pending={action.isPending}
-              />
-            ) : null}
-            {activity.status === "PUBLISHED" ? (
-              <ActionConfirmButton
-                label="结束活动"
-                confirmDescription="结束活动会锁定本场名单和战术内容，此操作不可撤销。"
-                onClick={() => action.mutate("finish")}
-                pending={action.isPending}
-              />
-            ) : null}
-            {(activity.status === "DRAFT" || activity.status === "PUBLISHED") && canContinue ? (
-              <ActionConfirmButton
-                label="取消活动"
-                destructive
-                confirmDescription="取消后活动将无法恢复，也不能继续报名或进行名单安排。"
-                onClick={() => action.mutate("cancel")}
-                pending={action.isPending}
-              />
-            ) : null}
-          </CardAction>
-        ) : null}
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <Info label="集合时间" value={formatDate(activity.teamUpAt)} />
-          <Info label="开始时间" value={formatDate(activity.beginAt)} />
-          <Info label="报名截止" value={activity.signupDeadline ? formatDate(activity.signupDeadline) : "未设置"} />
-          <Info label="建议人数" value={activity.maxPlayers == null ? "不限" : `${activity.maxPlayers} 人`} />
-          {activity.raid ? <Info label="团本" value={activity.raid.raidName} icon={activity.raid.raidIcon} /> : null}
-        </div>
-        {[
-          ["坦克", activity.tankSlots],
-          ["治疗", activity.healerSlots],
-          ["近战", activity.meleeSlots],
-          ["远程", activity.rangedSlots],
-        ].some(([, count]) => count != null) ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm text-muted-foreground">建议职责构成（仅展示）</span>
-            {(
-              [
-                ["坦克", activity.tankSlots],
-                ["治疗", activity.healerSlots],
-                ["近战", activity.meleeSlots],
-                ["远程", activity.rangedSlots],
-              ] as const
-            )
-              .filter(([, count]) => count != null)
-              .map(([label, count]) => (
-                <Badge key={label} variant="outline">
-                  {label} {count}
-                </Badge>
-              ))}
+        <CardHeader className="isolate overflow-hidden">
+          <CardTitle className="flex flex-wrap gap-2 text-4xl">
+            {activity.name}
+            <Badge className={activityLifecycleColors[activity.lifecycleStatus]}>
+              {activityLifecycleLabels[activity.lifecycleStatus]}
+            </Badge>
+            {activity.rosterLockedAt ? <Badge variant="outline">名单已锁定</Badge> : null}
+          </CardTitle>
+          <CardDescription className="flex items-center gap-2 ">
+            {activity.typeName || activityTypeLabels[activity.type]} {"//"} 负责人{": "}
+            <UserIdentity user={activity.creator} />
+          </CardDescription>
+          {activity.canManage ? (
+            <CardAction className="flex flex-wrap justify-end gap-2">
+              {(activity.status === "DRAFT" || activity.status === "PUBLISHED") && canContinue ? (
+                <ActivityEditDialog activity={activity} onChanged={onChanged} />
+              ) : null}
+              {activity.status === "DRAFT" ? (
+                <ActionConfirmButton
+                  label="发布活动"
+                  icon="send"
+                  confirmDescription="发布后成员可以查看活动并报名。"
+                  onClick={() => action.mutate("publish")}
+                  pending={action.isPending}
+                />
+              ) : null}
+              {activity.status === "PUBLISHED" && activity.lifecycleStatus === "SIGNUP_OPEN" ? (
+                <ActionConfirmButton
+                  label="关闭报名"
+                  confirmDescription="关闭后成员将不能再提交或修改报名。"
+                  onClick={() => action.mutate("close-signup")}
+                  pending={action.isPending}
+                />
+              ) : null}
+              {activity.status === "PUBLISHED" ? (
+                <ActionConfirmButton
+                  label="结束活动"
+                  confirmDescription="结束活动会锁定本场名单和战术内容，此操作不可撤销。"
+                  onClick={() => action.mutate("finish")}
+                  pending={action.isPending}
+                />
+              ) : null}
+              {(activity.status === "DRAFT" || activity.status === "PUBLISHED") && canContinue ? (
+                <ActionConfirmButton
+                  label="取消活动"
+                  destructive
+                  confirmDescription="取消后活动将无法恢复，也不能继续报名或进行名单安排。"
+                  onClick={() => action.mutate("cancel")}
+                  pending={action.isPending}
+                />
+              ) : null}
+            </CardAction>
+          ) : null}
+        </CardHeader>
+        <CardContent className="flex flex-col">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <Info label="集合时间" value={formatDate(activity.teamUpAt)} />
+            <Info label="开始时间" value={formatDate(activity.beginAt)} />
+            <Info label="报名截止" value={activity.signupDeadline ? formatDate(activity.signupDeadline) : "未设置"} />
+            <Info label="建议人数" value={activity.maxPlayers == null ? "不限" : `${activity.maxPlayers} 人`} />
+            {activity.raid ? <Info label="团本" value={activity.raid.raidName} icon={activity.raid.raidIcon} /> : null}
           </div>
-        ) : null}
-        {activity.description ? <p className="whitespace-pre-wrap text-sm leading-6">{activity.description}</p> : null}
-        {activity.passphrase ? (
-          <Alert>
-            <AlertTitle>游戏内私信进组</AlertTitle>
-            {activity.inviter ? (
-              <>
+          {[
+            ["坦克", activity.tankSlots],
+            ["治疗", activity.healerSlots],
+            ["近战", activity.meleeSlots],
+            ["远程", activity.rangedSlots],
+          ].some(([, count]) => count != null) ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-muted-foreground">建议职责构成（仅展示）</span>
+              {(
+                [
+                  ["坦克", activity.tankSlots],
+                  ["治疗", activity.healerSlots],
+                  ["近战", activity.meleeSlots],
+                  ["远程", activity.rangedSlots],
+                ] as const
+              )
+                .filter(([, count]) => count != null)
+                .map(([label, count]) => (
+                  <Badge key={label} variant="outline">
+                    {label} {count}
+                  </Badge>
+                ))}
+            </div>
+          ) : null}
+          {activity.description ? (
+            <p className="whitespace-pre-wrap text-sm leading-6">{activity.description}</p>
+          ) : null}
+          {activity.passphrase ? (
+            <Alert className="bg-transparent inset-0 border-none">
+              <AlertTitle className="flex items-center gap-4 mb-2">
+                游戏内私信进组
                 <AlertDescription>复制后可直接粘贴到游戏聊天框发送。</AlertDescription>
-                <div className="flex flex-wrap items-center gap-2">
-                  <pre className="min-w-0 flex-1 overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-sm">
-                    <code>{`/w ${activity.inviter.name}-${activity.inviter.realm} ${activity.passphrase}`}</code>
-                  </pre>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      const message =
-                        "/w " +
-                        activity.inviter?.name +
-                        "-" +
-                        activity.inviter?.realm +
-                        " 进组暗号：" +
-                        activity.passphrase;
-                      void navigator.clipboard
-                        .writeText(message)
-                        .then(() => setCopiedInvite(true))
-                        .catch(() => setError("无法访问剪贴板，请手动选择并复制私信内容。"));
-                    }}
-                  >
-                    {copiedInvite ? <Check data-icon="inline-start" /> : <Copy data-icon="inline-start" />}
-                    {copiedInvite ? "已复制" : "复制私信"}
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <AlertDescription>进组暗号：{activity.passphrase}。活动负责人尚未设置邀请角色。</AlertDescription>
-            )}
-          </Alert>
-        ) : null}
-        {error ? (
-          <Alert variant="destructive">
-            <AlertTitle>操作失败</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        ) : null}
-      </CardContent>
-    </Card>
+              </AlertTitle>
+
+              {activity.inviter ? (
+                <>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <pre className="min-w-0 overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-sm">
+                      <code>{`/w ${activity.inviter.name}-${activity.inviter.realm} ${activity.passphrase}`}</code>
+                    </pre>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const message =
+                          "/w " +
+                          activity.inviter?.name +
+                          "-" +
+                          activity.inviter?.realm +
+                          " 进组暗号：" +
+                          activity.passphrase;
+                        void navigator.clipboard
+                          .writeText(message)
+                          .then(() => setCopiedInvite(true))
+                          .catch(() => setError("无法访问剪贴板，请手动选择并复制私信内容。"));
+                      }}
+                    >
+                      {copiedInvite ? <Check data-icon="inline-start" /> : <Copy data-icon="inline-start" />}
+                      {copiedInvite ? "已复制" : "复制私信"}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <AlertDescription>进组暗号：{activity.passphrase}。活动负责人尚未设置邀请角色。</AlertDescription>
+              )}
+            </Alert>
+          ) : null}
+          {error ? (
+            <Alert variant="destructive">
+              <AlertTitle>操作失败</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          ) : null}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 

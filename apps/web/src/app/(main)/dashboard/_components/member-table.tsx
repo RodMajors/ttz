@@ -4,6 +4,7 @@ import type { z } from "zod";
 import { ClassAccent } from "@/components/class-accent";
 import { GameIcon } from "@/components/game-icon";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { UserIdentity } from "@/components/user-identity";
 
@@ -44,19 +45,28 @@ export function MemberTable({
                         mainCharacter: member.characters.find((character) => character.isMain) ?? null,
                       }}
                     />
-                    <p className="truncate text-xs text-muted-foreground">{member.wxNickname ?? "未设置微信名"}</p>
                   </div>
                 </div>
               </TableCell>
               <TableCell>
                 {main ? (
-                  <div className="flex items-center gap-2">
+                  <Button
+                    variant="link"
+                    className="flex items-center gap-2"
+                    onClick={() =>
+                      window.open(
+                        `https://cn.warcraftlogs.com/character/id/${main.wclId}`,
+                        "_blank",
+                        "noopener,noreferrer",
+                      )
+                    }
+                  >
                     <GameIcon src={main.classIconUrl} alt="" className="size-6 rounded" />
                     <ClassAccent color={main.classColor}>
                       {main.name} - {main.realm}
                     </ClassAccent>
                     {main.verificationStatus === "VERIFIED" ? null : <Badge variant="secondary">未验证</Badge>}
-                  </div>
+                  </Button>
                 ) : (
                   "未设置"
                 )}
